@@ -1,0 +1,10 @@
+{
+  "white": [
+    { "name": "Italian Game", "line": ["e4", "e5", "Nf3", "Nc6", "Bc4"] },
+    { "name": "London System", "line": ["d4", "d5", "Bf4", "Nf6", "e3"] }
+  ],
+  "black": [
+    { "name": "Caro-Kann vs e4", "line": ["e4", "c6", "d4", "d5"] },
+    { "name": "QGD setup vs d4", "line": ["d4", "Nf6", "c4", "e6"] }
+  ]
+}
