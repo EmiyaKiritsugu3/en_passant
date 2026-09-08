@@ -132,4 +132,33 @@ describe("generateMoveAnalysis", () => {
     expect(result.critique).toContain("c5");
     expect(result.critique).toContain("e5");
   });
+
+  it("analyzes move played by Black (...Nf6) without treating own pieces as opponent targets", () => {
+    const g = new Chess();
+    g.move("e4");
+    g.move("e5");
+    g.move("d4");
+    const fenBefore = g.fen();
+    const m = g.move("Nf6");
+    const fenAfter = g.fen();
+
+    const result = generateMoveAnalysis({
+      fenBefore,
+      fenAfter,
+      san: m.san,
+      from: m.from,
+      to: m.to,
+      piece: m.piece,
+      color: "b",
+      moveLabel: "good",
+      phase: "opening",
+    });
+
+    expect(() => TurnResponse.parse(result)).not.toThrow();
+    expect(result.critique).not.toContain("Rei em **e8**");
+    expect(result.critique).not.toContain("Peão em **d7** e Rei");
+    expect(result.critique).not.toContain("Garfo");
+    expect(result.critique).toContain("e4");
+    expect(result.critique).toContain("d7");
+  });
 });

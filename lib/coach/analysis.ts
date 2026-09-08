@@ -8,6 +8,7 @@ export interface MoveAnalysisInput {
   from?: string;
   to?: string;
   piece?: string;
+  color?: "w" | "b" | string;
   captured?: string;
   flags?: string;
   moveLabel?: "brilliant" | "great" | "best" | "good" | "inaccuracy" | "mistake" | "blunder" | string;
@@ -156,7 +157,20 @@ export function generateMoveAnalysis(input: MoveAnalysisInput): TurnResponse {
   let to = input.to || "";
   let pieceType = input.piece || "";
   let capturedType = input.captured || "";
-  let moverColor = "w";
+
+  // Resolve the player who made this move (w or b)
+  let moverColor = input.color ? (input.color === "b" ? "b" : "w") : "";
+  if (!moverColor && cBefore) {
+    moverColor = cBefore.turn();
+  }
+  if (!moverColor && to && cAfter) {
+    const p = cAfter.get(to as Square);
+    if (p) moverColor = p.color;
+  }
+  if (!moverColor && cAfter) {
+    moverColor = cAfter.turn() === "w" ? "b" : "w";
+  }
+  if (!moverColor) moverColor = "w";
 
   if (cBefore && (!moveSan || !to)) {
     if (input.san) {
@@ -174,10 +188,6 @@ export function generateMoveAnalysis(input: MoveAnalysisInput): TurnResponse {
         // move parse error
       }
     }
-  }
-
-  if (cAfter && !moverColor && cBefore) {
-    moverColor = cBefore.turn();
   }
 
   if (!pieceType && to && cAfter) {

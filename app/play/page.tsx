@@ -293,8 +293,11 @@ function PlayContent() {
           const cpLoss = Math.max(0, moverCpBefore - moverCpAfter);
 
           const capturedValue = moveResult?.captured ? PIECE_VALUES[moveResult.captured] : 0;
-          const wasSacrifice = movedValue > capturedValue && cpLoss < 30;
           const evalKept = moverCpAfter >= moverCpBefore - 20;
+          const oppColor = playerColor === "w" ? "b" : "w";
+          const tempGame = new Chess(fenAfterPlayer);
+          const isAttackedByOpponent = tempGame.isAttacked(to as Square, oppColor);
+          const wasSacrifice = isAttackedByOpponent && movedValue > capturedValue && cpLoss < 25 && evalKept;
 
           const moveLabel = classifyMove(cpLoss, wasSacrifice, evalKept);
           setLabel(moveLabel);
@@ -314,6 +317,7 @@ function PlayContent() {
             from: moveResult?.from,
             to: moveResult?.to,
             piece: moveResult?.piece,
+            color: playerColor,
             captured: moveResult?.captured,
             flags: moveResult?.flags,
             moveLabel,
