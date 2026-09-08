@@ -1,0 +1,16 @@
+lib/engine/engine.test.ts
+  h_5d68cec99831c8 1-20
+lib/engine/engine.ts
+  h_5d68cec99831c8 1-68
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "acd2e9e689ec3c74934b4a47317400605b7e9f2b",
+  "prompts": {},
+  "humans": {
+    "h_5d68cec99831c8": {
+      "author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
