@@ -106,6 +106,10 @@ Separação central: engine MEDE (cp-loss, melhor lance), LLM EXPLICA. LLM nunca
 
 Validação com zod. Modelo único Claude Sonnet latest (override via env `COACH_MODEL`). Sem streaming, sem router Haiku (fase 1).
 
+#### 5.2.1 Chat com coach (conversa natural)
+
+Rota `POST /api/coach/chat` recebe `{history: [{role, content}] (últimas 12), fen, pgn, phase, profile, lastEval}`; retorna `{reply}` (zod, texto livre markdown, sem JSON interno). UI: aba "Conversar" junto de Crítica/Intenção/Posição; histórico em `chat.v1` (localStorage, cap 50 msgs); atalhos "Por quê?", "Plano?", "Me desafia". Tom: caloroso, direto, provocador, divertido; celebra acerto, cobra padrão repetido, fecha com micro-objetivo; crítica densa preservada nas abas, chat fica humano. Limites: LLM explica, não escolhe lance; pergunta "melhor lance?" responde com engine (best + cp) + explicação; offline enfileira (mesma regra §8). Sem streaming fase 1.
+
 ### 5.3 Perfil (localStorage `profile.v1`)
 
 ```json
