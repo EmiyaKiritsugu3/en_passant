@@ -1,0 +1,20 @@
+app/play/page.tsx
+  h_5d68cec99831c8 16,233-241,542-548,551
+app/train/page.tsx
+  h_5d68cec99831c8 1-251
+lib/sm2/scheduler.test.ts
+  h_5d68cec99831c8 1-24
+lib/sm2/scheduler.ts
+  h_5d68cec99831c8 1-55
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "b44786a23952099dc3529fb76d6e5581cabf390f",
+  "prompts": {},
+  "humans": {
+    "h_5d68cec99831c8": {
+      "author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
