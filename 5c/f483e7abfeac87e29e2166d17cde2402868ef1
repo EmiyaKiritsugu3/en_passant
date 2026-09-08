@@ -1,0 +1,20 @@
+app/layout.tsx
+  h_5d68cec99831c8 1,16,18-20
+app/page.tsx
+  h_5d68cec99831c8 1-7,10-15,17,19-24,26-42,44-46,48-49
+app/play/page.tsx
+  h_5d68cec99831c8 1-74
+components/Board.tsx
+  h_5d68cec99831c8 1-39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "5cf483e7abfeac87e29e2166d17cde2402868ef1",
+  "prompts": {},
+  "humans": {
+    "h_5d68cec99831c8": {
+      "author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
