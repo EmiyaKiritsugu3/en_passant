@@ -1,0 +1,19 @@
+docs/superpowers/specs/2026-09-08-chess-coach-design.md
+  s_fef28df23a7cda::t_d0504c5355645a 1-178
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "cbc3ff5ea9fdc0be3e355b6616673117bcfbee7e",
+  "prompts": {},
+  "sessions": {
+    "s_fef28df23a7cda": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "cc060727-dba1-416c-9c29-8ab4dd63dc91",
+        "model": "unknown"
+      },
+      "human_author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
