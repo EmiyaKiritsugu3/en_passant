@@ -1,0 +1,22 @@
+app/dashboard/page.tsx
+  h_5d68cec99831c8 1-134
+app/play/page.tsx
+  h_5d68cec99831c8 9,11,14-16,41-42,163-168,170,180-183,192-241,474-551
+lib/postgame.test.ts
+  h_5d68cec99831c8 1-18
+lib/postgame.ts
+  h_5d68cec99831c8 1-41
+lib/profile/store.ts
+  h_5d68cec99831c8 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "723b9a6e044799c0dc0f45e480cb5340352c5a25",
+  "prompts": {},
+  "humans": {
+    "h_5d68cec99831c8": {
+      "author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
