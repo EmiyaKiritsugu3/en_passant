@@ -4,7 +4,10 @@ import { useRouter } from "next/navigation";
 
 export default function Setup() {
   const router = useRouter();
-  const go = (side: string) => router.push(`/play?side=${side}`);
+  const go = (side: string) => {
+    const chosen = side === "random" ? (Math.random() < 0.5 ? "white" : "black") : side;
+    router.push(`/play?side=${chosen}`);
+  };
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#161512] text-zinc-100">

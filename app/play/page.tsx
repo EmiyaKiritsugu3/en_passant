@@ -23,13 +23,12 @@ type Tab = "critique" | "intent" | "position" | "chat";
 
 function PlayContent() {
   const searchParams = useSearchParams();
-  const side = searchParams.get("side") ?? "white";
-  const [color] = useState<"white" | "black">(() =>
-    side === "random" ? (Math.random() < 0.5 ? "white" : "black") : (side as "white" | "black")
-  );
+  const rawSide = searchParams.get("side");
+  const color: "white" | "black" = rawSide === "black" ? "black" : "white";
 
   const game = useMemo(() => new Chess(), []);
   const [fen, setFen] = useState(game.fen());
+
   const [notice, setNotice] = useState("");
   const [tab, setTab] = useState<Tab>("critique");
   const [label, setLabel] = useState<Label | null>(null);
@@ -315,7 +314,7 @@ function PlayContent() {
       <div className="flex flex-col gap-4 items-center w-full lg:w-auto">
         <div className="flex items-center justify-between w-full max-w-[560px]">
           <span className="text-xs uppercase font-mono tracking-widest text-amber-500 font-semibold">
-            {side === "random" ? `sorteio: você de ${color === "white" ? "Brancas" : "Pretas"}` : `Você: ${color}`}
+            Você: {color === "white" ? "Brancas" : "Pretas"}
           </span>
           {label && (
             <span
