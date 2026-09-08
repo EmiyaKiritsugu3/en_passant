@@ -31,9 +31,12 @@ export function createMockEngine(): Engine {
   };
 }
 
-// Real engine: stockfish npm package as Web Worker speaking raw UCI.
+// Real engine: stockfish served from public as Web Worker speaking raw UCI.
 export function createStockfishEngine(): Engine {
-  const worker = new Worker(new URL("stockfish/bin/stockfish-18-lite-single.js", import.meta.url));
+  if (typeof window === "undefined" || typeof Worker === "undefined") {
+    return createMockEngine();
+  }
+  const worker = new Worker("/stockfish/stockfish-18-lite-single.js");
   let seq = 0;
   const pending = new Map<number, (v: Eval) => void>();
   let lastInfo = "";

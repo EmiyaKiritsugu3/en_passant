@@ -1,9 +1,21 @@
 "use client";
 
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Chess } from "chess.js";
+import { Chess, type Square } from "chess.js";
+import type { Key } from "chessground/types";
+import type { DrawShape } from "chessground/draw";
 import Board from "@/components/Board";
+import { classifyMove, detectPhase, type Label, type Phase } from "@/lib/chess/measure";
+import { createMockEngine, createStockfishEngine, type Engine, type Eval } from "@/lib/engine/engine";
+import { loadProfile } from "@/lib/profile/store";
+import { appendMessage, loadChat, type ChatMessage } from "@/lib/chat/store";
+import { enqueue } from "@/lib/coach/queue";
+import type { TurnResponse } from "@/lib/coach/schemas";
+
+const PIECE_VALUES: Record<string, number> = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
+
+type Tab = "critique" | "intent" | "position" | "chat";
 
 function PlayContent() {
   const searchParams = useSearchParams();
@@ -15,30 +27,234 @@ function PlayContent() {
   const game = useMemo(() => new Chess(), []);
   const [fen, setFen] = useState(game.fen());
   const [notice, setNotice] = useState("");
+  const [tab, setTab] = useState<Tab>("critique");
+  const [label, setLabel] = useState<Label | null>(null);
+  const [coach, setCoach] = useState<TurnResponse | null>(null);
+  const [arrow, setArrow] = useState<DrawShape[]>([]);
+  const [lastEval, setLastEval] = useState<Eval | null>(null);
+  const [isEngineThinking, setIsEngineThinking] = useState(false);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>(() => loadChat());
+  const [chatInput, setChatInput] = useState("");
+  const [isChatSending, setIsChatSending] = useState(false);
 
-  const onMove = (from: string, to: string) => {
+  const engineRef = useRef<Engine | null>(null);
+  const profileRef = useRef(loadProfile());
+  const eloSetRef = useRef(false);
+
+  useEffect(() => {
     try {
-      game.move({ from, to, promotion: "q" }); // throws on illegal
-      setFen(game.fen());
-      setNotice("");
+      engineRef.current = createStockfishEngine();
     } catch {
-      setFen(game.fen()); // unchanged -> piece snaps back
-      setNotice(
-        `Illegal move ${from}→${to}: blocked by chess.js legality rules. Choose a legal move.`
-      );
+      engineRef.current = createMockEngine();
+    }
+    return () => {
+      engineRef.current?.quit();
+    };
+  }, []);
+
+  const ensureElo = async () => {
+    if (!eloSetRef.current && engineRef.current) {
+      const capElo = profileRef.current.rating + 250;
+      await engineRef.current.setElo(capElo);
+      eloSetRef.current = true;
+    }
+  };
+
+  const postTurnCoachWithRetry = async (payload: {
+    fen: string;
+    pgn: string;
+    cpLoss: number;
+    bestMove: string;
+    phase: Phase;
+  }): Promise<TurnResponse> => {
+    const doFetch = async () => {
+      const res = await fetch("/api/coach/turn", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return (await res.json()) as TurnResponse;
+    };
+
+    try {
+      return await doFetch();
+    } catch {
+      // retry once
+      try {
+        return await doFetch();
+      } catch {
+        enqueue(payload);
+        return {
+          critique: `Coach offline. Move classified as **${label ?? "solid"}**. Best move was **${payload.bestMove}**.`,
+          intent: "Keep your pieces coordinated and watch king safety.",
+          tags: ["tactics"],
+          homework: "Review position with local engine analysis.",
+        };
+      }
+    }
+  };
+
+  const onMove = async (from: string, to: string) => {
+    if (isEngineThinking) return;
+
+    const pieceBefore = game.get(from as Square);
+    const movedValue = pieceBefore ? PIECE_VALUES[pieceBefore.type] : 0;
+    const fenBefore = game.fen();
+    const ply = game.history().length;
+    const phase = detectPhase(ply, game);
+
+    let moveResult = null;
+    try {
+      moveResult = game.move({ from, to, promotion: "q" });
+    } catch {
+      setFen(game.fen());
+      setNotice(`Illegal move ${from}→${to}: blocked by chess.js legality rules. Choose a legal move.`);
+      return;
+    }
+
+    setFen(game.fen());
+    setNotice("");
+    setIsEngineThinking(true);
+
+    try {
+      const engine = engineRef.current ?? createMockEngine();
+      await ensureElo();
+
+      // Analyze before move and after move to compute cpLoss
+      const evalBefore = await engine.analyze(fenBefore, 12);
+      const fenAfter = game.fen();
+      const evalAfter = await engine.analyze(fenAfter, 12);
+      setLastEval(evalAfter);
+
+      const moverIsWhite = pieceBefore?.color === "w";
+      const moverCpBefore = moverIsWhite ? evalBefore.cp : -evalBefore.cp;
+      const moverCpAfter = moverIsWhite ? evalAfter.cp : -evalAfter.cp;
+      const cpLoss = Math.max(0, moverCpBefore - moverCpAfter);
+
+      const capturedValue = moveResult?.captured ? PIECE_VALUES[moveResult.captured] : 0;
+      const wasSacrifice = movedValue > capturedValue && cpLoss < 30;
+      const evalKept = moverCpAfter >= moverCpBefore - 20;
+
+      const moveLabel = classifyMove(cpLoss, wasSacrifice, evalKept);
+      setLabel(moveLabel);
+
+      // Best move arrow
+      if (evalBefore.best && evalBefore.best.length >= 4) {
+        const orig = evalBefore.best.slice(0, 2) as Key;
+        const dest = evalBefore.best.slice(2, 4) as Key;
+        setArrow([{ orig, dest, brush: "green" }]);
+      }
+
+      // Coach feedback
+      const coachData = await postTurnCoachWithRetry({
+        fen: fenAfter,
+        pgn: game.pgn(),
+        cpLoss,
+        bestMove: evalBefore.best,
+        phase,
+      });
+      setCoach(coachData);
+
+      // Engine reply if game not ended
+      if (!game.isGameOver() && evalAfter.best && evalAfter.best.length >= 4) {
+        const replyFrom = evalAfter.best.slice(0, 2);
+        const replyTo = evalAfter.best.slice(2, 4);
+        const replyProm = evalAfter.best.slice(4, 5) || undefined;
+        try {
+          game.move({ from: replyFrom, to: replyTo, promotion: replyProm });
+          setFen(game.fen());
+        } catch {
+          // fallback if bestmove is not pseudo-legal
+        }
+      }
+    } catch {
+      setNotice("Engine evaluation interrupted.");
+    } finally {
+      setIsEngineThinking(false);
+    }
+  };
+
+  const sendChatMessage = async (text: string) => {
+    if (!text.trim() || isChatSending) return;
+    const userMsg: ChatMessage = { role: "user", content: text.trim() };
+    const updated = appendMessage(userMsg);
+    setChatMessages(updated);
+    setChatInput("");
+    setIsChatSending(true);
+
+    const payload = {
+      history: updated.slice(-12),
+      fen: game.fen(),
+      pgn: game.pgn(),
+      phase: detectPhase(game.history().length, game),
+      profile: profileRef.current,
+      lastEval,
+    };
+
+    const doFetch = async () => {
+      const res = await fetch("/api/coach/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return (await res.json()) as { reply: string };
+    };
+
+    try {
+      let data: { reply: string };
+      try {
+        data = await doFetch();
+      } catch {
+        data = await doFetch(); // retry 1x
+      }
+      const assistantMsg: ChatMessage = { role: "assistant", content: data.reply };
+      setChatMessages(appendMessage(assistantMsg));
+    } catch {
+      enqueue({ type: "chat", ...payload });
+      const fallbackMsg: ChatMessage = {
+        role: "assistant",
+        content: "Coach offline, mensagem na fila. Analise a posição atual e busque peças desprotegidas.",
+      };
+      setChatMessages(appendMessage(fallbackMsg));
+    } finally {
+      setIsChatSending(false);
     }
   };
 
   return (
-    <main className="min-h-screen bg-[#161512] text-zinc-100 p-6 flex flex-col md:flex-row gap-6 justify-center items-start">
-      <div className="flex flex-col gap-4 items-center">
-        {side === "random" && (
-          <p className="text-sm font-medium text-amber-400 bg-amber-950/40 px-3 py-1.5 rounded-lg border border-amber-800/60">
-            sorteio: você de {color === "white" ? "Brancas" : "Pretas"}
-          </p>
-        )}
+    <main className="min-h-screen bg-[#161512] text-zinc-100 p-4 md:p-8 flex flex-col lg:flex-row gap-8 justify-center items-start">
+      {/* Left column: Board & Status */}
+      <div className="flex flex-col gap-4 items-center w-full lg:w-auto">
+        <div className="flex items-center justify-between w-full max-w-[560px]">
+          <span className="text-xs uppercase font-mono tracking-widest text-amber-500 font-semibold">
+            {side === "random" ? `sorteio: você de ${color === "white" ? "Brancas" : "Pretas"}` : `Você: ${color}`}
+          </span>
+          {label && (
+            <span
+              className={`text-xs px-2.5 py-1 rounded-full font-semibold uppercase tracking-wider ${
+                label === "brilliant"
+                  ? "bg-cyan-900/60 text-cyan-300 border border-cyan-700"
+                  : label === "solid"
+                  ? "bg-emerald-900/60 text-emerald-300 border border-emerald-700"
+                  : label === "inaccurate"
+                  ? "bg-amber-900/60 text-amber-300 border border-amber-700"
+                  : label === "mistake"
+                  ? "bg-orange-900/60 text-orange-300 border border-orange-700"
+                  : "bg-rose-900/60 text-rose-300 border border-rose-700"
+              }`}
+            >
+              {label}
+            </span>
+          )}
+        </div>
 
-        <Board fen={fen} orientation={color} onMove={onMove} />
+        <Board fen={fen} orientation={color} onMove={onMove} shape={arrow} />
+
+        {isEngineThinking && (
+          <div className="text-xs text-amber-400 font-mono animate-pulse">Stockfish analisando...</div>
+        )}
 
         {notice && (
           <p
@@ -48,17 +264,147 @@ function PlayContent() {
             {notice}
           </p>
         )}
+      </div>
 
-        <div className="w-full max-w-[560px] bg-zinc-900 border border-zinc-800 rounded-xl p-4 flex flex-col gap-2">
-          <div className="text-xs uppercase font-mono text-zinc-400 tracking-wider">FEN</div>
-          <code className="text-xs font-mono text-amber-200/90 break-all bg-black/40 p-2 rounded-lg">
-            {fen}
-          </code>
+      {/* Right column: 4 Coach Tabs */}
+      <div className="w-full lg:w-[480px] bg-zinc-900/90 border border-zinc-800 rounded-2xl flex flex-col h-[580px] shadow-xl overflow-hidden">
+        {/* Tab Headers */}
+        <div className="flex border-b border-zinc-800 bg-zinc-950/50">
+          {(["critique", "intent", "position", "chat"] as Tab[]).map((t) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`flex-1 py-3 text-xs font-semibold uppercase tracking-wider border-b-2 transition-all ${
+                tab === t
+                  ? "border-amber-500 text-amber-400 bg-amber-500/10"
+                  : "border-transparent text-zinc-400 hover:text-zinc-200"
+              }`}
+            >
+              {t === "chat" ? "Conversar" : t}
+            </button>
+          ))}
+        </div>
 
-          <div className="text-xs uppercase font-mono text-zinc-400 tracking-wider mt-2">PGN</div>
-          <pre className="text-xs font-mono text-zinc-300 bg-black/40 p-2 rounded-lg whitespace-pre-wrap min-h-[40px]">
-            {game.pgn() || "(game start)"}
-          </pre>
+        {/* Tab Content */}
+        <div className="flex-1 p-5 overflow-y-auto">
+          {tab === "critique" && (
+            <div className="flex flex-col gap-4">
+              <h2 className="text-sm font-semibold text-zinc-300 uppercase tracking-wide">Crítica do GM</h2>
+              <div className="text-sm text-zinc-200 leading-relaxed bg-zinc-950/40 p-4 rounded-xl border border-zinc-800/60 whitespace-pre-wrap">
+                {coach?.critique ?? "Faça seu primeiro lance para o GM analisar a posição."}
+              </div>
+              {coach?.homework && (
+                <div className="flex flex-col gap-1.5 p-3 rounded-lg bg-amber-950/30 border border-amber-900/40">
+                  <span className="text-xs font-bold text-amber-400 uppercase">Exercício</span>
+                  <p className="text-xs text-amber-200/90">{coach.homework}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {tab === "intent" && (
+            <div className="flex flex-col gap-4">
+              <h2 className="text-sm font-semibold text-zinc-300 uppercase tracking-wide">Intenção & Plano</h2>
+              <div className="text-sm text-zinc-200 leading-relaxed bg-zinc-950/40 p-4 rounded-xl border border-zinc-800/60 whitespace-pre-wrap">
+                {coach?.intent ?? "Aguardando seu lance para desvendar os planos táticos e posicionais."}
+              </div>
+              {coach?.tags && coach.tags.length > 0 && (
+                <div className="flex gap-2 flex-wrap">
+                  {coach.tags.map((t) => (
+                    <span key={t} className="text-xs px-2.5 py-1 bg-zinc-800 text-zinc-300 rounded-md font-mono">
+                      #{t}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {tab === "position" && (
+            <div className="flex flex-col gap-4">
+              <h2 className="text-sm font-semibold text-zinc-300 uppercase tracking-wide">Métricas da Posição</h2>
+              <div className="flex flex-col gap-2">
+                <span className="text-xs text-zinc-400 font-mono uppercase">Avaliação (cp)</span>
+                <div className="text-lg font-bold font-mono text-amber-400 bg-zinc-950/60 p-3 rounded-xl border border-zinc-800">
+                  {lastEval?.mate != null ? `Mate em ${lastEval.mate}` : `${((lastEval?.cp ?? 0) / 100).toFixed(2)}`}
+                </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                <span className="text-xs text-zinc-400 font-mono uppercase">FEN</span>
+                <code className="text-xs font-mono text-amber-200/90 bg-zinc-950/60 p-3 rounded-xl border border-zinc-800 break-all">
+                  {fen}
+                </code>
+              </div>
+              <div className="flex flex-col gap-2">
+                <span className="text-xs text-zinc-400 font-mono uppercase">PGN</span>
+                <pre className="text-xs font-mono text-zinc-300 bg-zinc-950/60 p-3 rounded-xl border border-zinc-800 whitespace-pre-wrap max-h-36 overflow-y-auto">
+                  {game.pgn() || "(game start)"}
+                </pre>
+              </div>
+            </div>
+          )}
+
+          {tab === "chat" && (
+            <div className="flex flex-col h-full gap-3">
+              <div className="flex-1 overflow-y-auto flex flex-col gap-3 pr-1">
+                {chatMessages.length === 0 && (
+                  <p className="text-xs text-zinc-500 text-center my-auto">
+                    Converse com seu treinador. Pergunte o motivo de um lance, peça um plano ou um desafio.
+                  </p>
+                )}
+                {chatMessages.map((msg, i) => (
+                  <div
+                    key={i}
+                    className={`p-3 rounded-xl text-xs leading-relaxed max-w-[85%] ${
+                      msg.role === "user"
+                        ? "ml-auto bg-amber-600/30 text-amber-100 border border-amber-600/40"
+                        : "mr-auto bg-zinc-950 text-zinc-200 border border-zinc-800"
+                    }`}
+                  >
+                    {msg.content}
+                  </div>
+                ))}
+              </div>
+
+              {/* Shortcut chips */}
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {["Por quê?", "Plano?", "Me desafia"].map((chip) => (
+                  <button
+                    key={chip}
+                    onClick={() => sendChatMessage(chip)}
+                    className="text-xs px-2.5 py-1 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 whitespace-nowrap transition-colors"
+                  >
+                    {chip}
+                  </button>
+                ))}
+              </div>
+
+              {/* Chat input */}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  sendChatMessage(chatInput);
+                }}
+                className="flex gap-2"
+              >
+                <input
+                  type="text"
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  placeholder="Pergunte ao GM..."
+                  disabled={isChatSending}
+                  className="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-zinc-100 focus:outline-none focus:border-amber-500"
+                />
+                <button
+                  type="submit"
+                  disabled={isChatSending || !chatInput.trim()}
+                  className="bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all"
+                >
+                  {isChatSending ? "..." : "Enviar"}
+                </button>
+              </form>
+            </div>
+          )}
         </div>
       </div>
     </main>
