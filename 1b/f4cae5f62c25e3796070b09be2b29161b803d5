@@ -1,0 +1,19 @@
+docs/superpowers/plans/2026-09-08-chess-coach-pwa.md
+  s_c48794c27ed443::t_08121c94c37182 1-1386
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "1bf4cae5f62c25e3796070b09be2b29161b803d5",
+  "prompts": {},
+  "sessions": {
+    "s_c48794c27ed443": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b227ce4d-f19d-4a69-a85d-13eb2fe66934",
+        "model": "unknown"
+      },
+      "human_author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
