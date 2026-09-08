@@ -55,6 +55,7 @@ export default function Board({
   useEffect(() => {
     if (!ref.current) return;
     const { dests, turnColor } = getLegalDests(fen);
+    const isPlayerTurn = turnColor === orientation;
 
     api.current = Chessground(ref.current, {
       fen,
@@ -62,8 +63,8 @@ export default function Board({
       turnColor,
       movable: {
         free: false,
-        color: !isThinking && onMove ? turnColor : undefined,
-        dests: !isThinking && onMove ? dests : new Map(),
+        color: !isThinking && onMove && isPlayerTurn ? orientation : undefined,
+        dests: !isThinking && onMove && isPlayerTurn ? dests : new Map(),
         showDests: true,
         events: {
           after: (orig, dest) => {
@@ -83,14 +84,15 @@ export default function Board({
   useEffect(() => {
     if (!api.current) return;
     const { dests, turnColor } = getLegalDests(fen);
+    const isPlayerTurn = turnColor === orientation;
 
     api.current.set({
       fen,
       orientation,
       turnColor,
       movable: {
-        color: !isThinking && onMove ? turnColor : undefined,
-        dests: !isThinking && onMove ? dests : new Map(),
+        color: !isThinking && onMove && isPlayerTurn ? orientation : undefined,
+        dests: !isThinking && onMove && isPlayerTurn ? dests : new Map(),
       },
       drawable: {
         shapes: shape ?? [],

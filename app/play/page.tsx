@@ -110,6 +110,12 @@ function PlayContent() {
   };
 
   const makeEngineMove = async (currentFen: string, engineInstance?: Engine) => {
+    const engineColor = color === "white" ? "b" : "w";
+    // STRICT GUARD: If it is not engine's turn or game is over, engine must never move!
+    if (game.turn() !== engineColor || game.isGameOver()) {
+      return;
+    }
+
     setIsEngineThinking(true);
     try {
       const eng = engineInstance ?? engineRef.current ?? createMockEngine();
@@ -128,10 +134,12 @@ function PlayContent() {
         const replyTo = replyUci.slice(2, 4);
         const replyProm = replyUci.slice(4, 5) || undefined;
         try {
-          const res = game.move({ from: replyFrom, to: replyTo, promotion: replyProm });
-          if (res) {
-            moveSuccess = true;
-            setFen(game.fen());
+          if (game.turn() === engineColor) {
+            const res = game.move({ from: replyFrom, to: replyTo, promotion: replyProm });
+            if (res) {
+              moveSuccess = true;
+              setFen(game.fen());
+            }
           }
         } catch {
           moveSuccess = false;
@@ -139,7 +147,7 @@ function PlayContent() {
       }
 
       // Legal fallback if engine UCI was invalid or blocked
-      if (!moveSuccess && !game.isGameOver()) {
+      if (!moveSuccess && !game.isGameOver() && game.turn() === engineColor) {
         const legal = game.moves({ verbose: true });
         if (legal.length > 0) {
           const chosen = legal[0];
@@ -167,14 +175,18 @@ function PlayContent() {
     }
     engineRef.current = eng;
 
+    let timer: NodeJS.Timeout | null = null;
     // If user chose Black, engine (White) must make the first move!
-    if (color === "black" && game.history().length === 0) {
-      setTimeout(() => {
-        makeEngineMove(game.fen(), eng);
-      }, 500);
+    if (color === "black" && game.history().length === 0 && game.turn() === "w") {
+      timer = setTimeout(() => {
+        if (game.history().length === 0 && game.turn() === "w") {
+          makeEngineMove(game.fen(), eng);
+        }
+      }, 300);
     }
 
     return () => {
+      if (timer) clearTimeout(timer);
       eng.quit();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -225,12 +237,17 @@ function PlayContent() {
   };
 
   const onMove = async (from: string, to: string) => {
-    if (isEngineThinking) {
+    const playerColor = color === "white" ? "w" : "b";
+    if (isEngineThinking || game.turn() !== playerColor) {
       setFen(game.fen());
       return;
     }
 
     const pieceBefore = game.get(from as Square);
+    if (!pieceBefore || pieceBefore.color !== playerColor) {
+      setFen(game.fen());
+      return;
+    }
     const movedValue = pieceBefore ? PIECE_VALUES[pieceBefore.type] : 0;
     const fenBefore = game.fen();
     const ply = game.history().length;
@@ -315,6 +332,7 @@ function PlayContent() {
   const handleUndo = async () => {
     if (isEngineThinking) return;
     if (game.history().length === 0) return;
+    if (color === "black" && game.history().length <= 1) return;
 
     // If it is player's turn, undo opponent's move AND player's previous move (1 full move pair)
     // If it was opponent's turn (or player just moved), undo at least 1 move to get back to player's turn
