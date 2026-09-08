@@ -16,7 +16,7 @@ export default function Board({
 }: {
   fen: string;
   orientation: "white" | "black";
-  onMove: (from: string, to: string) => void;
+  onMove?: (from: string, to: string) => void;
   shape?: DrawShape[];
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -25,7 +25,7 @@ export default function Board({
   useEffect(() => {
     if (!ref.current) return;
     api.current = Chessground(ref.current, {
-      movable: { free: false, events: { after: onMove } },
+      movable: onMove ? { free: false, events: { after: onMove } } : { free: false },
     });
     return () => api.current?.destroy();
     // eslint-disable-next-line react-hooks/exhaustive-deps

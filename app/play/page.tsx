@@ -14,6 +14,7 @@ import { enqueue } from "@/lib/coach/queue";
 import type { PostgameResponse, TurnResponse } from "@/lib/coach/schemas";
 import { collectEvals, bestMoveEndgameAware } from "@/lib/postgame";
 import { addCard } from "@/lib/sm2/scheduler";
+import { saveGame, addAnalysis } from "@/lib/library/storage";
 import Link from "next/link";
 
 const PIECE_VALUES: Record<string, number> = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
@@ -252,6 +253,9 @@ function PlayContent() {
       const updated = applyPostgame(profileRef.current, { won, tags, fens, phases });
       saveProfile(updated);
       profileRef.current = updated;
+
+      const savedId = saveGame(game.pgn());
+      addAnalysis(savedId, { depth: 10, rows });
     } finally {
       setIsPostgameLoading(false);
     }
