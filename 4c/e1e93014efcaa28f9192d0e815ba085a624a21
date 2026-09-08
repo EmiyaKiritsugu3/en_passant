@@ -1,0 +1,26 @@
+app/library/page.tsx
+  h_5d68cec99831c8 1-539
+app/play/page.tsx
+  h_5d68cec99831c8 17,256-258
+app/study/page.tsx
+  h_5d68cec99831c8 1-544
+components/Board.tsx
+  h_5d68cec99831c8 19,28
+data/games.json
+  h_5d68cec99831c8 1-29
+lib/library/storage.test.ts
+  h_5d68cec99831c8 1-16
+lib/library/storage.ts
+  h_5d68cec99831c8 1-69
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "4ce1e93014efcaa28f9192d0e815ba085a624a21",
+  "prompts": {},
+  "humans": {
+    "h_5d68cec99831c8": {
+      "author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
