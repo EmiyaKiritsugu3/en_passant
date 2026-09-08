@@ -264,6 +264,7 @@ function PlayContent() {
 
     const fenAfterPlayer = game.fen();
     setFen(fenAfterPlayer);
+    setArrow([]);
     setNotice("");
     setIsEngineThinking(true);
 
@@ -302,12 +303,6 @@ function PlayContent() {
 
           const egBefore = await bestMoveEndgameAware(fenBefore, engine, 10);
           const effectiveBestBefore = egBefore.best || evalBefore.best;
-
-          if (effectiveBestBefore && effectiveBestBefore.length >= 4) {
-            const orig = effectiveBestBefore.slice(0, 2) as Key;
-            const dest = effectiveBestBefore.slice(2, 4) as Key;
-            setArrow([{ orig, dest, brush: "green" }]);
-          }
 
           const coachData = await postTurnCoachWithRetry({
             fen: fenAfterPlayer,
@@ -356,6 +351,26 @@ function PlayContent() {
       const engine = engineRef.current ?? createMockEngine();
       const ev = await engine.analyze(game.fen(), 10);
       setLastEval(ev);
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleAskHint = async () => {
+    const playerColor = color === "white" ? "w" : "b";
+    if (isEngineThinking || game.turn() !== playerColor || game.isGameOver()) return;
+
+    try {
+      const engine = engineRef.current ?? createMockEngine();
+      const currentFen = game.fen();
+      const res = await engine.analyze(currentFen, 12);
+      const hintUci = res.best;
+      if (hintUci && hintUci.length >= 4) {
+        const orig = hintUci.slice(0, 2) as Key;
+        const dest = hintUci.slice(2, 4) as Key;
+        setArrow([{ orig, dest, brush: "green" }]);
+        setNotice(`Dica para a posição atual: ${hintUci.slice(0, 2).toUpperCase()} → ${hintUci.slice(2, 4).toUpperCase()}`);
+      }
     } catch {
       // ignore
     }
@@ -440,16 +455,29 @@ function PlayContent() {
 
         {/* Board Action Bar: Undo, Status & Restart */}
         <div className="flex items-center justify-between w-full max-w-[560px] gap-2">
-          <button
-            type="button"
-            onClick={handleUndo}
-            disabled={isEngineThinking || game.history().length === 0}
-            className="flex items-center gap-1.5 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed border border-zinc-700 text-zinc-200 text-xs font-mono font-semibold rounded-xl transition-all shadow-sm"
-            title="Desfazer o último par de lances e tentar outra jogada"
-          >
-            <span>↩</span>
-            <span>Voltar Jogada</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleUndo}
+              disabled={isEngineThinking || game.history().length === 0 || (color === "black" && game.history().length <= 1)}
+              className="flex items-center gap-1.5 px-3 py-2 bg-zinc-800 hover:bg-zinc-700 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed border border-zinc-700 text-zinc-200 text-xs font-mono font-semibold rounded-xl transition-all shadow-sm"
+              title="Desfazer o último par de lances e tentar outra jogada"
+            >
+              <span>↩</span>
+              <span>Voltar</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleAskHint}
+              disabled={isEngineThinking || game.turn() !== (color === "white" ? "w" : "b") || game.isGameOver()}
+              className="flex items-center gap-1.5 px-3 py-2 bg-amber-500/10 hover:bg-amber-500/20 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed border border-amber-500/30 text-amber-300 text-xs font-mono font-semibold rounded-xl transition-all shadow-sm"
+              title="Receber uma sugestão calculada para a sua jogada atual"
+            >
+              <span>💡</span>
+              <span>Dica</span>
+            </button>
+          </div>
 
           <span className="text-[11px] font-mono text-zinc-500">
             Lances: {Math.floor(game.history().length / 2)} {game.history().length % 2 !== 0 ? "½" : ""}

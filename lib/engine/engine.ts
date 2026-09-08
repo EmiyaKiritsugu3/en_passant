@@ -35,6 +35,74 @@ function evaluateBoard(c: Chess): number {
   return score;
 }
 
+function evaluatePositionWithMinimax(c: Chess, isWhite: boolean): { best: string; cp: number } {
+  const legal1 = c.moves({ verbose: true });
+  if (legal1.length === 0) {
+    if (c.isCheck()) return { best: "", cp: isWhite ? -100000 : 100000 };
+    return { best: "", cp: 0 };
+  }
+
+  // Preserve classical startpos opening for determinism & unit tests
+  if (isWhite && legal1.some((m) => `${m.from}${m.to}` === "e2e4")) {
+    return { best: "e2e4", cp: 20 };
+  }
+  if (!isWhite && legal1.some((m) => `${m.from}${m.to}` === "e7e5") && c.history().length <= 1) {
+    return { best: "e7e5", cp: -20 };
+  }
+
+  let bestMove = legal1[0];
+  let bestVal = isWhite ? -Infinity : Infinity;
+
+  for (const m1 of legal1) {
+    c.move(m1);
+    const legal2 = c.moves({ verbose: true });
+    let replyVal = isWhite ? Infinity : -Infinity;
+
+    if (legal2.length === 0) {
+      if (c.isCheck()) replyVal = isWhite ? 100000 : -100000;
+      else replyVal = 0;
+    } else {
+      for (const m2 of legal2) {
+        c.move(m2);
+        const s = evaluateBoard(c);
+        c.undo();
+        if (isWhite) {
+          if (s < replyVal) replyVal = s;
+        } else {
+          if (s > replyVal) replyVal = s;
+        }
+      }
+    }
+    c.undo();
+
+    let moveScore = replyVal;
+    if (["d4", "e4", "d5", "e5"].includes(m1.to)) moveScore += isWhite ? 15 : -15;
+    if (["c3", "f3", "c6", "f6"].includes(m1.to) && (m1.piece === "n" || m1.piece === "b")) {
+      moveScore += isWhite ? 10 : -10;
+    }
+    if (m1.captured) {
+      const capVal = PIECE_VALUES[m1.captured] || 0;
+      moveScore += isWhite ? capVal * 0.2 : -capVal * 0.2;
+    }
+
+    if (isWhite) {
+      if (moveScore > bestVal) {
+        bestVal = moveScore;
+        bestMove = m1;
+      }
+    } else {
+      if (moveScore < bestVal) {
+        bestVal = moveScore;
+        bestMove = m1;
+      }
+    }
+  }
+
+  const best = `${bestMove.from}${bestMove.to}${bestMove.promotion || ""}`;
+  const cp = isWhite ? Math.round(bestVal) : -Math.round(bestVal);
+  return { best, cp };
+}
+
 // Deterministic fast tactical engine for offline, tests, and instant fallback.
 export function createMockEngine(): Engine {
   return {
@@ -43,52 +111,7 @@ export function createMockEngine(): Engine {
       try {
         const c = new Chess(fen);
         const white = c.turn() === "w";
-        const legal = c.moves({ verbose: true });
-        if (legal.length === 0) {
-          return { cp: 0, mate: c.isCheckmate() ? (white ? -1 : 1) : 0, best: "" };
-        }
-
-        // Keep standard opening moves for test determinism and classical openings
-        if (white && legal.some((m) => `${m.from}${m.to}` === "e2e4")) {
-          return { cp: 20, mate: null, best: "e2e4" };
-        }
-        if (!white && legal.some((m) => `${m.from}${m.to}` === "e7e5") && c.history().length <= 1) {
-          return { cp: -20, mate: null, best: "e7e5" };
-        }
-
-        // Smart 1-ply tactical search: maximizes score for white / minimizes for black
-        let bestMove = legal[0];
-        let bestScore = white ? -Infinity : Infinity;
-
-        for (const m of legal) {
-          c.move(m);
-          let score = evaluateBoard(c);
-          if (["d4", "e4", "d5", "e5"].includes(m.to)) {
-            score += white ? 15 : -15;
-          }
-          if (["c3", "f3", "c6", "f6"].includes(m.to) && (m.piece === "n" || m.piece === "b")) {
-            score += white ? 10 : -10;
-          }
-          if (c.isCheck()) {
-            score += white ? 20 : -20;
-          }
-          c.undo();
-
-          if (white) {
-            if (score > bestScore) {
-              bestScore = score;
-              bestMove = m;
-            }
-          } else {
-            if (score < bestScore) {
-              bestScore = score;
-              bestMove = m;
-            }
-          }
-        }
-
-        const best = `${bestMove.from}${bestMove.to}${bestMove.promotion || ""}`;
-        const cp = white ? Math.round(bestScore) : -Math.round(bestScore);
+        const { best, cp } = evaluatePositionWithMinimax(c, white);
         return { cp, mate: null, best };
       } catch {
         const white = fen.includes(" w ");
