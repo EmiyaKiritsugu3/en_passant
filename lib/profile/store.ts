@@ -1,5 +1,6 @@
 import type { Profile } from "./update";
 export type { Profile };
+export { applyPostgame, type PostgameResult } from "./update";
 
 const KEY = "profile.v1";
 export const DEFAULT_PROFILE: Profile = {

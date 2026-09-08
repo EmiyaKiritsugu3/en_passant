@@ -6,12 +6,14 @@ import { Chess, type Square } from "chess.js";
 import type { Key } from "chessground/types";
 import type { DrawShape } from "chessground/draw";
 import Board from "@/components/Board";
-import { classifyMove, detectPhase, type Label, type Phase } from "@/lib/chess/measure";
+import { classifyMove, detectPhase, phaseAverages, type Label, type Phase } from "@/lib/chess/measure";
 import { createMockEngine, createStockfishEngine, type Engine, type Eval } from "@/lib/engine/engine";
-import { loadProfile } from "@/lib/profile/store";
+import { applyPostgame, loadProfile, saveProfile, type Profile } from "@/lib/profile/store";
 import { appendMessage, loadChat, type ChatMessage } from "@/lib/chat/store";
 import { enqueue } from "@/lib/coach/queue";
-import type { TurnResponse } from "@/lib/coach/schemas";
+import type { PostgameResponse, TurnResponse } from "@/lib/coach/schemas";
+import { collectEvals } from "@/lib/postgame";
+import Link from "next/link";
 
 const PIECE_VALUES: Record<string, number> = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
 
@@ -36,6 +38,8 @@ function PlayContent() {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(() => loadChat());
   const [chatInput, setChatInput] = useState("");
   const [isChatSending, setIsChatSending] = useState(false);
+  const [postgame, setPostgame] = useState<PostgameResponse | null>(null);
+  const [isPostgameLoading, setIsPostgameLoading] = useState(false);
 
   const engineRef = useRef<Engine | null>(null);
   const profileRef = useRef(loadProfile());
@@ -156,8 +160,14 @@ function PlayContent() {
       });
       setCoach(coachData);
 
+      // Check if game over after player's move
+      if (game.isGameOver()) {
+        await triggerPostgame();
+        return;
+      }
+
       // Engine reply if game not ended
-      if (!game.isGameOver() && evalAfter.best && evalAfter.best.length >= 4) {
+      if (evalAfter.best && evalAfter.best.length >= 4) {
         const replyFrom = evalAfter.best.slice(0, 2);
         const replyTo = evalAfter.best.slice(2, 4);
         const replyProm = evalAfter.best.slice(4, 5) || undefined;
@@ -167,11 +177,65 @@ function PlayContent() {
         } catch {
           // fallback if bestmove is not pseudo-legal
         }
+
+        if (game.isGameOver()) {
+          await triggerPostgame();
+        }
       }
     } catch {
       setNotice("Engine evaluation interrupted.");
     } finally {
       setIsEngineThinking(false);
+    }
+  };
+
+  const triggerPostgame = async () => {
+    setIsPostgameLoading(true);
+    try {
+      const engine = engineRef.current ?? createMockEngine();
+      const rows = await collectEvals(game.pgn(), engine);
+      const phases = phaseAverages(rows.map((r) => ({ phase: r.phase, score: r.score })));
+      const won =
+        game.isCheckmate() &&
+        ((game.turn() === "b" && color === "white") || (game.turn() === "w" && color === "black"));
+
+      let postgameData: PostgameResponse;
+      try {
+        const res = await fetch("/api/coach/postgame", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ pgn: game.pgn(), evals: rows, phaseScores: phases }),
+        });
+        if (!res.ok) throw new Error("postgame failed");
+        postgameData = (await res.json()) as PostgameResponse;
+      } catch {
+        postgameData = {
+          summary: `Fim de jogo. ${won ? "Vitória do aluno!" : "Fim da partida."} Foram jogados ${rows.length} lances.`,
+          result: won ? "1-0" : "0-1",
+          moments: rows
+            .filter((r) => r.label === "mistake" || r.label === "blunder")
+            .slice(0, 3)
+            .map((r) => ({
+              move: Math.ceil(r.ply / 2),
+              played: r.san,
+              best: r.best,
+              why: `Perda de ${r.cpLoss} centipawns em lance de ${r.phase}.`,
+            })),
+          takeaway: "Consolide o cálculo tático e mantenha as peças coordenadas.",
+          homework: "Rever os momentos críticos e treinar no SM-2.",
+          profileDelta: {},
+        };
+      }
+      setPostgame(postgameData);
+
+      const blunderRows = rows.filter((r) => r.label === "blunder" || r.label === "mistake");
+      const tags: (keyof Profile["errorTags"])[] = blunderRows.map(() => "tactics");
+      const fens = blunderRows.map((r) => r.fen);
+      const updated = applyPostgame(profileRef.current, { won, tags, fens, phases });
+      saveProfile(updated);
+      profileRef.current = updated;
+    } finally {
+      setIsPostgameLoading(false);
     }
   };
 
@@ -407,6 +471,84 @@ function PlayContent() {
           )}
         </div>
       </div>
+
+      {/* Postgame Analysis Modal */}
+      {(postgame || isPostgameLoading) && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-xl w-full p-6 flex flex-col gap-5 shadow-2xl max-h-[90vh] overflow-y-auto">
+            {isPostgameLoading ? (
+              <div className="flex flex-col items-center justify-center py-12 gap-4">
+                <div className="w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+                <span className="text-sm font-mono text-amber-400">GM calculando relatório pós-jogo...</span>
+              </div>
+            ) : (
+              postgame && (
+                <>
+                  <div className="flex justify-between items-center border-b border-zinc-800 pb-4">
+                    <div>
+                      <span className="text-xs font-mono uppercase tracking-widest text-amber-500 font-semibold">
+                        Relatório Pós-Jogo
+                      </span>
+                      <h2 className="text-xl font-bold text-white mt-0.5">Resultado: {postgame.result}</h2>
+                    </div>
+                    <span className="text-xs px-3 py-1 bg-amber-500/20 text-amber-300 rounded-full font-mono font-bold">
+                      Partida Finalizada
+                    </span>
+                  </div>
+
+                  <div className="text-sm text-zinc-300 bg-zinc-950/60 p-4 rounded-xl border border-zinc-800">
+                    {postgame.summary}
+                  </div>
+
+                  {postgame.moments.length > 0 && (
+                    <div className="flex flex-col gap-3">
+                      <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                        Momentos Críticos
+                      </span>
+                      <div className="flex flex-col gap-2">
+                        {postgame.moments.map((m, idx) => (
+                          <div
+                            key={idx}
+                            className="bg-zinc-950 p-3 rounded-xl border border-zinc-800 flex flex-col gap-1 text-xs"
+                          >
+                            <div className="flex justify-between font-mono">
+                              <span className="text-zinc-300 font-bold">Lance {m.move}</span>
+                              <span className="text-red-400">Jogado: {m.played}</span>
+                              <span className="text-emerald-400">Melhor: {m.best}</span>
+                            </div>
+                            <p className="text-zinc-400">{m.why}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex flex-col gap-2 bg-amber-950/20 border border-amber-900/30 p-4 rounded-xl">
+                    <span className="text-xs font-bold text-amber-400 uppercase">Lição Principal</span>
+                    <p className="text-xs text-amber-200">{postgame.takeaway}</p>
+                    <p className="text-xs text-amber-400 font-mono mt-1">Exercício: {postgame.homework}</p>
+                  </div>
+
+                  <div className="flex gap-3 pt-2">
+                    <Link
+                      href="/dashboard"
+                      className="flex-1 py-3 bg-amber-600 hover:bg-amber-500 text-white text-center text-xs font-semibold rounded-xl transition-all"
+                    >
+                      Ver Painel & Métricas
+                    </Link>
+                    <button
+                      onClick={() => setPostgame(null)}
+                      className="px-5 py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold rounded-xl transition-all"
+                    >
+                      Fechar
+                    </button>
+                  </div>
+                </>
+              )
+            )}
+          </div>
+        </div>
+      )}
     </main>
   );
 }
