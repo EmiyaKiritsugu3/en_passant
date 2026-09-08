@@ -1,6 +1,6 @@
 {
-  "name": "Chess Coach",
-  "short_name": "Coach",
+  "name": "En Passant",
+  "short_name": "En Passant",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#161512",
