@@ -12,7 +12,7 @@ import { applyPostgame, loadProfile, saveProfile, type Profile } from "@/lib/pro
 import { appendMessage, loadChat, type ChatMessage } from "@/lib/chat/store";
 import { enqueue } from "@/lib/coach/queue";
 import type { PostgameResponse, TurnResponse } from "@/lib/coach/schemas";
-import { collectEvals } from "@/lib/postgame";
+import { collectEvals, bestMoveEndgameAware } from "@/lib/postgame";
 import { addCard } from "@/lib/sm2/scheduler";
 import Link from "next/link";
 
@@ -41,6 +41,7 @@ function PlayContent() {
   const [isChatSending, setIsChatSending] = useState(false);
   const [postgame, setPostgame] = useState<PostgameResponse | null>(null);
   const [isPostgameLoading, setIsPostgameLoading] = useState(false);
+  const [tbCategory, setTbCategory] = useState<string | null>(null);
 
   const engineRef = useRef<Engine | null>(null);
   const profileRef = useRef(loadProfile());
@@ -144,10 +145,13 @@ function PlayContent() {
       const moveLabel = classifyMove(cpLoss, wasSacrifice, evalKept);
       setLabel(moveLabel);
 
+      const egBefore = await bestMoveEndgameAware(fenBefore, engine, 12);
+      const effectiveBestBefore = egBefore.best || evalBefore.best;
+
       // Best move arrow
-      if (evalBefore.best && evalBefore.best.length >= 4) {
-        const orig = evalBefore.best.slice(0, 2) as Key;
-        const dest = evalBefore.best.slice(2, 4) as Key;
+      if (effectiveBestBefore && effectiveBestBefore.length >= 4) {
+        const orig = effectiveBestBefore.slice(0, 2) as Key;
+        const dest = effectiveBestBefore.slice(2, 4) as Key;
         setArrow([{ orig, dest, brush: "green" }]);
       }
 
@@ -156,7 +160,7 @@ function PlayContent() {
         fen: fenAfter,
         pgn: game.pgn(),
         cpLoss,
-        bestMove: evalBefore.best,
+        bestMove: effectiveBestBefore,
         phase,
       });
       setCoach(coachData);
@@ -167,11 +171,15 @@ function PlayContent() {
         return;
       }
 
-      // Engine reply if game not ended
-      if (evalAfter.best && evalAfter.best.length >= 4) {
-        const replyFrom = evalAfter.best.slice(0, 2);
-        const replyTo = evalAfter.best.slice(2, 4);
-        const replyProm = evalAfter.best.slice(4, 5) || undefined;
+      // Engine reply if game not ended (TB-first in ≤7 pieces)
+      const egAfter = await bestMoveEndgameAware(fenAfter, engine, 12);
+      setTbCategory(egAfter.category);
+      const replyUci = egAfter.best || evalAfter.best;
+
+      if (replyUci && replyUci.length >= 4) {
+        const replyFrom = replyUci.slice(0, 2);
+        const replyTo = replyUci.slice(2, 4);
+        const replyProm = replyUci.slice(4, 5) || undefined;
         try {
           game.move({ from: replyFrom, to: replyTo, promotion: replyProm });
           setFen(game.fen());
@@ -403,6 +411,16 @@ function PlayContent() {
                   {lastEval?.mate != null ? `Mate em ${lastEval.mate}` : `${((lastEval?.cp ?? 0) / 100).toFixed(2)}`}
                 </div>
               </div>
+              {tbCategory && (
+                <div className="flex flex-col gap-1 p-3 bg-cyan-950/40 border border-cyan-800/60 rounded-xl">
+                  <span className="text-[10px] font-mono text-cyan-400 uppercase tracking-wider font-bold">
+                    Lichess Tablebase (≤7 peças)
+                  </span>
+                  <span className="text-xs font-mono text-cyan-200">
+                    Resultado Teórico: <strong>{tbCategory.toUpperCase()}</strong>
+                  </span>
+                </div>
+              )}
               <div className="flex flex-col gap-2">
                 <span className="text-xs text-zinc-400 font-mono uppercase">FEN</span>
                 <code className="text-xs font-mono text-amber-200/90 bg-zinc-950/60 p-3 rounded-xl border border-zinc-800 break-all">
