@@ -1,0 +1,24 @@
+app/train/page.tsx
+  h_5d68cec99831c8 3,5,15-24,28-35,37-39,41,44-47,50-51,54-88,95,101-103,106-108,112-113,116-117,120-121,127,130-131,135,137-142,155-326,329-330,333,335-359,361,371,373,378-419,421-431,433-512,514-559,561-562,564,567,569-605,608-616,619,621,626,630-634,638-720,723
+data/repertoire.json
+  h_5d68cec99831c8 1-10
+lib/lichess/explorer.test.ts
+  h_5d68cec99831c8 1-30
+lib/lichess/explorer.ts
+  h_5d68cec99831c8 1-65
+lib/repertoire/drill.test.ts
+  h_5d68cec99831c8 1-9
+lib/repertoire/drill.ts
+  h_5d68cec99831c8 1-8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "e538ac98bd3b4b5dbb199ccfd5cc47217d39e0e5",
+  "prompts": {},
+  "humans": {
+    "h_5d68cec99831c8": {
+      "author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
