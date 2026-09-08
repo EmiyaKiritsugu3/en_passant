@@ -1,0 +1,18 @@
+eslint.config.mjs
+  h_5d68cec99831c8 15-16
+lib/chess/measure.test.ts
+  h_5d68cec99831c8 1-54
+lib/chess/measure.ts
+  h_5d68cec99831c8 1-38
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "c1bc36b7e7ce6638584ba81c1bf7c6edeb0a6b00",
+  "prompts": {},
+  "humans": {
+    "h_5d68cec99831c8": {
+      "author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
