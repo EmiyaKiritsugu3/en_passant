@@ -13,6 +13,7 @@ import { appendMessage, loadChat, type ChatMessage } from "@/lib/chat/store";
 import { enqueue } from "@/lib/coach/queue";
 import type { PostgameResponse, TurnResponse } from "@/lib/coach/schemas";
 import { collectEvals } from "@/lib/postgame";
+import { addCard } from "@/lib/sm2/scheduler";
 import Link from "next/link";
 
 const PIECE_VALUES: Record<string, number> = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
@@ -229,6 +230,15 @@ function PlayContent() {
       setPostgame(postgameData);
 
       const blunderRows = rows.filter((r) => r.label === "blunder" || r.label === "mistake");
+      for (const b of blunderRows) {
+        if (b.best) {
+          addCard({
+            fen: b.fen,
+            bestMove: b.best,
+            context: `${b.phase} - ${b.label}: jogado ${b.san}`,
+          });
+        }
+      }
       const tags: (keyof Profile["errorTags"])[] = blunderRows.map(() => "tactics");
       const fens = blunderRows.map((r) => r.fen);
       const updated = applyPostgame(profileRef.current, { won, tags, fens, phases });
@@ -529,10 +539,16 @@ function PlayContent() {
                     <p className="text-xs text-amber-400 font-mono mt-1">Exercício: {postgame.homework}</p>
                   </div>
 
-                  <div className="flex gap-3 pt-2">
+                  <div className="flex flex-wrap gap-3 pt-2">
+                    <Link
+                      href="/train"
+                      className="flex-1 min-w-[140px] py-3 bg-emerald-600 hover:bg-emerald-500 text-white text-center text-xs font-semibold rounded-xl transition-all"
+                    >
+                      Treinar Erros (SM-2)
+                    </Link>
                     <Link
                       href="/dashboard"
-                      className="flex-1 py-3 bg-amber-600 hover:bg-amber-500 text-white text-center text-xs font-semibold rounded-xl transition-all"
+                      className="flex-1 min-w-[140px] py-3 bg-amber-600 hover:bg-amber-500 text-white text-center text-xs font-semibold rounded-xl transition-all"
                     >
                       Ver Painel & Métricas
                     </Link>

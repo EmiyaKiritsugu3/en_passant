@@ -1,0 +1,24 @@
+import { describe, expect, it } from "vitest";
+import { reviewCard, dueCards, type Card } from "./scheduler";
+
+const card = (o: Partial<Card> = {}): Card =>
+  ({ id: "1", fen: "f", bestMove: "e2e4", context: "c", EF: 2.5, interval: 0, reps: 0, nextReview: 0, ...o });
+
+describe("sm2", () => {
+  it("first pass sets interval 1, second 6, third scales by EF", () => {
+    const c1 = reviewCard(card(), 5);
+    expect(c1).toMatchObject({ reps: 1, interval: 1 });
+    const c2 = reviewCard({ ...c1, nextReview: 0 }, 5);
+    expect(c2).toMatchObject({ reps: 2, interval: 6 });
+    const c3 = reviewCard({ ...c2, nextReview: 0 }, 5);
+    expect(c3.interval).toBeGreaterThan(6);
+  });
+
+  it("failure resets reps", () => {
+    expect(reviewCard(card({ reps: 3, interval: 10 }), 0).reps).toBe(0);
+  });
+
+  it("dueCards filters by nextReview", () => {
+    expect(dueCards([card({ nextReview: 5 }), card({ nextReview: 50 })], 10)).toHaveLength(1);
+  });
+});
