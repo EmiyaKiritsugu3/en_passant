@@ -594,7 +594,7 @@ git add app/ components/ && git commit -m "feat: setup screen + playable board w
 ```ts
 // lib/coach/schemas.test.ts
 import { describe, expect, it } from "vitest";
-import { TurnResponse, PostgameResponse } from "./schemas";
+import { TurnResponse, PostgameResponse, ExploreResponse } from "./schemas";
 
 describe("coach schemas", () => {
   it("accepts a valid turn response", () => {
@@ -609,6 +609,9 @@ describe("coach schemas", () => {
       moments: [{ move: 18, played: "Nf3?", best: "d5!", why: "w" }],
       takeaway: "t", homework: "h", profileDelta: {},
     })).not.toThrow();
+  });
+  it("accepts a valid explore response", () => {
+    expect(() => ExploreResponse.parse({ verdict: "dubious", consequences: "weakens kingside", namedVariant: "Sicilian Najdorf" })).not.toThrow();
   });
 });
 ```
@@ -633,14 +636,19 @@ export const PostgameResponse = z.object({
   moments: z.array(z.object({ move: z.number(), played: z.string(), best: z.string(), why: z.string() })).max(3),
   takeaway: z.string(), homework: z.string(), profileDelta: z.object({}).catchall(z.unknown()),
 });
+export const ExploreResponse = z.object({
+  verdict: z.string(), consequences: z.string(), namedVariant: z.string(),
+});
 export type TurnResponse = z.infer<typeof TurnResponse>;
 export type PostgameResponse = z.infer<typeof PostgameResponse>;
+export type ExploreResponse = z.infer<typeof ExploreResponse>;
 ```
 
 ```ts
 // lib/coach/prompts.ts
 export const TURN_SYSTEM = `You are an elite GM chess coach. Reply with JSON ONLY matching the given schema: critique (opening/variation, verdict on last move, pawn levers, square control, coordination, king safety, historic reference when fitting), intent (candidates weighed, threats neutralized, long-term plan), tags (subset of tactics/kingSafety/endgame/pawns), homework (one concrete drill). No prose outside JSON.`;
 export const POSTGAME_SYSTEM = `You are an elite GM chess coach. Reply with JSON ONLY: summary (result, move count, opening, turning point), moments (2-3: move number, played vs best, why), takeaway (primary weakness), homework (classic game/player to study), profileDelta ({}). No prose outside JSON.`;
+export const EXPLORE_SYSTEM = `You are an elite GM chess coach. The student played a free "what-if" move in an opening study. Reply with JSON ONLY: verdict (good/dubious/bad in one line with eval justification), consequences (3-4 lines: structural/plan impact, best reply for opponent), namedVariant (ECO/variation name or " sideline / novelty" if unnamed). No prose outside JSON.`;
 ```
 
 ```ts
@@ -701,16 +709,36 @@ export async function POST(req: Request) {
 }
 ```
 
+```ts
+// app/api/coach/explore/route.ts
+import { NextResponse } from "next/server";
+import { ExploreResponse } from "@/lib/coach/schemas";
+import { EXPLORE_SYSTEM } from "@/lib/coach/prompts";
+import { coachJson } from "@/lib/coach/server";
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json(); // {fenBefore, sanPlayed, cpLoss, explorerStats, openingName}
+    const raw = await coachJson(EXPLORE_SYSTEM, body);
+    return NextResponse.json(ExploreResponse.parse(JSON.parse(raw)));
+  } catch (e) {
+    return NextResponse.json({ error: String(e) }, { status: 502 });
+  }
+}
+```
+
 - [ ] **Step 4: Run tests + boot check**
 
 Run: `npx vitest run lib/coach/schemas.test.ts`
-Expected: 3 passed. Then `COACH_MODEL=x npm run build` compiles (routes typecheck; no live call in test).
+Expected: 4 passed. Then `COACH_MODEL=x npm run build` compiles (routes typecheck; no live call in test).
 
 - [ ] **Step 5: Commit**
 
 ```bash
 git add lib/coach/ app/api/ && git commit -m "feat: coach API routes with strict JSON contract"
 ```
+
+Note: Task 6 files list gains `app/api/coach/explore/route.ts` (code above). Rerun task-brief for Task 6 before dispatch — the on-disk brief is stale; the plan file is authoritative.
 
 ---
 
@@ -1034,8 +1062,10 @@ Expected: FAIL with "Cannot find module".
 ```ts
 // lib/lichess/explorer.ts
 export interface ExplorerMove { san: string; white: number; draws: number; black: number; }
+export interface ExplorerStats { white: number; draws: number; black: number; opening?: { eco: string; name: string }; }
 const cache = new Map<string, ExplorerMove[]>();
-export function clearCache(): void { cache.clear(); }
+const statsCache = new Map<string, ExplorerStats | null>();
+export function clearCache(): void { cache.clear(); statsCache.clear(); }
 
 export async function fetchExplorerMoves(fen: string): Promise<ExplorerMove[]> {
   if (cache.has(fen)) return cache.get(fen)!;
@@ -1053,6 +1083,28 @@ export async function fetchExplorerMoves(fen: string): Promise<ExplorerMove[]> {
     return []; // offline fallback: local repertoire + engine (caller handles)
   }
 }
+
+// Position-level stats (totals + ECO/variant name) for the explore panel (§5.5.1).
+export async function fetchExplorerStats(fen: string): Promise<ExplorerStats | null> {
+  if (statsCache.has(fen)) return statsCache.get(fen)!;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 5000);
+    const res = await fetch(`https://explorer.lichess.ovh/masters?fen=${encodeURIComponent(fen)}`, { signal: ctrl.signal });
+    clearTimeout(t);
+    if (!res.ok) throw new Error("explorer " + res.status);
+    const data = await res.json();
+    const stats: ExplorerStats = {
+      white: data.white ?? 0, draws: data.draws ?? 0, black: data.black ?? 0,
+      opening: data.opening ? { eco: data.opening.eco ?? "", name: data.opening.name ?? "" } : undefined,
+    };
+    statsCache.set(fen, stats);
+    return stats;
+  } catch {
+    statsCache.set(fen, null);
+    return null; // offline: explore panel shows engine eval only
+  }
+}
 ```
 
 ```ts
@@ -1065,14 +1117,16 @@ export function checkDrillMove(line: string[], ply: number, san: string): { ok: 
 
 Drill UI (tab in `/train`): pick line → board at line position → user plays mover's moves (opponent moves auto-applied) → deviation shows engine refutation (analyze + cp-loss) + explorer popular continuations below.
 
+Explore mode (§5.5.1, same tab): toggle "explore" accepts ANY legal move (skip `checkDrillMove`). On free move: engine analyzes before/after (cpLoss + best reply), `fetchExplorerMoves` + `fetchExplorerStats` for the resulting FEN, POST `/api/coach/explore` with `{fenBefore, sanPlayed, cpLoss, explorerStats, openingName}` → panel shows verdict + W/D/L % + ECO name + consequences. Coach failure: same queue rule as Task 7 (retry 1x → local eval summary → enqueue).
+
 - [ ] **Step 4: Verify**
 
-Run: `npx vitest run lib/lichess lib/repertoire` → PASS. Browser drill: play Italian line correctly → completes; deviate → expected move shown.
+Run: `npx vitest run lib/lichess lib/repertoire` → PASS. Browser drill: play Italian line correctly → completes; deviate → expected move shown. Explore toggle: play 2.Ke2?! → panel shows cpLoss, stats (or offline note), verdict.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add lib/lichess/explorer.* lib/repertoire/ data/repertoire.json app/train/ && git commit -m "feat: opening drills + lichess explorer"
+git add lib/lichess/explorer.* lib/repertoire/ data/repertoire.json app/train/ && git commit -m "feat: opening drills + lichess explorer + explore mode"
 ```
 
 ---
@@ -1170,7 +1224,7 @@ git add lib/lichess/tablebase* lib/postgame.ts app/play/page.tsx && git commit -
 ### Task 12: Library (list, replay, re-analyse, notebook) + curated games
 
 **Files:**
-- Create: `lib/library/storage.ts`, `data/games.json`, `app/library/page.tsx`
+- Create: `lib/library/storage.ts`, `data/games.json`, `app/library/page.tsx`, `app/study/page.tsx`
 - Test: `lib/library/storage.test.ts`
 
 **Interfaces:**
@@ -1263,14 +1317,16 @@ export function setNote(id: string, note: string): void {
 
 Library UI: filters (result, text search), replay (step through PGN with prev/next + arrows + eval bar from stored analysis), "re-analyse" with depth selector → new version, note textarea, "study" links curated game by weakest tag. On game end (Task 8), call `saveGame(game.pgn())` so finished games land here automatically.
 
+Study view (§5.8, `app/study/page.tsx`): 3 columns — chapters list (repertoire lines from `data/repertoire.json` + curated `data/games.json`), center `Board`, right annotated moves (PGN steps; per-move coach comment fetched once via `/api/coach/explore` with `{fenBefore, sanPlayed, cpLoss: 0, explorerStats, openingName}` and cached in component state). Bottom nav: prev/next/flip. Explore toggle: any free legal move at any point → same explore panel as Task 10 (reuse its component/logic — extract shared `ExplorePanel` if cleaner, same commit). No chat/social.
+
 - [ ] **Step 4: Verify**
 
-Run: `npx vitest run lib/library/storage.test.ts` → PASS. Browser: finish a game → appears in library → replay steps → re-analyse adds v2 → note saves.
+Run: `npx vitest run lib/library/storage.test.ts` → PASS. Browser: finish a game → appears in library → replay steps → re-analyse adds v2 → note saves. Study: open Italian line chapter → step through → comments load; free move 2.Ke2?! → explore panel shows verdict + stats.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add lib/library/ data/games.json app/library/ && git commit -m "feat: game library with re-analyse + notebook + curated seeds"
+git add lib/library/ data/games.json app/library/ app/study/ && git commit -m "feat: game library with re-analyse + notebook + study view"
 ```
 
 ---
@@ -1381,6 +1437,6 @@ git add -A && git commit -m "feat: offline PWA, integration test, deploy config"
 
 ## Self-review
 
-1. **Spec coverage:** Turn Protocol §2.2 → Tasks 5+7. Postgame §2.3 → Task 8. Sparring +250 → Task 7 (setElo). Thresholds §5.1 → Task 2. JSON contracts §5.2 → Task 6. Profile §5.3 → Task 3. SM-2 §5.4 → Task 9. Repertoire §5.5 → Task 10. games.json §5.6 → Task 12. Phase scores §5.7 → Tasks 2+8. Explorer+TB §6 → Tasks 10+11. Storage/API/PWA §7 → Tasks 3+6+13. Errors/tests §8 → Tasks 4 (mock fallback), 7 (queue), 11 (null fallback), 13 (suite). Lichess puzzles/import → Phase 2, correctly absent.
+1. **Spec coverage:** Turn Protocol §2.2 → Tasks 5+7. Postgame §2.3 → Task 8. Sparring +250 → Task 7 (setElo). Thresholds §5.1 → Task 2. JSON contracts §5.2 → Task 6 (incl. explore route). Profile §5.3 → Task 3. SM-2 §5.4 → Task 9. Repertoire §5.5 + explore §5.5.1 → Task 10. Study §5.8 → Task 12 (app/study). games.json §5.6 → Task 12. Phase scores §5.7 → Tasks 2+8. Explorer+TB §6 → Tasks 10+11. Storage/API/PWA §7 → Tasks 3+6+13. Errors/tests §8 → Tasks 4 (mock fallback), 7 (queue), 11 (null fallback), 13 (suite). Lichess puzzles/import → Phase 2, correctly absent.
 2. **Placeholders:** none — every step has exact commands/code. `public/icon-512.png` flagged as Task 13 asset (any 512px PNG before store submission).
 3. **Type consistency:** `Phase`, `Profile`, `Card`, `Eval`, `TurnResponse/PostgameResponse` defined once, imported by the stated paths. `phaseAverages` input `{phase, score}[]` matches `collectEvals` rows. `applyPostgame` signature matches Task 8 call. `bestMoveEndgameAware` return shape `{best, source, category}` consistent at both call sites.

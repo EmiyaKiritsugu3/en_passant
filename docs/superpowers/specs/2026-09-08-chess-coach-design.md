@@ -128,6 +128,18 @@ Card: `{id, fen, bestMove, context, EF, interval, reps, nextReview}`. Chave `car
 
 Repertório JSON por cor, linhas como lista SAN. Drill: mostra FEN, usuário joga, confere contra esperado; desvio → engine mostra refutação + cp-loss. Começa com 2 linhas por cor sugeridas pelo perfil, expansível.
 
+#### 5.5.1 Modo explore ("e se tal lance?")
+
+Dentro do drill, qualquer lance legal é aceito (não só o esperado). Painel de resposta por lance livre:
+- eval delta + melhor réplica (engine local; TB se final ≤7 peças);
+- stats explorer: nº jogos mestres, W/D/L %, nome ECO/variante (`opening.eco` + `opening.name`);
+- coach explica consequência em 3–4 linhas: `POST /api/coach/explore` recebe `{fenBefore, sanPlayed, cpLoss, explorerStats, openingName}`, retorna `{verdict, consequences, namedVariant}` (zod).
+- Offline: sem stats, só engine + fallback local; request coach enfileira (mesma regra §8).
+
+### 5.8 Study view (estilo Lichess study)
+
+Rota `/study`: 3 colunas — capítulos (repertoire lines + games.json curados), tabuleiro chessground, painel lances anotados (PGN + comentário coach inline por lance). Nav prev/next/flip embaixo. Modo explore (§5.5.1) embutido: lance livre a qualquer ponto dispara painel. Skipped: chat sala, likes, social.
+
 ### 5.6 DB curada (`games.json` estático, ~20 clássicas)
 
 `{id, white, black, year, pgn, tags, lesson}` — Morphy, Capablanca, Fischer, Kasparov, Carlsen. Tag fraca → jogo correspondente. Offline + lição escrita de 2 linhas. Sem API Lichess para isso; link Studies como "estudar mais".
