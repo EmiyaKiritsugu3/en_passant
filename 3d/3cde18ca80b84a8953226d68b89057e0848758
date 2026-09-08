@@ -1,0 +1,63 @@
+app/globals.css
+  s_c48794c27ed443::t_5baa0ed222d3e3 1-26
+vitest.config.ts
+  s_c48794c27ed443::t_5b1bda0652457c 1-5
+app/layout.tsx
+  s_c48794c27ed443::t_5baa0ed222d3e3 1-15,19-30
+  s_c48794c27ed443::t_3cf12bddffa8c6 16-18
+public/next.svg
+  s_c48794c27ed443::t_5baa0ed222d3e3 1
+AGENTS.md
+  s_c48794c27ed443::t_7898f3d76c3626 1-9
+package.json
+  s_c48794c27ed443::t_7a88ffb2aa080d 10
+  s_c48794c27ed443::t_bd96bce39c4bbe 27,30,32-34
+  s_c48794c27ed443::t_5baa0ed222d3e3 1,3-8,11-12,16-17,21-26,28-29,31,39-40
+  s_c48794c27ed443::t_c782cc749de054 9
+  s_c48794c27ed443::t_6a97dc32c1d93b 13
+  s_c48794c27ed443::t_90415cb04d5f4d 14-15,18-20
+  s_c48794c27ed443::t_941c1bf36f5c1c 2
+  s_c48794c27ed443::t_f9c264fd02bd23 35-38
+app/page.tsx
+  s_c48794c27ed443::t_5baa0ed222d3e3 1-69
+next.config.ts
+  s_c48794c27ed443::t_5baa0ed222d3e3 1-7
+CLAUDE.md
+  s_c48794c27ed443::t_7898f3d76c3626 1
+public/file.svg
+  s_c48794c27ed443::t_5baa0ed222d3e3 1
+tsconfig.json
+  s_c48794c27ed443::t_5baa0ed222d3e3 1-34
+postcss.config.mjs
+  s_c48794c27ed443::t_5baa0ed222d3e3 1-7
+public/window.svg
+  s_c48794c27ed443::t_5baa0ed222d3e3 1
+public/manifest.webmanifest
+  s_c48794c27ed443::t_703fc436c954f7 1-9
+eslint.config.mjs
+  s_c48794c27ed443::t_5baa0ed222d3e3 1-18
+public/vercel.svg
+  s_c48794c27ed443::t_5baa0ed222d3e3 1
+public/globe.svg
+  s_c48794c27ed443::t_5baa0ed222d3e3 1
+.gitignore
+  s_c48794c27ed443::t_5baa0ed222d3e3 1-41
+package-lock.json
+  s_c48794c27ed443::t_0444f70426e6d3 1-9863
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "3d3cde18ca80b84a8953226d68b89057e0848758",
+  "prompts": {},
+  "sessions": {
+    "s_c48794c27ed443": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b227ce4d-f19d-4a69-a85d-13eb2fe66934",
+        "model": "unknown"
+      },
+      "human_author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
