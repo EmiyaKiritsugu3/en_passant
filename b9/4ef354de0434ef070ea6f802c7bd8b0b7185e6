@@ -1,0 +1,20 @@
+app/play/page.tsx
+  h_5d68cec99831c8 15,205-213,232,307-308,313-321
+lib/coach/analysis.test.ts
+  h_5d68cec99831c8 1-135
+lib/coach/analysis.ts
+  h_5d68cec99831c8 1-395
+lib/coach/server.ts
+  h_5d68cec99831c8 2-3,11-15,34-38,43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "b94ef354de0434ef070ea6f802c7bd8b0b7185e6",
+  "prompts": {},
+  "humans": {
+    "h_5d68cec99831c8": {
+      "author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
