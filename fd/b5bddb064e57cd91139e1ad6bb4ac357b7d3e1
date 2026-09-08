@@ -1,0 +1,28 @@
+app/api/coach/chat/route.ts
+  h_5d68cec99831c8 1-25
+app/api/coach/explore/route.ts
+  h_5d68cec99831c8 1-14
+app/api/coach/postgame/route.ts
+  h_5d68cec99831c8 1-14
+app/api/coach/turn/route.ts
+  h_5d68cec99831c8 1-14
+lib/coach/prompts.ts
+  h_5d68cec99831c8 1-7
+lib/coach/schemas.test.ts
+  h_5d68cec99831c8 1-57
+lib/coach/schemas.ts
+  h_5d68cec99831c8 1-49
+lib/coach/server.ts
+  h_5d68cec99831c8 1-20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "fdb5bddb064e57cd91139e1ad6bb4ac357b7d3e1",
+  "prompts": {},
+  "humans": {
+    "h_5d68cec99831c8": {
+      "author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
