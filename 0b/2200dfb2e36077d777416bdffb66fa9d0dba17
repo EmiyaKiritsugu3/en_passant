@@ -1,0 +1,16 @@
+lib/coach/analysis.test.ts
+  h_5d68cec99831c8 164-194
+lib/coach/analysis.ts
+  h_5d68cec99831c8 213-214,216-222,227-254,259-260,267-268,275-276,311,313,315,317,319-320,359-363,383,412,416-420,427-434
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "0b2200dfb2e36077d777416bdffb66fa9d0dba17",
+  "prompts": {},
+  "humans": {
+    "h_5d68cec99831c8": {
+      "author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
