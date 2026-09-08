@@ -1,0 +1,20 @@
+app/play/page.tsx
+  h_5d68cec99831c8 15,44,148-150,152-154,163,174-182,414-423
+lib/lichess/tablebase.test.ts
+  h_5d68cec99831c8 1-24
+lib/lichess/tablebase.ts
+  h_5d68cec99831c8 1-24
+lib/postgame.ts
+  h_5d68cec99831c8 4-21,46-55,64
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "c4831dfc5cf8025d4e4a92b2b8c36fb10a2b14ca",
+  "prompts": {},
+  "humans": {
+    "h_5d68cec99831c8": {
+      "author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
