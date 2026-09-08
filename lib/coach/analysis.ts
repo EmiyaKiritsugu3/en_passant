@@ -210,32 +210,61 @@ export function generateMoveAnalysis(input: MoveAnalysisInput): TurnResponse {
     attacks = getAttackedSquares(cAfter, to);
   }
 
-  const centerControlled = attacks.filter((s) => CENTER_SQUARES.has(s));
-  const extCenterControlled = attacks.filter((s) => EXTENDED_CENTER.has(s));
-
+  const emptyCenterControlled: string[] = [];
+  const emptyExtCenterControlled: string[] = [];
   const attackedOppPieces: { sq: string; piece: string; name: string }[] = [];
-  const protectedFriendlyPieces: { sq: string; piece: string; name: string }[] = [];
+  const protectedFriendlyPieces: {
+    sq: string;
+    piece: string;
+    name: string;
+    priority: number;
+    isCentral: boolean;
+  }[] = [];
 
   if (cAfter) {
     for (const sq of attacks) {
       const targetPiece = cAfter.get(sq as Square);
-      if (targetPiece) {
-        if (targetPiece.color === oppColor) {
-          attackedOppPieces.push({
-            sq,
-            piece: targetPiece.type,
-            name: PIECE_NAMES_PT[targetPiece.type] || targetPiece.type,
-          });
-        } else if (targetPiece.color === moverColor && sq !== to) {
+      if (!targetPiece) {
+        if (CENTER_SQUARES.has(sq)) emptyCenterControlled.push(sq);
+        else if (EXTENDED_CENTER.has(sq)) emptyExtCenterControlled.push(sq);
+      } else if (targetPiece.color === oppColor) {
+        attackedOppPieces.push({
+          sq,
+          piece: targetPiece.type,
+          name: PIECE_NAMES_PT[targetPiece.type] || targetPiece.type,
+        });
+      } else if (targetPiece.color === moverColor && sq !== to) {
+        const isCentral = CENTER_SQUARES.has(sq);
+        const isExtCentral = EXTENDED_CENTER.has(sq);
+        const isUnderAttack = cAfter.isAttacked(sq as Square, oppColor);
+        const isHomeFlankPawn =
+          targetPiece.type === "p" &&
+          (sq === "a7" || sq === "b7" || sq === "g7" || sq === "h7" || sq === "a2" || sq === "b2" || sq === "g2" || sq === "h2");
+        const isKing = targetPiece.type === "k";
+
+        let priority = 0;
+        if (isUnderAttack) priority += 100;
+        if (isCentral) priority += 60;
+        if (isExtCentral) priority += 40;
+        if (targetPiece.type !== "p" && !isKing) priority += 20;
+        if (targetPiece.type === "p" && (sq === "d7" || sq === "e7" || sq === "d2" || sq === "e2")) priority += 30;
+        if (isHomeFlankPawn && !isUnderAttack) priority -= 100;
+        if (isKing && !isUnderAttack) priority -= 100;
+
+        if (priority > 0) {
           protectedFriendlyPieces.push({
             sq,
             piece: targetPiece.type,
             name: PIECE_NAMES_PT[targetPiece.type] || targetPiece.type,
+            priority,
+            isCentral: isCentral || isExtCentral,
           });
         }
       }
     }
   }
+
+  protectedFriendlyPieces.sort((a, b) => b.priority - a.priority);
 
   // Header verdict based on classification
   const label = input.moveLabel || "good";
@@ -243,8 +272,8 @@ export function generateMoveAnalysis(input: MoveAnalysisInput): TurnResponse {
   if (label === "brilliant") verdictHeader = "🌟 **Lance Brilhante!**";
   else if (label === "great") verdictHeader = "💎 **Excelente lance!**";
   else if (label === "best") verdictHeader = "🎯 **Melhor lance da posição!**";
-  else if (label === "good") verdictHeader = "✅ **Bom lance!**";
-  else if (label === "inaccuracy") verdictHeader = "⚠️ **Lance impreciso.**";
+  else if (label === "good" || label === "solid") verdictHeader = "✅ **Bom lance!**";
+  else if (label === "inaccuracy" || label === "inaccurate") verdictHeader = "⚠️ **Lance impreciso.**";
   else if (label === "mistake") verdictHeader = "❌ **Erro tático/posicional.**";
   else if (label === "blunder") verdictHeader = "💥 **Erro grave (Capivara)!**";
   else verdictHeader = "♟️ **Lance jogado:**";
@@ -279,16 +308,16 @@ export function generateMoveAnalysis(input: MoveAnalysisInput): TurnResponse {
       critiqueParts.push(`reforça a pressão a partir de **${to}**.`);
     }
 
-    if (centerControlled.length > 0 && extCenterControlled.length > 0) {
+    if (emptyCenterControlled.length > 0 && emptyExtCenterControlled.length > 0) {
       critiqueParts.push(
-        `vigia e domina ${centerControlled.length === 1 ? "a casa central" : "as casas centrais"} **${centerControlled.join(" e ")}** e a casa estratégica **${extCenterControlled[0]}**.`
+        `vigia e domina ${emptyCenterControlled.length === 1 ? "a casa central" : "as casas centrais"} **${emptyCenterControlled.join(" e ")}** e a casa estratégica **${emptyExtCenterControlled[0]}**.`
       );
-    } else if (centerControlled.length > 0) {
+    } else if (emptyCenterControlled.length > 0) {
       critiqueParts.push(
-        `vigia e domina ${centerControlled.length === 1 ? "a casa central" : "as casas centrais"} **${centerControlled.join(" e ")}**.`
+        `vigia e contesta ${emptyCenterControlled.length === 1 ? "a casa central" : "as casas centrais"} **${emptyCenterControlled.join(" e ")}**.`
       );
-    } else if (extCenterControlled.length > 0) {
-      critiqueParts.push(`passa a controlar as casas estratégicas **${extCenterControlled.join(" e ")}**.`);
+    } else if (emptyExtCenterControlled.length > 0) {
+      critiqueParts.push(`passa a vigiar as casas estratégicas **${emptyExtCenterControlled.join(" e ")}**.`);
     }
   }
 
@@ -327,7 +356,11 @@ export function generateMoveAnalysis(input: MoveAnalysisInput): TurnResponse {
   // 5. Friendly piece defense
   if (protectedFriendlyPieces.length > 0 && !isCastling) {
     const p = protectedFriendlyPieces[0];
-    critiqueParts.push(`Além disso, sustenta e protege seu ${p.name} em **${p.sq}**.`);
+    if (p.isCentral) {
+      critiqueParts.push(`Além disso, sustenta e defende seu Peão central em **${p.sq}**.`);
+    } else {
+      critiqueParts.push(`Além disso, sustenta e protege seu ${p.name} em **${p.sq}**.`);
+    }
   }
 
   // 6. Prophylaxis & prevention
@@ -347,7 +380,7 @@ export function generateMoveAnalysis(input: MoveAnalysisInput): TurnResponse {
   }
 
   // 8. Mistake / Blunder explanation
-  if ((label === "blunder" || label === "mistake" || label === "inaccuracy") && input.bestMove) {
+  if ((label === "blunder" || label === "mistake" || label === "inaccuracy" || label === "inaccurate") && input.bestMove) {
     const lossPts = input.cpLoss && input.cpLoss > 0 ? ` (perda de ${(input.cpLoss / 100).toFixed(1)} pontos)` : "";
     critiqueParts.push(
       `Este lance cede a iniciativa${lossPts}. A melhor escolha de acordo com a engine era **${input.bestMove}**, que manteria uma posição superior e maior coordenação entre as peças.`
@@ -376,19 +409,29 @@ export function generateMoveAnalysis(input: MoveAnalysisInput): TurnResponse {
   let homework = "Antes de cada lance, confira se suas peças estão protegidas e quais casas o oponente ameaça ocupar.";
   if (attackedOppPieces.length > 0) {
     homework = `Se o adversário defender ${attackedOppPieces[0].name} em ${attackedOppPieces[0].sq}, qual é a sua próxima peça a ser melhorada?`;
-  } else if (label === "blunder" || label === "mistake") {
+  } else if (label === "blunder" || label === "mistake" || label === "inaccurate") {
     homework = `Analise por que ${input.bestMove || "o melhor lance"} era superior e identifique qual ameaça tática passou despercebida.`;
   } else if (isCastling) {
     homework = "Agora observe as colunas centrais: qual torre deve se posicionar primeiro no centro?";
-  } else if (centerControlled.length > 0) {
-    homework = `Monitore as casas centrais (${centerControlled.join(", ")}): planeje como responder caso o adversário tente contestá-las.`;
+  } else if (protectedFriendlyPieces.length > 0 && protectedFriendlyPieces[0].isCentral) {
+    const p = protectedFriendlyPieces[0];
+    homework = `Seu peão em ${p.sq} está bem sustentado. Planeje como coordenar as peças restantes para disputar a iniciativa.`;
+  } else if (emptyCenterControlled.length > 0) {
+    homework = `Monitore a casa central ${emptyCenterControlled.join(", ")}: planeje como responder caso o adversário tente ocupá-la.`;
   }
 
   // Tags
   const tags: ("tactics" | "kingSafety" | "endgame" | "pawns")[] = [];
   if (pieceType === "p") tags.push("pawns");
   if (isCastling || isCheck || isCheckmate || moveSan.includes("O-O")) tags.push("kingSafety");
-  if (capturedType || attackedOppPieces.length > 0 || isCheck || label === "blunder" || label === "mistake") {
+  if (
+    capturedType ||
+    attackedOppPieces.length > 0 ||
+    isCheck ||
+    label === "blunder" ||
+    label === "mistake" ||
+    label === "inaccurate"
+  ) {
     tags.push("tactics");
   }
   if (input.phase === "endgame") tags.push("endgame");

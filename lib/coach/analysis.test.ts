@@ -161,4 +161,35 @@ describe("generateMoveAnalysis", () => {
     expect(result.critique).toContain("e4");
     expect(result.critique).toContain("d7");
   });
+
+  it("analyzes move played by Black (...Nc6) defending central e5, contesting d4, and ignoring a7", () => {
+    const g = new Chess("rnbqkbnr/pppp1ppp/8/4p3/4P3/3P4/PPP2PPP/RNBQKBNR b KQkq - 0 2");
+    const fenBefore = g.fen();
+    const m = g.move("Nc6");
+    const fenAfter = g.fen();
+
+    const result = generateMoveAnalysis({
+      fenBefore,
+      fenAfter,
+      san: m.san,
+      from: m.from,
+      to: m.to,
+      piece: m.piece,
+      color: "b",
+      moveLabel: "solid",
+      phase: "opening",
+    });
+
+    expect(() => TurnResponse.parse(result)).not.toThrow();
+    // Solid moves get "Bom lance!" instead of "Lance jogado:"
+    expect(result.critique).toContain("Bom lance!");
+    // Contests empty central square d4
+    expect(result.critique).toContain("d4");
+    // Defends central pawn in e5
+    expect(result.critique).toContain("e5");
+    // Flank pawn a7 must NOT be mentioned
+    expect(result.critique).not.toContain("a7");
+    // Homework focuses on central pawn e5
+    expect(result.homework).toContain("e5");
+  });
 });
