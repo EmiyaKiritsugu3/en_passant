@@ -1,0 +1,16 @@
+app/play/page.tsx
+  h_5d68cec99831c8 113-118,137-142,150,178,180-185,189,240-241,247-250,335
+components/Board.tsx
+  h_5d68cec99831c8 58,66-67,87,94-95
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "ab8812b2636444bed0c467af92eaea83a1fbb6aa",
+  "prompts": {},
+  "humans": {
+    "h_5d68cec99831c8": {
+      "author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
