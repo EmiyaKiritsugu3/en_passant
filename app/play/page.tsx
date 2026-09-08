@@ -198,6 +198,37 @@ function PlayContent() {
     }
   };
 
+  const handleUndo = async () => {
+    if (isEngineThinking) return;
+    if (game.history().length === 0) return;
+
+    // If it is player's turn, undo opponent's move AND player's previous move (1 full move pair)
+    // If it was opponent's turn (or player just moved), undo at least 1 move to get back to player's turn
+    const isPlayerTurn = (game.turn() === "w" && color === "white") || (game.turn() === "b" && color === "black");
+    if (isPlayerTurn) {
+      game.undo(); // Undo opponent's move
+      if (game.history().length > 0) {
+        game.undo(); // Undo player's move
+      }
+    } else {
+      game.undo(); // Undo player's last move
+    }
+
+    setFen(game.fen());
+    setArrow([]);
+    setLabel(null);
+    setNotice("Jogada desfeita.");
+
+    // Update evaluation for the restored position
+    try {
+      const engine = engineRef.current ?? createMockEngine();
+      const ev = await engine.analyze(game.fen(), 10);
+      setLastEval(ev);
+    } catch {
+      // ignore
+    }
+  };
+
   const triggerPostgame = async () => {
     setIsPostgameLoading(true);
     try {
@@ -337,6 +368,31 @@ function PlayContent() {
 
         <Board fen={fen} orientation={color} onMove={onMove} shape={arrow} />
 
+        {/* Board Action Bar: Undo, Status & Restart */}
+        <div className="flex items-center justify-between w-full max-w-[560px] gap-2">
+          <button
+            type="button"
+            onClick={handleUndo}
+            disabled={isEngineThinking || game.history().length === 0}
+            className="flex items-center gap-1.5 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed border border-zinc-700 text-zinc-200 text-xs font-mono font-semibold rounded-xl transition-all shadow-sm"
+            title="Desfazer o último par de lances e tentar outra jogada"
+          >
+            <span>↩</span>
+            <span>Voltar Jogada</span>
+          </button>
+
+          <span className="text-[11px] font-mono text-zinc-500">
+            Lances: {Math.floor(game.history().length / 2)} {game.history().length % 2 !== 0 ? "½" : ""}
+          </span>
+
+          <Link
+            href="/"
+            className="text-xs font-mono text-zinc-400 hover:text-zinc-200 px-3 py-2 rounded-xl hover:bg-zinc-800/60 transition-colors"
+          >
+            Nova Partida
+          </Link>
+        </div>
+
         {isEngineThinking && (
           <div className="text-xs text-amber-400 font-mono animate-pulse">Stockfish analisando...</div>
         )}
@@ -344,7 +400,7 @@ function PlayContent() {
         {notice && (
           <p
             role="alert"
-            className="text-sm text-red-300 bg-red-950/60 border border-red-800/80 px-4 py-2 rounded-xl max-w-[560px]"
+            className="text-sm text-amber-300 bg-amber-950/50 border border-amber-800/60 px-4 py-2 rounded-xl max-w-[560px]"
           >
             {notice}
           </p>
