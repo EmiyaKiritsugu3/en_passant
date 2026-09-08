@@ -12,6 +12,7 @@ import { applyPostgame, loadProfile, saveProfile, type Profile } from "@/lib/pro
 import { appendMessage, loadChat, type ChatMessage } from "@/lib/chat/store";
 import { enqueue } from "@/lib/coach/queue";
 import type { PostgameResponse, TurnResponse } from "@/lib/coach/schemas";
+import { generateMoveAnalysis, type MoveAnalysisInput } from "@/lib/coach/analysis";
 import { collectEvals, bestMoveEndgameAware } from "@/lib/postgame";
 import { addCard } from "@/lib/sm2/scheduler";
 import { saveGame, addAnalysis } from "@/lib/library/storage";
@@ -201,13 +202,15 @@ function PlayContent() {
     }
   };
 
-  const postTurnCoachWithRetry = async (payload: {
-    fen: string;
-    pgn: string;
-    cpLoss: number;
-    bestMove: string;
-    phase: Phase;
-  }): Promise<TurnResponse> => {
+  const postTurnCoachWithRetry = async (
+    payload: MoveAnalysisInput & {
+      fen: string;
+      pgn: string;
+      cpLoss: number;
+      bestMove: string;
+      phase: Phase;
+    }
+  ): Promise<TurnResponse> => {
     const doFetch = async () => {
       const res = await fetch("/api/coach/turn", {
         method: "POST",
@@ -226,12 +229,7 @@ function PlayContent() {
         return await doFetch();
       } catch {
         enqueue(payload);
-        return {
-          critique: `Coach offline. Move classified as **${label ?? "solid"}**. Best move was **${payload.bestMove}**.`,
-          intent: "Keep your pieces coordinated and watch king safety.",
-          tags: ["tactics"],
-          homework: "Review position with local engine analysis.",
-        };
+        return generateMoveAnalysis(payload);
       }
     }
   };
@@ -306,10 +304,21 @@ function PlayContent() {
 
           const coachData = await postTurnCoachWithRetry({
             fen: fenAfterPlayer,
+            fenBefore,
+            fenAfter: fenAfterPlayer,
             pgn: game.pgn(),
             cpLoss,
             bestMove: effectiveBestBefore,
             phase,
+            san: moveResult?.san,
+            from: moveResult?.from,
+            to: moveResult?.to,
+            piece: moveResult?.piece,
+            captured: moveResult?.captured,
+            flags: moveResult?.flags,
+            moveLabel,
+            isCheck: game.inCheck(),
+            isCheckmate: game.isGameOver() && game.inCheck(),
           });
           setCoach(coachData);
         } catch {
