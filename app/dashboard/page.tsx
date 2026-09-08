@@ -1,11 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useSyncExternalStore } from "react";
 import Link from "next/link";
-import { loadProfile, type Profile } from "@/lib/profile/store";
+import {
+  DEFAULT_PROFILE,
+  getProfileSnapshot,
+  subscribeProfile,
+  type Profile,
+} from "@/lib/profile/store";
 
 export default function DashboardPage() {
-  const [profile] = useState<Profile>(() => loadProfile());
+  const profile: Profile = useSyncExternalStore(
+    subscribeProfile,
+    getProfileSnapshot,
+    () => DEFAULT_PROFILE
+  );
+
+
+
 
   if (!profile) {
     return (

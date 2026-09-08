@@ -18,6 +18,27 @@ function getStorage(): Storage | undefined {
   return undefined;
 }
 
+let cachedProfile: Profile | null = null;
+const listeners = new Set<() => void>();
+
+function notifyListeners() {
+  for (const l of listeners) l();
+}
+
+export function subscribeProfile(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+export function getProfileSnapshot(): Profile {
+  if (cachedProfile === null) {
+    cachedProfile = loadProfile();
+  }
+  return cachedProfile;
+}
+
 export function loadProfile(): Profile {
   const storage = getStorage();
   if (!storage) return structuredClone(DEFAULT_PROFILE);
@@ -36,11 +57,14 @@ export function loadProfile(): Profile {
 }
 
 export function saveProfile(p: Profile): void {
+  cachedProfile = p;
   const storage = getStorage();
   if (storage) {
     storage.setItem(KEY, JSON.stringify(p));
   }
+  notifyListeners();
 }
+
 
 export function exportProfile(): string {
   const storage = getStorage();
