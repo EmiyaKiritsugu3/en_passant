@@ -1,7 +1,7 @@
 # Chess Coach — Design Spec
 
 - Data: 2026-09-08
-- Status: aprovado em seções 1–5, pendente revisão final do arquivo
+- Status: aprovado final (self-review OK, sem placeholders/contradições)
 - Origem: prompt "companheiro de chess super habilidoso" (Turn Protocol, Game Init, Post-Game preservados abaixo, adaptados para UI)
 
 ## 1. Visão e objetivo
@@ -104,7 +104,7 @@ Separação central: engine MEDE (cp-loss, melhor lance), LLM EXPLICA. LLM nunca
 }
 ```
 
-Validação com zod. Modelo único Sonnet. Sem streaming, sem router Haiku (fase 1).
+Validação com zod. Modelo único Claude Sonnet latest (override via env `COACH_MODEL`). Sem streaming, sem router Haiku (fase 1).
 
 ### 5.3 Perfil (localStorage `profile.v1`)
 
