@@ -1,0 +1,16 @@
+app/play/page.tsx
+  h_5d68cec99831c8 267,359-378,458-480
+lib/engine/engine.ts
+  h_5d68cec99831c8 38-105,114
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "2e3ee921b80d3c99dd77e7b2e076fe9acc3604a6",
+  "prompts": {},
+  "humans": {
+    "h_5d68cec99831c8": {
+      "author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
