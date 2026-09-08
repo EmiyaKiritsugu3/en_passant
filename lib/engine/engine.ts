@@ -1,3 +1,5 @@
+import { Chess } from "chess.js";
+
 export interface Eval {
   cp: number;
   mate: number | null;
@@ -19,17 +21,34 @@ export function parseUciInfo(infoLine: string, bestLine: string): Eval {
     : { cp: cp ? parseInt(cp[1]) : 0, mate: null, best };
 }
 
-// Deterministic mock for tests/dev when WASM unavailable.
+// Deterministic mock for tests/dev when WASM unavailable or loading.
 export function createMockEngine(): Engine {
   return {
     async setElo() {},
     async analyze(fen: string) {
-      const white = fen.includes(" w ");
-      return { cp: white ? 20 : -20, mate: null, best: "e2e4" };
+      try {
+        const c = new Chess(fen);
+        const white = c.turn() === "w";
+        const legal = c.moves({ verbose: true });
+        let best = white ? "e2e4" : "e7e5";
+        if (white && legal.some((m) => `${m.from}${m.to}` === "e2e4")) {
+          best = "e2e4";
+        } else if (!white && legal.some((m) => `${m.from}${m.to}` === "e7e5")) {
+          best = "e7e5";
+        } else if (legal.length > 0) {
+          const chosen = legal[0];
+          best = `${chosen.from}${chosen.to}${chosen.promotion || ""}`;
+        }
+        return { cp: white ? 20 : -20, mate: null, best };
+      } catch {
+        const white = fen.includes(" w ");
+        return { cp: white ? 20 : -20, mate: null, best: white ? "e2e4" : "e7e5" };
+      }
     },
     quit() {},
   };
 }
+
 
 // Real engine: stockfish served from public as Web Worker speaking raw UCI.
 export function createStockfishEngine(): Engine {
@@ -59,7 +78,23 @@ export function createStockfishEngine(): Engine {
     analyze(fen: string, depth = 14): Promise<Eval> {
       const id = ++seq;
       return new Promise((resolve) => {
-        pending.set(id, resolve);
+        let settled = false;
+        const timer = setTimeout(async () => {
+          if (settled) return;
+          settled = true;
+          pending.delete(id);
+          // Fallback to mock evaluation if worker stalls
+          const mock = createMockEngine();
+          const fallback = await mock.analyze(fen, depth);
+          resolve(fallback);
+        }, 3000);
+
+        pending.set(id, (ev) => {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
+          resolve(ev);
+        });
         send(`position fen ${fen}`);
         send(`go depth ${depth}`);
       });
@@ -69,3 +104,4 @@ export function createStockfishEngine(): Engine {
     },
   };
 }
+

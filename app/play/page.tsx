@@ -47,16 +47,139 @@ function PlayContent() {
   const profileRef = useRef(loadProfile());
   const eloSetRef = useRef(false);
 
-  useEffect(() => {
+  const triggerPostgame = async () => {
+    setIsPostgameLoading(true);
     try {
-      engineRef.current = createStockfishEngine();
-    } catch {
-      engineRef.current = createMockEngine();
+      const engine = engineRef.current ?? createMockEngine();
+      const rows = await collectEvals(game.pgn(), engine);
+      const phases = phaseAverages(rows.map((r) => ({ phase: r.phase, score: r.score })));
+      const won =
+        game.isCheckmate() &&
+        ((game.turn() === "b" && color === "white") || (game.turn() === "w" && color === "black"));
+
+      let postgameData: PostgameResponse;
+      try {
+        const res = await fetch("/api/coach/postgame", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ pgn: game.pgn(), evals: rows, phaseScores: phases }),
+        });
+        if (!res.ok) throw new Error("postgame failed");
+        postgameData = (await res.json()) as PostgameResponse;
+      } catch {
+        postgameData = {
+          summary: `Fim de jogo. ${won ? "Vitória do aluno!" : "Fim da partida."} Foram jogados ${rows.length} lances.`,
+          result: won ? "1-0" : "0-1",
+          moments: rows
+            .filter((r) => r.label === "mistake" || r.label === "blunder")
+            .slice(0, 3)
+            .map((r) => ({
+              move: Math.ceil(r.ply / 2),
+              played: r.san,
+              best: r.best,
+              why: `Perda de ${r.cpLoss} centipawns em lance de ${r.phase}.`,
+            })),
+          takeaway: "Consolide o cálculo tático e mantenha as peças coordenadas.",
+          homework: "Rever os momentos críticos e treinar no SM-2.",
+          profileDelta: {},
+        };
+      }
+      setPostgame(postgameData);
+
+      const blunderRows = rows.filter((r) => r.label === "blunder" || r.label === "mistake");
+      for (const b of blunderRows) {
+        if (b.best) {
+          addCard({
+            fen: b.fen,
+            bestMove: b.best,
+            context: `${b.phase} - ${b.label}: jogado ${b.san}`,
+          });
+        }
+      }
+      const tags: (keyof Profile["errorTags"])[] = blunderRows.map(() => "tactics");
+      const fens = blunderRows.map((r) => r.fen);
+      const updated = applyPostgame(profileRef.current, { won, tags, fens, phases });
+      saveProfile(updated);
+      profileRef.current = updated;
+
+      const savedId = saveGame(game.pgn());
+      addAnalysis(savedId, { depth: 10, rows });
+    } finally {
+      setIsPostgameLoading(false);
     }
+  };
+
+  const makeEngineMove = async (currentFen: string, engineInstance?: Engine) => {
+    setIsEngineThinking(true);
+    try {
+      const eng = engineInstance ?? engineRef.current ?? createMockEngine();
+      const egAfter = await bestMoveEndgameAware(currentFen, eng, 12);
+      setTbCategory(egAfter.category);
+
+      let replyUci = egAfter.best;
+      if (!replyUci) {
+        const ev = await eng.analyze(currentFen, 12);
+        replyUci = ev.best;
+      }
+
+      let moveSuccess = false;
+      if (replyUci && replyUci.length >= 4) {
+        const replyFrom = replyUci.slice(0, 2);
+        const replyTo = replyUci.slice(2, 4);
+        const replyProm = replyUci.slice(4, 5) || undefined;
+        try {
+          const res = game.move({ from: replyFrom, to: replyTo, promotion: replyProm });
+          if (res) {
+            moveSuccess = true;
+            setFen(game.fen());
+          }
+        } catch {
+          moveSuccess = false;
+        }
+      }
+
+      // Legal fallback if engine UCI was invalid or blocked
+      if (!moveSuccess && !game.isGameOver()) {
+        const legal = game.moves({ verbose: true });
+        if (legal.length > 0) {
+          const chosen = legal[0];
+          game.move({ from: chosen.from, to: chosen.to, promotion: chosen.promotion });
+          setFen(game.fen());
+        }
+      }
+
+      if (game.isGameOver()) {
+        await triggerPostgame();
+      }
+    } catch {
+      setNotice("Engine evaluation interrupted.");
+    } finally {
+      setIsEngineThinking(false);
+    }
+  };
+
+  useEffect(() => {
+    let eng: Engine;
+    try {
+      eng = createStockfishEngine();
+    } catch {
+      eng = createMockEngine();
+    }
+    engineRef.current = eng;
+
+    // If user chose Black, engine (White) must make the first move!
+    if (color === "black" && game.history().length === 0) {
+      setTimeout(() => {
+        makeEngineMove(game.fen(), eng);
+      }, 500);
+    }
+
     return () => {
-      engineRef.current?.quit();
+      eng.quit();
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [color]);
+
 
   const ensureElo = async () => {
     if (!eloSetRef.current && engineRef.current) {
@@ -172,31 +295,14 @@ function PlayContent() {
       }
 
       // Engine reply if game not ended (TB-first in ≤7 pieces)
-      const egAfter = await bestMoveEndgameAware(fenAfter, engine, 12);
-      setTbCategory(egAfter.category);
-      const replyUci = egAfter.best || evalAfter.best;
-
-      if (replyUci && replyUci.length >= 4) {
-        const replyFrom = replyUci.slice(0, 2);
-        const replyTo = replyUci.slice(2, 4);
-        const replyProm = replyUci.slice(4, 5) || undefined;
-        try {
-          game.move({ from: replyFrom, to: replyTo, promotion: replyProm });
-          setFen(game.fen());
-        } catch {
-          // fallback if bestmove is not pseudo-legal
-        }
-
-        if (game.isGameOver()) {
-          await triggerPostgame();
-        }
-      }
+      await makeEngineMove(fenAfter, engine);
     } catch {
       setNotice("Engine evaluation interrupted.");
     } finally {
       setIsEngineThinking(false);
     }
   };
+
 
   const handleUndo = async () => {
     if (isEngineThinking) return;
@@ -226,68 +332,6 @@ function PlayContent() {
       setLastEval(ev);
     } catch {
       // ignore
-    }
-  };
-
-  const triggerPostgame = async () => {
-    setIsPostgameLoading(true);
-    try {
-      const engine = engineRef.current ?? createMockEngine();
-      const rows = await collectEvals(game.pgn(), engine);
-      const phases = phaseAverages(rows.map((r) => ({ phase: r.phase, score: r.score })));
-      const won =
-        game.isCheckmate() &&
-        ((game.turn() === "b" && color === "white") || (game.turn() === "w" && color === "black"));
-
-      let postgameData: PostgameResponse;
-      try {
-        const res = await fetch("/api/coach/postgame", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ pgn: game.pgn(), evals: rows, phaseScores: phases }),
-        });
-        if (!res.ok) throw new Error("postgame failed");
-        postgameData = (await res.json()) as PostgameResponse;
-      } catch {
-        postgameData = {
-          summary: `Fim de jogo. ${won ? "Vitória do aluno!" : "Fim da partida."} Foram jogados ${rows.length} lances.`,
-          result: won ? "1-0" : "0-1",
-          moments: rows
-            .filter((r) => r.label === "mistake" || r.label === "blunder")
-            .slice(0, 3)
-            .map((r) => ({
-              move: Math.ceil(r.ply / 2),
-              played: r.san,
-              best: r.best,
-              why: `Perda de ${r.cpLoss} centipawns em lance de ${r.phase}.`,
-            })),
-          takeaway: "Consolide o cálculo tático e mantenha as peças coordenadas.",
-          homework: "Rever os momentos críticos e treinar no SM-2.",
-          profileDelta: {},
-        };
-      }
-      setPostgame(postgameData);
-
-      const blunderRows = rows.filter((r) => r.label === "blunder" || r.label === "mistake");
-      for (const b of blunderRows) {
-        if (b.best) {
-          addCard({
-            fen: b.fen,
-            bestMove: b.best,
-            context: `${b.phase} - ${b.label}: jogado ${b.san}`,
-          });
-        }
-      }
-      const tags: (keyof Profile["errorTags"])[] = blunderRows.map(() => "tactics");
-      const fens = blunderRows.map((r) => r.fen);
-      const updated = applyPostgame(profileRef.current, { won, tags, fens, phases });
-      saveProfile(updated);
-      profileRef.current = updated;
-
-      const savedId = saveGame(game.pgn());
-      addAnalysis(savedId, { depth: 10, rows });
-    } finally {
-      setIsPostgameLoading(false);
     }
   };
 
