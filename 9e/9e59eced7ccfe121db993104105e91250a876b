@@ -1,0 +1,19 @@
+public/manifest.webmanifest
+  s_c48794c27ed443::t_8a298fb628dbdb 2-3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "9e9e59eced7ccfe121db993104105e91250a876b",
+  "prompts": {},
+  "sessions": {
+    "s_c48794c27ed443": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b227ce4d-f19d-4a69-a85d-13eb2fe66934",
+        "model": "moonshotai/kimi-k3"
+      },
+      "human_author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
