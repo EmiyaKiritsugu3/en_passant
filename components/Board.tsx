@@ -36,11 +36,13 @@ export default function Board({
   orientation,
   onMove,
   shape,
+  isThinking = false,
 }: {
   fen: string;
   orientation: "white" | "black";
   onMove?: (from: string, to: string) => void;
   shape?: DrawShape[];
+  isThinking?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const api = useRef<Api | null>(null);
@@ -60,8 +62,8 @@ export default function Board({
       turnColor,
       movable: {
         free: false,
-        color: onMove ? turnColor : undefined,
-        dests: onMove ? dests : new Map(),
+        color: !isThinking && onMove ? turnColor : undefined,
+        dests: !isThinking && onMove ? dests : new Map(),
         showDests: true,
         events: {
           after: (orig, dest) => {
@@ -87,14 +89,14 @@ export default function Board({
       orientation,
       turnColor,
       movable: {
-        color: onMove ? turnColor : undefined,
-        dests: onMove ? dests : new Map(),
+        color: !isThinking && onMove ? turnColor : undefined,
+        dests: !isThinking && onMove ? dests : new Map(),
       },
       drawable: {
         shapes: shape ?? [],
       },
     });
-  }, [fen, orientation, onMove, shape]);
+  }, [fen, orientation, onMove, shape, isThinking]);
 
   return <div ref={ref} style={{ width: "min(90vw, 560px)", aspectRatio: "1" }} />;
 }

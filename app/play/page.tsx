@@ -225,7 +225,10 @@ function PlayContent() {
   };
 
   const onMove = async (from: string, to: string) => {
-    if (isEngineThinking) return;
+    if (isEngineThinking) {
+      setFen(game.fen());
+      return;
+    }
 
     const pieceBefore = game.get(from as Square);
     const movedValue = pieceBefore ? PIECE_VALUES[pieceBefore.type] : 0;
@@ -242,7 +245,8 @@ function PlayContent() {
       return;
     }
 
-    setFen(game.fen());
+    const fenAfterPlayer = game.fen();
+    setFen(fenAfterPlayer);
     setNotice("");
     setIsEngineThinking(true);
 
@@ -250,52 +254,56 @@ function PlayContent() {
       const engine = engineRef.current ?? createMockEngine();
       await ensureElo();
 
-      // Analyze before move and after move to compute cpLoss
-      const evalBefore = await engine.analyze(fenBefore, 12);
-      const fenAfter = game.fen();
-      const evalAfter = await engine.analyze(fenAfter, 12);
-      setLastEval(evalAfter);
-
-      const moverIsWhite = pieceBefore?.color === "w";
-      const moverCpBefore = moverIsWhite ? evalBefore.cp : -evalBefore.cp;
-      const moverCpAfter = moverIsWhite ? evalAfter.cp : -evalAfter.cp;
-      const cpLoss = Math.max(0, moverCpBefore - moverCpAfter);
-
-      const capturedValue = moveResult?.captured ? PIECE_VALUES[moveResult.captured] : 0;
-      const wasSacrifice = movedValue > capturedValue && cpLoss < 30;
-      const evalKept = moverCpAfter >= moverCpBefore - 20;
-
-      const moveLabel = classifyMove(cpLoss, wasSacrifice, evalKept);
-      setLabel(moveLabel);
-
-      const egBefore = await bestMoveEndgameAware(fenBefore, engine, 12);
-      const effectiveBestBefore = egBefore.best || evalBefore.best;
-
-      // Best move arrow
-      if (effectiveBestBefore && effectiveBestBefore.length >= 4) {
-        const orig = effectiveBestBefore.slice(0, 2) as Key;
-        const dest = effectiveBestBefore.slice(2, 4) as Key;
-        setArrow([{ orig, dest, brush: "green" }]);
-      }
-
-      // Coach feedback
-      const coachData = await postTurnCoachWithRetry({
-        fen: fenAfter,
-        pgn: game.pgn(),
-        cpLoss,
-        bestMove: effectiveBestBefore,
-        phase,
-      });
-      setCoach(coachData);
-
       // Check if game over after player's move
       if (game.isGameOver()) {
         await triggerPostgame();
+        setIsEngineThinking(false);
         return;
       }
 
-      // Engine reply if game not ended (TB-first in ≤7 pieces)
-      await makeEngineMove(fenAfter, engine);
+      // 1. ENGINE RESPONDS PROMPTLY TO PLAYER'S MOVE
+      await makeEngineMove(fenAfterPlayer, engine);
+
+      // 2. BACKGROUND / ASYNC COACH EVALUATION (does not delay gameplay)
+      (async () => {
+        try {
+          const evalBefore = lastEval ?? (await engine.analyze(fenBefore, 10));
+          const evalAfter = await engine.analyze(fenAfterPlayer, 10);
+          setLastEval(evalAfter);
+
+          const moverIsWhite = pieceBefore?.color === "w";
+          const moverCpBefore = moverIsWhite ? evalBefore.cp : -evalBefore.cp;
+          const moverCpAfter = moverIsWhite ? evalAfter.cp : -evalAfter.cp;
+          const cpLoss = Math.max(0, moverCpBefore - moverCpAfter);
+
+          const capturedValue = moveResult?.captured ? PIECE_VALUES[moveResult.captured] : 0;
+          const wasSacrifice = movedValue > capturedValue && cpLoss < 30;
+          const evalKept = moverCpAfter >= moverCpBefore - 20;
+
+          const moveLabel = classifyMove(cpLoss, wasSacrifice, evalKept);
+          setLabel(moveLabel);
+
+          const egBefore = await bestMoveEndgameAware(fenBefore, engine, 10);
+          const effectiveBestBefore = egBefore.best || evalBefore.best;
+
+          if (effectiveBestBefore && effectiveBestBefore.length >= 4) {
+            const orig = effectiveBestBefore.slice(0, 2) as Key;
+            const dest = effectiveBestBefore.slice(2, 4) as Key;
+            setArrow([{ orig, dest, brush: "green" }]);
+          }
+
+          const coachData = await postTurnCoachWithRetry({
+            fen: fenAfterPlayer,
+            pgn: game.pgn(),
+            cpLoss,
+            bestMove: effectiveBestBefore,
+            phase,
+          });
+          setCoach(coachData);
+        } catch {
+          // background analysis caught gracefully
+        }
+      })().catch(() => {});
     } catch {
       setNotice("Engine evaluation interrupted.");
     } finally {
@@ -410,7 +418,7 @@ function PlayContent() {
           )}
         </div>
 
-        <Board fen={fen} orientation={color} onMove={onMove} shape={arrow} />
+        <Board fen={fen} orientation={color} onMove={onMove} shape={arrow} isThinking={isEngineThinking} />
 
         {/* Board Action Bar: Undo, Status & Restart */}
         <div className="flex items-center justify-between w-full max-w-[560px] gap-2">
