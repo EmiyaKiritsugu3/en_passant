@@ -1,15 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { Chess } from "chess.js";
 import Board from "@/components/Board";
 import {
   dueCards,
-  loadCards,
   reviewCard,
   saveCards,
   addCard,
+  subscribeCards,
+  getCardsSnapshot,
   type Card,
 } from "@/lib/sm2/scheduler";
 import { checkDrillMove } from "@/lib/repertoire/drill";
@@ -33,11 +34,13 @@ interface RepertoireLine {
   line: string[];
 }
 
+const EMPTY_CARDS: Card[] = [];
+
 export default function TrainPage() {
   const [mainTab, setMainTab] = useState<MainTab>("sm2");
 
   // ==================== SM-2 STATE ====================
-  const [allCards, setAllCards] = useState<Card[]>(() => loadCards());
+  const allCards = useSyncExternalStore(subscribeCards, getCardsSnapshot, () => EMPTY_CARDS);
   const [currentSm2Index, setCurrentSm2Index] = useState(0);
   const [doneCount, setDoneCount] = useState(0);
   const [hintUsed, setHintUsed] = useState(false);
@@ -50,6 +53,16 @@ export default function TrainPage() {
   const currentCard: Card | undefined = due[currentSm2Index];
   const sm2Orientation: "white" | "black" =
     currentCard && currentCard.fen.split(" ")[1] === "b" ? "black" : "white";
+
+  const [prevCardId, setPrevCardId] = useState<string | undefined>(currentCard?.id);
+  if (currentCard?.id !== prevCardId) {
+    setPrevCardId(currentCard?.id);
+    setHintUsed(false);
+    setSm2Attempts(0);
+    setSm2StatusText("");
+    setIsSm2Resolved(false);
+    setSm2Shape([]);
+  }
 
   // ==================== OPENINGS STATE ====================
   const [openingMode, setOpeningMode] = useState<OpeningMode>("drill");
@@ -96,7 +109,6 @@ export default function TrainPage() {
       const updatedCard = reviewCard(currentCard, quality);
       const nextAll = allCards.map((c) => (c.id === currentCard.id ? updatedCard : c));
       saveCards(nextAll);
-      setAllCards(nextAll);
 
       setSm2StatusText("Correto! Excelente resolução tática.");
       setIsSm2Resolved(true);
@@ -122,7 +134,6 @@ export default function TrainPage() {
     const updatedCard = reviewCard(currentCard, 0);
     const nextAll = allCards.map((c) => (c.id === currentCard.id ? updatedCard : c));
     saveCards(nextAll);
-    setAllCards(nextAll);
 
     setIsSm2Resolved(true);
     const orig = currentCard.bestMove.slice(0, 2) as Key;
@@ -149,7 +160,6 @@ export default function TrainPage() {
       bestMove: "h5f7",
       context: "Abertura - Tática de mate em 1 lance",
     });
-    setAllCards(loadCards());
   };
 
   // ==================== OPENINGS HANDLERS ====================
@@ -250,10 +260,12 @@ export default function TrainPage() {
         // Evaluate deviation with engine
         if (engineRef.current) {
           try {
-            const evalBefore = await engineRef.current.analyze(fenBefore, 10);
-            const evalAfter = await engineRef.current.analyze(fenAfter, 10);
-            const isMoverWhite = openingGame.turn() === "b";
-            const cpLoss = Math.max(0, isMoverWhite ? evalBefore.cp - evalAfter.cp : evalAfter.cp - evalBefore.cp);
+            const evalBefore = await engineRef.current.analyze(fenBefore, 10, { limitStrength: false });
+            const evalAfter = await engineRef.current.analyze(fenAfter, 10, { limitStrength: false });
+            // In UCI, score cp is from the perspective of the side to move:
+            // moverCpBefore = evalBefore.cp; moverCpAfter = -evalAfter.cp;
+            // cpLoss = max(0, evalBefore.cp - (-evalAfter.cp)) = max(0, evalBefore.cp + evalAfter.cp)
+            const cpLoss = Math.max(0, evalBefore.cp + evalAfter.cp);
             setLastDeviationEval({ cpLoss, best: evalBefore.best });
           } catch {
             // ignore
@@ -275,10 +287,9 @@ export default function TrainPage() {
       let cpLoss = 0;
       if (engineRef.current) {
         try {
-          const evalBefore = await engineRef.current.analyze(fenBefore, 10);
-          const evalAfter = await engineRef.current.analyze(fenAfter, 10);
-          const isMoverWhite = openingGame.turn() === "b";
-          cpLoss = Math.max(0, isMoverWhite ? evalBefore.cp - evalAfter.cp : evalAfter.cp - evalBefore.cp);
+          const evalBefore = await engineRef.current.analyze(fenBefore, 10, { limitStrength: false });
+          const evalAfter = await engineRef.current.analyze(fenAfter, 10, { limitStrength: false });
+          cpLoss = Math.max(0, evalBefore.cp + evalAfter.cp);
           setLastDeviationEval({ cpLoss, best: evalBefore.best });
         } catch {
           // ignore

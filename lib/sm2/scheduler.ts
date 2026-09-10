@@ -30,6 +30,46 @@ export function dueCards(cards: Card[], now = Date.now()): Card[] {
   return cards.filter((c) => c.nextReview <= now).sort((a, b) => a.nextReview - b.nextReview);
 }
 
+let cachedCards: Card[] = [];
+let lastRaw: string | null = null;
+const listeners = new Set<() => void>();
+
+function notifyListeners() {
+  for (const l of listeners) l();
+}
+
+if (typeof window !== "undefined") {
+  window.addEventListener("storage", (e) => {
+    if (e.key === KEY) {
+      lastRaw = null;
+      notifyListeners();
+    }
+  });
+}
+
+export function subscribeCards(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+export function getCardsSnapshot(): Card[] {
+  if (typeof window === "undefined" || typeof localStorage === "undefined") {
+    return [];
+  }
+  const raw = localStorage.getItem(KEY);
+  if (raw !== lastRaw) {
+    lastRaw = raw;
+    try {
+      cachedCards = raw ? JSON.parse(raw) : [];
+    } catch {
+      cachedCards = [];
+    }
+  }
+  return cachedCards;
+}
+
 export function loadCards(): Card[] {
   if (typeof window === "undefined" || typeof localStorage === "undefined") {
     return [];
@@ -42,10 +82,15 @@ export function loadCards(): Card[] {
 }
 
 export function saveCards(cards: Card[]): void {
+  cachedCards = cards;
+  const serialized = JSON.stringify(cards);
+  lastRaw = serialized;
   if (typeof window === "undefined" || typeof localStorage === "undefined") {
+    notifyListeners();
     return;
   }
-  localStorage.setItem(KEY, JSON.stringify(cards));
+  localStorage.setItem(KEY, serialized);
+  notifyListeners();
 }
 
 export function addCard(input: Pick<Card, "fen" | "bestMove" | "context">): void {
