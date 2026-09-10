@@ -100,6 +100,6 @@ export default function Board({
     });
   }, [fen, orientation, onMove, shape, isThinking]);
 
-  return <div ref={ref} style={{ width: "min(90vw, 560px)", aspectRatio: "1" }} />;
+  return <div ref={ref} style={{ width: "100%", aspectRatio: "1" }} />;
 }
 

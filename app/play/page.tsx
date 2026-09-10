@@ -6,6 +6,19 @@ import { Chess, type Square } from "chess.js";
 import type { Key } from "chessground/types";
 import type { DrawShape } from "chessground/draw";
 import Board from "@/components/Board";
+import EvalBar from "@/components/arena/EvalBar";
+import PlayerCard from "@/components/arena/PlayerCard";
+import MoveHistory, { type HistoryMove } from "@/components/arena/MoveHistory";
+import CoachConsole from "@/components/arena/CoachConsole";
+import { calculateMaterial } from "@/lib/chess/material";
+import {
+  playMoveSound,
+  playCaptureSound,
+  playCheckSound,
+  playGameEndSound,
+  getAudioMuted,
+  setAudioMuted,
+} from "@/lib/sound/audio";
 import { classifyMove, detectPhase, phaseAverages, type Label, type Phase } from "@/lib/chess/measure";
 import { createMockEngine, createStockfishEngine, type Engine, type Eval } from "@/lib/engine/engine";
 import { applyPostgame, loadProfile, saveProfile, type Profile } from "@/lib/profile/store";
@@ -30,6 +43,13 @@ function PlayContent() {
   const game = useMemo(() => new Chess(), []);
   const [fen, setFen] = useState(game.fen());
 
+  // Arena & Audio States
+  const [boardOrientation, setBoardOrientation] = useState<"white" | "black">(color);
+  const [isMuted, setIsMutedState] = useState<boolean>(() => getAudioMuted());
+  const [movesHistory, setMovesHistory] = useState<HistoryMove[]>([]);
+  const [viewingPly, setViewingPly] = useState<number>(0);
+
+  // Coach & Game States
   const [notice, setNotice] = useState("");
   const [tab, setTab] = useState<Tab>("critique");
   const [label, setLabel] = useState<Label | null>(null);
@@ -37,16 +57,52 @@ function PlayContent() {
   const [arrow, setArrow] = useState<DrawShape[]>([]);
   const [lastEval, setLastEval] = useState<Eval | null>(null);
   const [isEngineThinking, setIsEngineThinking] = useState(false);
+  const [isHintLoading, setIsHintLoading] = useState(false);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(() => loadChat());
   const [chatInput, setChatInput] = useState("");
   const [isChatSending, setIsChatSending] = useState(false);
   const [postgame, setPostgame] = useState<PostgameResponse | null>(null);
   const [isPostgameLoading, setIsPostgameLoading] = useState(false);
   const [tbCategory, setTbCategory] = useState<string | null>(null);
+  const [aiDifficulty, setAiDifficulty] = useState<"grandmaster" | "master" | "adaptive">("grandmaster");
+  const [playerRating] = useState(() => loadProfile().rating);
 
   const engineRef = useRef<Engine | null>(null);
   const profileRef = useRef(loadProfile());
   const eloSetRef = useRef(false);
+
+  // Compute viewing position for non-destructive history review
+  const viewingFen = useMemo(() => {
+    if (viewingPly >= movesHistory.length) {
+      return fen;
+    }
+    const replay = new Chess();
+    for (let i = 0; i < viewingPly; i++) {
+      const m = movesHistory[i];
+      if (!m) break;
+      try {
+        replay.move({ from: m.from, to: m.to, promotion: "q" });
+      } catch {
+        break;
+      }
+    }
+    return replay.fen();
+  }, [viewingPly, movesHistory, fen]);
+
+  // Compute captured pieces and material differences
+  const material = useMemo(() => {
+    return calculateMaterial(viewingFen);
+  }, [viewingFen]);
+
+  const handleToggleAudio = () => {
+    const next = !isMuted;
+    setIsMutedState(next);
+    setAudioMuted(next);
+  };
+
+  const handleFlipBoard = () => {
+    setBoardOrientation((prev) => (prev === "white" ? "black" : "white"));
+  };
 
   const triggerPostgame = async () => {
     setIsPostgameLoading(true);
@@ -91,12 +147,13 @@ function PlayContent() {
       for (const b of blunderRows) {
         if (b.best) {
           addCard({
-            fen: b.fen,
+            fen: b.fenBefore || b.fen,
             bestMove: b.best,
             context: `${b.phase} - ${b.label}: jogado ${b.san}`,
           });
         }
       }
+
       const tags: (keyof Profile["errorTags"])[] = blunderRows.map(() => "tactics");
       const fens = blunderRows.map((r) => r.fen);
       const updated = applyPostgame(profileRef.current, { won, tags, fens, phases });
@@ -104,7 +161,7 @@ function PlayContent() {
       profileRef.current = updated;
 
       const savedId = saveGame(game.pgn());
-      addAnalysis(savedId, { depth: 10, rows });
+      addAnalysis(savedId, { depth: 12, rows });
     } finally {
       setIsPostgameLoading(false);
     }
@@ -112,7 +169,6 @@ function PlayContent() {
 
   const makeEngineMove = async (currentFen: string, engineInstance?: Engine) => {
     const engineColor = color === "white" ? "b" : "w";
-    // STRICT GUARD: If it is not engine's turn or game is over, engine must never move!
     if (game.turn() !== engineColor || game.isGameOver()) {
       return;
     }
@@ -125,21 +181,27 @@ function PlayContent() {
 
       let replyUci = egAfter.best;
       if (!replyUci) {
-        const ev = await eng.analyze(currentFen, 12);
+        const difficultyOptions =
+          aiDifficulty === "grandmaster"
+            ? { limitStrength: false }
+            : aiDifficulty === "master"
+            ? { limitStrength: true, elo: 2200 }
+            : { limitStrength: true, elo: Math.max(1320, profileRef.current.rating + 250) };
+        const ev = await eng.analyze(currentFen, 12, difficultyOptions);
         replyUci = ev.best;
       }
 
       let moveSuccess = false;
+      let engineMoveResult = null;
       if (replyUci && replyUci.length >= 4) {
         const replyFrom = replyUci.slice(0, 2);
         const replyTo = replyUci.slice(2, 4);
         const replyProm = replyUci.slice(4, 5) || undefined;
         try {
           if (game.turn() === engineColor) {
-            const res = game.move({ from: replyFrom, to: replyTo, promotion: replyProm });
-            if (res) {
+            engineMoveResult = game.move({ from: replyFrom, to: replyTo, promotion: replyProm });
+            if (engineMoveResult) {
               moveSuccess = true;
-              setFen(game.fen());
             }
           }
         } catch {
@@ -152,9 +214,39 @@ function PlayContent() {
         const legal = game.moves({ verbose: true });
         if (legal.length > 0) {
           const chosen = legal[0];
-          game.move({ from: chosen.from, to: chosen.to, promotion: chosen.promotion });
-          setFen(game.fen());
+          engineMoveResult = game.move({ from: chosen.from, to: chosen.to, promotion: chosen.promotion });
         }
+      }
+
+      if (engineMoveResult) {
+        const updatedFen = game.fen();
+        setFen(updatedFen);
+
+        // Sound trigger
+        if (game.isGameOver()) {
+          playGameEndSound();
+        } else if (game.inCheck()) {
+          playCheckSound();
+        } else if (engineMoveResult.captured) {
+          playCaptureSound();
+        } else {
+          playMoveSound();
+        }
+
+        // Record history
+        setMovesHistory((prev) => {
+          const next = [
+            ...prev,
+            {
+              ply: prev.length + 1,
+              san: engineMoveResult.san,
+              from: engineMoveResult.from,
+              to: engineMoveResult.to,
+            },
+          ];
+          setViewingPly(next.length);
+          return next;
+        });
       }
 
       if (game.isGameOver()) {
@@ -193,7 +285,6 @@ function PlayContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [color]);
 
-
   const ensureElo = async () => {
     if (!eloSetRef.current && engineRef.current) {
       const capElo = profileRef.current.rating + 250;
@@ -205,10 +296,22 @@ function PlayContent() {
   const postTurnCoachWithRetry = async (
     payload: MoveAnalysisInput & {
       fen: string;
+      fenBefore?: string;
+      fenAfter?: string;
       pgn: string;
       cpLoss: number;
       bestMove: string;
       phase: Phase;
+      san?: string;
+      from?: string;
+      to?: string;
+      piece?: string;
+      color?: string;
+      captured?: string;
+      flags?: string;
+      moveLabel?: Label;
+      isCheck?: boolean;
+      isCheckmate?: boolean;
     }
   ): Promise<TurnResponse> => {
     const doFetch = async () => {
@@ -224,7 +327,6 @@ function PlayContent() {
     try {
       return await doFetch();
     } catch {
-      // retry once
       try {
         return await doFetch();
       } catch {
@@ -256,7 +358,7 @@ function PlayContent() {
       moveResult = game.move({ from, to, promotion: "q" });
     } catch {
       setFen(game.fen());
-      setNotice(`Illegal move ${from}→${to}: blocked by chess.js legality rules. Choose a legal move.`);
+      setNotice(`Lance ilegal ${from}→${to}.`);
       return;
     }
 
@@ -266,43 +368,67 @@ function PlayContent() {
     setNotice("");
     setIsEngineThinking(true);
 
+    // Play player sound
+    if (game.isGameOver()) {
+      playGameEndSound();
+    } else if (game.inCheck()) {
+      playCheckSound();
+    } else if (moveResult.captured) {
+      playCaptureSound();
+    } else {
+      playMoveSound();
+    }
+
+    // Record player move in history
+    setMovesHistory((prev) => {
+      const next = [
+        ...prev,
+        {
+          ply: prev.length + 1,
+          san: moveResult.san,
+          from: moveResult.from,
+          to: moveResult.to,
+        },
+      ];
+      setViewingPly(next.length);
+      return next;
+    });
+
     try {
       const engine = engineRef.current ?? createMockEngine();
       await ensureElo();
 
-      // Check if game over after player's move
       if (game.isGameOver()) {
         await triggerPostgame();
         setIsEngineThinking(false);
         return;
       }
 
-      // 1. ENGINE RESPONDS PROMPTLY TO PLAYER'S MOVE
+      // 1. Engine responds promptly
       await makeEngineMove(fenAfterPlayer, engine);
 
-      // 2. BACKGROUND / ASYNC COACH EVALUATION (does not delay gameplay)
+      // 2. Background Coach evaluation
       (async () => {
         try {
-          const evalBefore = lastEval ?? (await engine.analyze(fenBefore, 10));
-          const evalAfter = await engine.analyze(fenAfterPlayer, 10);
+          const evalBefore = await engine.analyze(fenBefore, 12, { limitStrength: false });
+          const evalAfter = await engine.analyze(fenAfterPlayer, 12, { limitStrength: false });
           setLastEval(evalAfter);
 
-          const moverIsWhite = pieceBefore?.color === "w";
-          const moverCpBefore = moverIsWhite ? evalBefore.cp : -evalBefore.cp;
-          const moverCpAfter = moverIsWhite ? evalAfter.cp : -evalAfter.cp;
+          const moverCpBefore = evalBefore.cp;
+          const moverCpAfter = -evalAfter.cp;
           const cpLoss = Math.max(0, moverCpBefore - moverCpAfter);
 
           const capturedValue = moveResult?.captured ? PIECE_VALUES[moveResult.captured] : 0;
-          const evalKept = moverCpAfter >= moverCpBefore - 20;
+          const evalKept = moverCpAfter >= moverCpBefore - 25;
           const oppColor = playerColor === "w" ? "b" : "w";
           const tempGame = new Chess(fenAfterPlayer);
           const isAttackedByOpponent = tempGame.isAttacked(to as Square, oppColor);
-          const wasSacrifice = isAttackedByOpponent && movedValue > capturedValue && cpLoss < 25 && evalKept;
+          const wasSacrifice = isAttackedByOpponent && movedValue > capturedValue && cpLoss < 30 && evalKept;
 
           const moveLabel = classifyMove(cpLoss, wasSacrifice, evalKept);
           setLabel(moveLabel);
 
-          const egBefore = await bestMoveEndgameAware(fenBefore, engine, 10);
+          const egBefore = await bestMoveEndgameAware(fenBefore, engine, 12);
           const effectiveBestBefore = egBefore.best || evalBefore.best;
 
           const coachData = await postTurnCoachWithRetry({
@@ -326,7 +452,7 @@ function PlayContent() {
           });
           setCoach(coachData);
         } catch {
-          // background analysis caught gracefully
+          // Graceful background catch
         }
       })().catch(() => {});
     } catch {
@@ -336,56 +462,27 @@ function PlayContent() {
     }
   };
 
-
-  const handleUndo = async () => {
-    if (isEngineThinking) return;
-    if (game.history().length === 0) return;
-    if (color === "black" && game.history().length <= 1) return;
-
-    // If it is player's turn, undo opponent's move AND player's previous move (1 full move pair)
-    // If it was opponent's turn (or player just moved), undo at least 1 move to get back to player's turn
-    const isPlayerTurn = (game.turn() === "w" && color === "white") || (game.turn() === "b" && color === "black");
-    if (isPlayerTurn) {
-      game.undo(); // Undo opponent's move
-      if (game.history().length > 0) {
-        game.undo(); // Undo player's move
-      }
-    } else {
-      game.undo(); // Undo player's last move
-    }
-
-    setFen(game.fen());
-    setArrow([]);
-    setLabel(null);
-    setNotice("Jogada desfeita.");
-
-    // Update evaluation for the restored position
-    try {
-      const engine = engineRef.current ?? createMockEngine();
-      const ev = await engine.analyze(game.fen(), 10);
-      setLastEval(ev);
-    } catch {
-      // ignore
-    }
-  };
-
   const handleAskHint = async () => {
-    const playerColor = color === "white" ? "w" : "b";
-    if (isEngineThinking || game.turn() !== playerColor || game.isGameOver()) return;
-
+    if (isEngineThinking || isHintLoading) return;
+    setIsHintLoading(true);
     try {
       const engine = engineRef.current ?? createMockEngine();
-      const currentFen = game.fen();
-      const res = await engine.analyze(currentFen, 12);
-      const hintUci = res.best;
-      if (hintUci && hintUci.length >= 4) {
-        const orig = hintUci.slice(0, 2) as Key;
-        const dest = hintUci.slice(2, 4) as Key;
+      // Always compute hint with full Grandmaster strength
+      const ev = await engine.analyze(game.fen(), 12, { limitStrength: false });
+      setLastEval(ev);
+
+      if (ev.best && ev.best.length >= 4) {
+        const orig = ev.best.slice(0, 2) as Key;
+        const dest = ev.best.slice(2, 4) as Key;
         setArrow([{ orig, dest, brush: "green" }]);
-        setNotice(`Dica para a posição atual: ${hintUci.slice(0, 2).toUpperCase()} → ${hintUci.slice(2, 4).toUpperCase()}`);
+        setNotice(`Dica GM: ${orig.toUpperCase()} → ${dest.toUpperCase()}`);
+      } else {
+        setNotice("Dica indisponível para esta posição.");
       }
     } catch {
-      // ignore
+      setNotice("Falha ao calcular dica.");
+    } finally {
+      setIsHintLoading(false);
     }
   };
 
@@ -437,242 +534,175 @@ function PlayContent() {
     }
   };
 
+  const handleResetGame = () => {
+    game.reset();
+    setFen(game.fen());
+    setMovesHistory([]);
+    setViewingPly(0);
+    setCoach(null);
+    setLabel(null);
+    setArrow([]);
+    setNotice("");
+    setPostgame(null);
+    if (color === "black") {
+      const eng = engineRef.current ?? createMockEngine();
+      setTimeout(() => {
+        makeEngineMove(game.fen(), eng);
+      }, 300);
+    }
+  };
+
+  const opponentColor = color === "white" ? "black" : "white";
+  const isPlayerTurn =
+    (game.turn() === "w" && color === "white") || (game.turn() === "b" && color === "black");
+  const isLiveMode = viewingPly === movesHistory.length;
+
   return (
-    <main className="min-h-screen bg-[#161512] text-zinc-100 p-4 md:p-8 flex flex-col lg:flex-row gap-8 justify-center items-start">
-      {/* Left column: Board & Status */}
-      <div className="flex flex-col gap-4 items-center w-full lg:w-auto">
-        <div className="flex items-center justify-between w-full max-w-[560px]">
-          <span className="text-xs uppercase font-mono tracking-widest text-amber-500 font-semibold">
-            Você: {color === "white" ? "Brancas" : "Pretas"}
-          </span>
-          {label && (
-            <span
-              className={`text-xs px-2.5 py-1 rounded-full font-semibold uppercase tracking-wider ${
-                label === "brilliant"
-                  ? "bg-cyan-900/60 text-cyan-300 border border-cyan-700"
-                  : label === "solid"
-                  ? "bg-emerald-900/60 text-emerald-300 border border-emerald-700"
-                  : label === "inaccurate"
-                  ? "bg-amber-900/60 text-amber-300 border border-amber-700"
-                  : label === "mistake"
-                  ? "bg-orange-900/60 text-orange-300 border border-orange-700"
-                  : "bg-rose-900/60 text-rose-300 border border-rose-700"
-              }`}
-            >
-              {label}
+    <main className="min-h-screen bg-[#161512] text-zinc-100 flex flex-col items-center select-none pb-8">
+      {/* ================= TOPBAR HEADER ================= */}
+      <header className="w-full max-w-7xl px-4 py-3 flex items-center justify-between border-b border-zinc-800/80 bg-zinc-950/60 backdrop-blur-sm sticky top-0 z-30">
+        <div className="flex items-center gap-3">
+          <Link
+            href="/dashboard"
+            className="text-xs font-mono text-zinc-400 hover:text-white px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 transition-colors flex items-center gap-1.5"
+          >
+            <span>←</span>
+            <span className="hidden sm:inline">Painel</span>
+          </Link>
+          <div className="flex items-center gap-1.5">
+            <span className="text-amber-500 font-bold tracking-wider text-xs uppercase font-mono">
+              En Passant
             </span>
-          )}
+            <span className="text-zinc-500 text-xs">•</span>
+            <span className="text-xs font-semibold text-zinc-300">Arena GM</span>
+          </div>
         </div>
 
-        <Board fen={fen} orientation={color} onMove={onMove} shape={arrow} isThinking={isEngineThinking} />
-
-        {/* Board Action Bar: Undo, Status & Restart */}
-        <div className="flex items-center justify-between w-full max-w-[560px] gap-2">
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handleUndo}
-              disabled={isEngineThinking || game.history().length === 0 || (color === "black" && game.history().length <= 1)}
-              className="flex items-center gap-1.5 px-3 py-2 bg-zinc-800 hover:bg-zinc-700 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed border border-zinc-700 text-zinc-200 text-xs font-mono font-semibold rounded-xl transition-all shadow-sm"
-              title="Desfazer o último par de lances e tentar outra jogada"
+        <div className="flex items-center gap-3">
+          {/* AI Difficulty Selector */}
+          <div className="flex items-center gap-2 bg-zinc-900/90 border border-zinc-800 px-3 py-1.5 rounded-xl">
+            <span className="text-[11px] font-mono text-zinc-400 hidden sm:inline">Nível:</span>
+            <select
+              value={aiDifficulty}
+              onChange={(e) => setAiDifficulty(e.target.value as "grandmaster" | "master" | "adaptive")}
+              className="bg-transparent text-xs font-mono text-amber-400 font-semibold focus:outline-none cursor-pointer"
             >
-              <span>↩</span>
-              <span>Voltar</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={handleAskHint}
-              disabled={isEngineThinking || game.turn() !== (color === "white" ? "w" : "b") || game.isGameOver()}
-              className="flex items-center gap-1.5 px-3 py-2 bg-amber-500/10 hover:bg-amber-500/20 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed border border-amber-500/30 text-amber-300 text-xs font-mono font-semibold rounded-xl transition-all shadow-sm"
-              title="Receber uma sugestão calculada para a sua jogada atual"
-            >
-              <span>💡</span>
-              <span>Dica</span>
-            </button>
+              <option value="grandmaster" className="bg-zinc-900 text-white">Grande Mestre (SF 18)</option>
+              <option value="master" className="bg-zinc-900 text-white">Mestre (~2200)</option>
+              <option value="adaptive" className="bg-zinc-900 text-white">Adaptativo ({playerRating})</option>
+            </select>
           </div>
 
-          <span className="text-[11px] font-mono text-zinc-500">
-            Lances: {Math.floor(game.history().length / 2)} {game.history().length % 2 !== 0 ? "½" : ""}
-          </span>
-
-          <Link
-            href="/"
-            className="text-xs font-mono text-zinc-400 hover:text-zinc-200 px-3 py-2 rounded-xl hover:bg-zinc-800/60 transition-colors"
+          {/* Sound Toggle Button */}
+          <button
+            type="button"
+            onClick={handleToggleAudio}
+            title={isMuted ? "Ativar som" : "Desativar som"}
+            className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-amber-400 transition-colors text-sm"
           >
-            Nova Partida
-          </Link>
+            {isMuted ? "🔇" : "🔊"}
+          </button>
+        </div>
+      </header>
+
+      {/* ================= MAIN ARENA GRID ================= */}
+      <div className="w-full max-w-7xl px-3 sm:px-6 py-4 sm:py-6 flex flex-col lg:flex-row gap-6 items-start justify-center">
+        {/* LEFT COLUMN: BOARD ARENA */}
+        <div className="w-full lg:w-[560px] lg:shrink-0 flex flex-col items-center gap-3">
+          {/* Opponent Card (Top) */}
+          <div className="w-full max-w-[560px]">
+            <PlayerCard
+              name={
+                aiDifficulty === "grandmaster"
+                  ? "GM Coach (Stockfish 18)"
+                  : aiDifficulty === "master"
+                  ? "Mestre Stockfish"
+                  : "Coach Adaptativo"
+              }
+              badge={aiDifficulty === "grandmaster" ? "GM" : "BOT"}
+              rating={aiDifficulty === "grandmaster" ? 2800 : aiDifficulty === "master" ? 2200 : playerRating + 250}
+              color={opponentColor}
+              isTurn={!isPlayerTurn && !game.isGameOver()}
+              capturedPieces={opponentColor === "white" ? material.whiteCaptured : material.blackCaptured}
+              materialAdvantage={opponentColor === "white" ? material.whiteAdvantage : material.blackAdvantage}
+              isThinking={isEngineThinking}
+              isEngine
+            />
+          </div>
+
+          {/* Board Row with Vertical EvalBar */}
+          <div className="flex items-center gap-2.5 sm:gap-3 w-full max-w-[560px] justify-center">
+            {/* Dynamic Vertical EvalBar */}
+            <div className="h-[360px] sm:h-[480px] md:h-[540px]">
+              <EvalBar evaluation={lastEval} orientation={boardOrientation} />
+            </div>
+
+            {/* Chessground Board */}
+            <div className="relative flex-1 min-w-0 max-w-[500px] sm:max-w-[520px]">
+              <Board
+                fen={viewingFen}
+                orientation={boardOrientation}
+                onMove={isLiveMode ? onMove : undefined}
+                shape={arrow}
+                isThinking={isEngineThinking}
+              />
+            </div>
+          </div>
+
+          {/* Player Card (Bottom) */}
+          <div className="w-full max-w-[560px]">
+            <PlayerCard
+              name="Você"
+              badge="ALUNO"
+              rating={playerRating}
+              color={color}
+              isTurn={isPlayerTurn && !game.isGameOver()}
+              capturedPieces={color === "white" ? material.whiteCaptured : material.blackCaptured}
+              materialAdvantage={color === "white" ? material.whiteAdvantage : material.blackAdvantage}
+            />
+          </div>
         </div>
 
-        {isEngineThinking && (
-          <div className="text-xs text-amber-400 font-mono animate-pulse">Stockfish analisando...</div>
-        )}
+        {/* RIGHT COLUMN: INTERACTIVE CONSOLE (MoveHistory + CoachConsole) */}
+        <div className="w-full lg:w-[420px] flex flex-col gap-4">
+          {/* Upper Box: Move Notation & Transport */}
+          <div className="h-[260px] sm:h-[280px]">
+            <MoveHistory
+              moves={movesHistory}
+              currentViewingPly={viewingPly}
+              onSelectPly={setViewingPly}
+              onFlipBoard={handleFlipBoard}
+            />
+          </div>
 
-        {notice && (
-          <p
-            role="alert"
-            className="text-sm text-amber-300 bg-amber-950/50 border border-amber-800/60 px-4 py-2 rounded-xl max-w-[560px]"
-          >
-            {notice}
-          </p>
-        )}
-      </div>
-
-      {/* Right column: 4 Coach Tabs */}
-      <div className="w-full lg:w-[480px] bg-zinc-900/90 border border-zinc-800 rounded-2xl flex flex-col h-[580px] shadow-xl overflow-hidden">
-        {/* Tab Headers */}
-        <div className="flex border-b border-zinc-800 bg-zinc-950/50">
-          {(["critique", "intent", "position", "chat"] as Tab[]).map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`flex-1 py-3 text-xs font-semibold uppercase tracking-wider border-b-2 transition-all ${
-                tab === t
-                  ? "border-amber-500 text-amber-400 bg-amber-500/10"
-                  : "border-transparent text-zinc-400 hover:text-zinc-200"
-              }`}
-            >
-              {t === "chat" ? "Conversar" : t}
-            </button>
-          ))}
-        </div>
-
-        {/* Tab Content */}
-        <div className="flex-1 p-5 overflow-y-auto">
-          {tab === "critique" && (
-            <div className="flex flex-col gap-4">
-              <h2 className="text-sm font-semibold text-zinc-300 uppercase tracking-wide">Crítica do GM</h2>
-              <div className="text-sm text-zinc-200 leading-relaxed bg-zinc-950/40 p-4 rounded-xl border border-zinc-800/60 whitespace-pre-wrap">
-                {coach?.critique ?? "Faça seu primeiro lance para o GM analisar a posição."}
-              </div>
-              {coach?.homework && (
-                <div className="flex flex-col gap-1.5 p-3 rounded-lg bg-amber-950/30 border border-amber-900/40">
-                  <span className="text-xs font-bold text-amber-400 uppercase">Exercício</span>
-                  <p className="text-xs text-amber-200/90">{coach.homework}</p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {tab === "intent" && (
-            <div className="flex flex-col gap-4">
-              <h2 className="text-sm font-semibold text-zinc-300 uppercase tracking-wide">Intenção & Plano</h2>
-              <div className="text-sm text-zinc-200 leading-relaxed bg-zinc-950/40 p-4 rounded-xl border border-zinc-800/60 whitespace-pre-wrap">
-                {coach?.intent ?? "Aguardando seu lance para desvendar os planos táticos e posicionais."}
-              </div>
-              {coach?.tags && coach.tags.length > 0 && (
-                <div className="flex gap-2 flex-wrap">
-                  {coach.tags.map((t) => (
-                    <span key={t} className="text-xs px-2.5 py-1 bg-zinc-800 text-zinc-300 rounded-md font-mono">
-                      #{t}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {tab === "position" && (
-            <div className="flex flex-col gap-4">
-              <h2 className="text-sm font-semibold text-zinc-300 uppercase tracking-wide">Métricas da Posição</h2>
-              <div className="flex flex-col gap-2">
-                <span className="text-xs text-zinc-400 font-mono uppercase">Avaliação (cp)</span>
-                <div className="text-lg font-bold font-mono text-amber-400 bg-zinc-950/60 p-3 rounded-xl border border-zinc-800">
-                  {lastEval?.mate != null ? `Mate em ${lastEval.mate}` : `${((lastEval?.cp ?? 0) / 100).toFixed(2)}`}
-                </div>
-              </div>
-              {tbCategory && (
-                <div className="flex flex-col gap-1 p-3 bg-cyan-950/40 border border-cyan-800/60 rounded-xl">
-                  <span className="text-[10px] font-mono text-cyan-400 uppercase tracking-wider font-bold">
-                    Lichess Tablebase (≤7 peças)
-                  </span>
-                  <span className="text-xs font-mono text-cyan-200">
-                    Resultado Teórico: <strong>{tbCategory.toUpperCase()}</strong>
-                  </span>
-                </div>
-              )}
-              <div className="flex flex-col gap-2">
-                <span className="text-xs text-zinc-400 font-mono uppercase">FEN</span>
-                <code className="text-xs font-mono text-amber-200/90 bg-zinc-950/60 p-3 rounded-xl border border-zinc-800 break-all">
-                  {fen}
-                </code>
-              </div>
-              <div className="flex flex-col gap-2">
-                <span className="text-xs text-zinc-400 font-mono uppercase">PGN</span>
-                <pre className="text-xs font-mono text-zinc-300 bg-zinc-950/60 p-3 rounded-xl border border-zinc-800 whitespace-pre-wrap max-h-36 overflow-y-auto">
-                  {game.pgn() || "(game start)"}
-                </pre>
-              </div>
-            </div>
-          )}
-
-          {tab === "chat" && (
-            <div className="flex flex-col h-full gap-3">
-              <div className="flex-1 overflow-y-auto flex flex-col gap-3 pr-1">
-                {chatMessages.length === 0 && (
-                  <p className="text-xs text-zinc-500 text-center my-auto">
-                    Converse com seu treinador. Pergunte o motivo de um lance, peça um plano ou um desafio.
-                  </p>
-                )}
-                {chatMessages.map((msg, i) => (
-                  <div
-                    key={i}
-                    className={`p-3 rounded-xl text-xs leading-relaxed max-w-[85%] ${
-                      msg.role === "user"
-                        ? "ml-auto bg-amber-600/30 text-amber-100 border border-amber-600/40"
-                        : "mr-auto bg-zinc-950 text-zinc-200 border border-zinc-800"
-                    }`}
-                  >
-                    {msg.content}
-                  </div>
-                ))}
-              </div>
-
-              {/* Shortcut chips */}
-              <div className="flex gap-2 overflow-x-auto pb-1">
-                {["Por quê?", "Plano?", "Me desafia"].map((chip) => (
-                  <button
-                    key={chip}
-                    onClick={() => sendChatMessage(chip)}
-                    className="text-xs px-2.5 py-1 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 whitespace-nowrap transition-colors"
-                  >
-                    {chip}
-                  </button>
-                ))}
-              </div>
-
-              {/* Chat input */}
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  sendChatMessage(chatInput);
-                }}
-                className="flex gap-2"
-              >
-                <input
-                  type="text"
-                  value={chatInput}
-                  onChange={(e) => setChatInput(e.target.value)}
-                  placeholder="Pergunte ao GM..."
-                  disabled={isChatSending}
-                  className="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-zinc-100 focus:outline-none focus:border-amber-500"
-                />
-                <button
-                  type="submit"
-                  disabled={isChatSending || !chatInput.trim()}
-                  className="bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all"
-                >
-                  {isChatSending ? "..." : "Enviar"}
-                </button>
-              </form>
-            </div>
-          )}
+          {/* Lower Box: Rich Coach Console */}
+          <div className="min-h-[360px]">
+            <CoachConsole
+              tab={tab}
+              onTabChange={setTab}
+              coach={coach}
+              label={label}
+              movesCount={movesHistory.length}
+              notice={notice}
+              onHint={handleAskHint}
+              isHintLoading={isHintLoading}
+              onTriggerPostgame={triggerPostgame}
+              isPostgameLoading={isPostgameLoading}
+              onNewGame={handleResetGame}
+              tbCategory={tbCategory}
+              chatMessages={chatMessages}
+              chatInput={chatInput}
+              onChatInputChange={setChatInput}
+              onChatSend={() => sendChatMessage(chatInput)}
+              isChatSending={isChatSending}
+            />
+          </div>
         </div>
       </div>
 
-      {/* Postgame Analysis Modal */}
+      {/* ================= POSTGAME MODAL ================= */}
       {(postgame || isPostgameLoading) && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in">
           <div className="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-xl w-full p-6 flex flex-col gap-5 shadow-2xl max-h-[90vh] overflow-y-auto">
             {isPostgameLoading ? (
               <div className="flex flex-col items-center justify-center py-12 gap-4">
@@ -759,7 +789,13 @@ function PlayContent() {
 
 export default function PlayPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#161512] flex items-center justify-center text-zinc-400">Loading match...</div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#161512] flex items-center justify-center text-zinc-400">
+          Carregando arena de xadrez...
+        </div>
+      }
+    >
       <PlayContent />
     </Suspense>
   );
