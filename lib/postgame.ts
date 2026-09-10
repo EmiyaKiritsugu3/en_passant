@@ -28,6 +28,8 @@ export interface Row {
   phase: Phase;
   score: number;
   fen: string;
+  fenBefore: string;
+  fenAfter: string;
   best: string;
 }
 
@@ -38,20 +40,26 @@ export async function collectEvals(pgn: string, engine: Engine): Promise<Row[]> 
   const rows: Row[] = [];
   let prev = await engine.analyze(replay.fen(), 10);
   for (const move of game.history({ verbose: true })) {
-    replay.move(move.san);
-    const cur = await engine.analyze(replay.fen(), 10);
-    const moverWhite = replay.turn() === "b"; // turn already flipped to opponent
-    const cpLoss = Math.max(0, moverWhite ? prev.cp - cur.cp : cur.cp - prev.cp);
-    const ply = replay.history().length;
-
+    const fenBefore = replay.fen();
     let best = prev.best;
-    const pieces = replay.board().flat().filter(Boolean).length;
-    if (pieces <= 7) {
-      const tb = await fetchTablebase(replay.fen());
+    const piecesBefore = replay.board().flat().filter(Boolean).length;
+    if (piecesBefore <= 7) {
+      const tb = await fetchTablebase(fenBefore);
       if (tb?.bestUci) {
         best = tb.bestUci;
       }
     }
+
+    replay.move(move.san);
+    const fenAfter = replay.fen();
+    const cur = await engine.analyze(fenAfter, 10);
+
+    // prev.cp is score before move (from mover's perspective)
+    // cur.cp is score after move (from opponent's perspective)
+    // Therefore, mover's score after move is -cur.cp
+    // cpLoss = max(0, prev.cp - (-cur.cp)) = max(0, prev.cp + cur.cp)
+    const cpLoss = Math.max(0, prev.cp + cur.cp);
+    const ply = replay.history().length;
 
     rows.push({
       ply,
@@ -60,7 +68,9 @@ export async function collectEvals(pgn: string, engine: Engine): Promise<Row[]> 
       label: classifyMove(cpLoss, false, false),
       phase: detectPhase(ply, replay),
       score: moveScore(cpLoss),
-      fen: replay.fen(),
+      fen: fenAfter,
+      fenBefore,
+      fenAfter,
       best,
     });
     prev = cur;

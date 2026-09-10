@@ -6,9 +6,14 @@ export interface Eval {
   best: string;
 }
 
+export interface EngineOptions {
+  limitStrength?: boolean;
+  elo?: number;
+}
+
 export interface Engine {
   setElo(elo: number): Promise<void>;
-  analyze(fen: string, depth?: number): Promise<Eval>;
+  analyze(fen: string, depth?: number, options?: EngineOptions): Promise<Eval>;
   quit(): void;
 }
 
@@ -23,13 +28,24 @@ export function parseUciInfo(infoLine: string, bestLine: string): Eval {
 
 const PIECE_VALUES: Record<string, number> = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
 
+// Positional bonuses for central presence and piece development
+const CENTER_SQUARES = new Set(["d4", "e4", "d5", "e5"]);
+const EXTENDED_CENTER = new Set(["c4", "f4", "c5", "f5", "c3", "d3", "e3", "f3", "c6", "d6", "e6", "f6"]);
+
 function evaluateBoard(c: Chess): number {
   let score = 0;
   for (const row of c.board()) {
     for (const sq of row) {
       if (!sq) continue;
-      const val = PIECE_VALUES[sq.type] || 0;
-      score += sq.color === "w" ? val : -val;
+      const baseVal = PIECE_VALUES[sq.type] || 0;
+      let posVal = 0;
+      if (CENTER_SQUARES.has(sq.square)) {
+        posVal = sq.type === "p" ? 25 : 15;
+      } else if (EXTENDED_CENTER.has(sq.square)) {
+        posVal = sq.type === "p" ? 10 : 8;
+      }
+      const total = baseVal + posVal;
+      score += sq.color === "w" ? total : -total;
     }
   }
   return score;
@@ -55,44 +71,44 @@ function evaluatePositionWithMinimax(c: Chess, isWhite: boolean): { best: string
 
   for (const m1 of legal1) {
     c.move(m1);
-    const legal2 = c.moves({ verbose: true });
-    let replyVal = isWhite ? Infinity : -Infinity;
+    let score = evaluateBoard(c);
 
-    if (legal2.length === 0) {
-      if (c.isCheck()) replyVal = isWhite ? 100000 : -100000;
-      else replyVal = 0;
+    // If opponent has immediate capturing replies, consider the best opponent capture
+    const replies = c.moves({ verbose: true });
+    if (replies.length === 0) {
+      if (c.isCheck()) score = isWhite ? 100000 : -100000;
+      else score = 0;
     } else {
-      for (const m2 of legal2) {
-        c.move(m2);
-        const s = evaluateBoard(c);
-        c.undo();
-        if (isWhite) {
-          if (s < replyVal) replyVal = s;
-        } else {
-          if (s > replyVal) replyVal = s;
+      const captures = replies.filter((r) => r.captured);
+      if (captures.length > 0) {
+        // Opponent picks highest value capture
+        let worstForMover = score;
+        for (const cap of captures) {
+          c.move(cap);
+          const capScore = evaluateBoard(c);
+          c.undo();
+          if (isWhite) {
+            if (capScore < worstForMover) worstForMover = capScore;
+          } else {
+            if (capScore > worstForMover) worstForMover = capScore;
+          }
         }
+        score = worstForMover;
       }
     }
     c.undo();
 
-    let moveScore = replyVal;
-    if (["d4", "e4", "d5", "e5"].includes(m1.to)) moveScore += isWhite ? 15 : -15;
-    if (["c3", "f3", "c6", "f6"].includes(m1.to) && (m1.piece === "n" || m1.piece === "b")) {
-      moveScore += isWhite ? 10 : -10;
-    }
-    if (m1.captured) {
-      const capVal = PIECE_VALUES[m1.captured] || 0;
-      moveScore += isWhite ? capVal * 0.2 : -capVal * 0.2;
-    }
+    // Bonus for active center control
+    if (CENTER_SQUARES.has(m1.to)) score += isWhite ? 15 : -15;
 
     if (isWhite) {
-      if (moveScore > bestVal) {
-        bestVal = moveScore;
+      if (score > bestVal) {
+        bestVal = score;
         bestMove = m1;
       }
     } else {
-      if (moveScore < bestVal) {
-        bestVal = moveScore;
+      if (score < bestVal) {
+        bestVal = score;
         bestMove = m1;
       }
     }
@@ -122,7 +138,17 @@ export function createMockEngine(): Engine {
   };
 }
 
-// Real engine: stockfish served from public as Web Worker speaking raw UCI.
+interface QueuedTask {
+  id: number;
+  fen: string;
+  depth: number;
+  options?: EngineOptions;
+  resolve: (v: Eval) => void;
+  reject: (err: unknown) => void;
+}
+
+// Real engine: Stockfish 18 served from public as Web Worker speaking raw UCI.
+// Uses a serialized command queue and handshake synchronization to prevent race conditions.
 export function createStockfishEngine(): Engine {
   if (typeof window === "undefined" || typeof Worker === "undefined") {
     return createMockEngine();
@@ -131,73 +157,161 @@ export function createStockfishEngine(): Engine {
   const mock = createMockEngine();
   let worker: Worker | null = null;
   let hasFailed = false;
-  const queue: Array<{ id: number; resolve: (v: Eval) => void }> = [];
-  let seq = 0;
-  let lastInfo = "";
+  let isReady = false;
+  const readyCallbacks: Array<() => void> = [];
+
+  const queue: QueuedTask[] = [];
+  let isProcessing = false;
+  let activeTask: QueuedTask | null = null;
+  let lastInfoLine = "";
+  let taskTimer: NodeJS.Timeout | null = null;
+  let currentLimitStrength = false;
+  let currentElo = 2800;
+
+  function onReady() {
+    isReady = true;
+    while (readyCallbacks.length > 0) {
+      readyCallbacks.shift()?.();
+    }
+  }
+
+  function waitForReady(): Promise<void> {
+    if (isReady) return Promise.resolve();
+    return new Promise((res) => readyCallbacks.push(res));
+  }
 
   try {
     worker = new Worker("/stockfish/stockfish-18-lite-single.js");
+
     worker.onerror = () => {
       hasFailed = true;
+      if (activeTask) {
+        const t = activeTask;
+        activeTask = null;
+        mock.analyze(t.fen, t.depth).then(t.resolve);
+      }
+      processNext();
     };
+
     worker.onmessage = (e: MessageEvent<string>) => {
-      const line = String(e.data);
-      if (line.startsWith("info depth")) {
-        lastInfo = line;
+      const line = String(e.data).trim();
+
+      if (line === "uciok" || line === "readyok") {
+        onReady();
       }
-      if (line.startsWith("bestmove")) {
-        const item = queue.shift();
-        if (item) {
-          item.resolve(parseUciInfo(lastInfo, line));
+
+      if (line.startsWith("info depth")) {
+        lastInfoLine = line;
+      }
+
+      if (line.startsWith("bestmove") && activeTask) {
+        if (taskTimer) {
+          clearTimeout(taskTimer);
+          taskTimer = null;
         }
+        const task = activeTask;
+        activeTask = null;
+        isProcessing = false;
+        const evaluation = parseUciInfo(lastInfoLine, line);
+        lastInfoLine = "";
+        task.resolve(evaluation);
+        processNext();
       }
     };
+
     worker.postMessage("uci");
     worker.postMessage("isready");
   } catch {
     hasFailed = true;
   }
 
+  async function processNext() {
+    if (isProcessing) return;
+    if (queue.length === 0) {
+      return;
+    }
+
+    isProcessing = true;
+    const task = queue.shift()!;
+    activeTask = task;
+    lastInfoLine = "";
+
+    try {
+      await waitForReady();
+
+      if (hasFailed || !worker) {
+        const fallback = await mock.analyze(task.fen, task.depth);
+        activeTask = null;
+        isProcessing = false;
+        task.resolve(fallback);
+        processNext();
+        return;
+      }
+
+      // Configure Elo strength if requested
+      const requestedLimit = Boolean(task.options?.limitStrength);
+      const requestedElo = task.options?.elo ?? 2800;
+
+      if (requestedLimit !== currentLimitStrength || (requestedLimit && requestedElo !== currentElo)) {
+        currentLimitStrength = requestedLimit;
+        currentElo = requestedElo;
+        if (requestedLimit) {
+          const clampedElo = Math.max(1320, Math.min(3190, Math.round(requestedElo)));
+          worker.postMessage("setoption name UCI_LimitStrength value true");
+          worker.postMessage(`setoption name UCI_Elo value ${clampedElo}`);
+        } else {
+          worker.postMessage("setoption name UCI_LimitStrength value false");
+        }
+      }
+
+      // Generous 6000ms safety timeout (never blocks game, but allows full WASM deep calculation)
+      taskTimer = setTimeout(async () => {
+        if (activeTask && activeTask.id === task.id) {
+          activeTask = null;
+          taskTimer = null;
+          isProcessing = false;
+          const fallback = await mock.analyze(task.fen, task.depth);
+          task.resolve(fallback);
+          processNext();
+        }
+      }, 6000);
+
+      worker.postMessage(`position fen ${task.fen}`);
+      worker.postMessage(`go depth ${Math.max(6, Math.min(task.depth, 14))}`);
+    } catch {
+      activeTask = null;
+      isProcessing = false;
+      const fallback = await mock.analyze(task.fen, task.depth);
+      task.resolve(fallback);
+      processNext();
+    }
+  }
+
+  let seq = 0;
+
   return {
     async setElo(elo: number) {
       if (worker && !hasFailed) {
-        worker.postMessage(`setoption name UCI_LimitStrength value true`);
-        worker.postMessage(`setoption name UCI_Elo value ${Math.max(400, Math.min(2800, Math.round(elo)))}`);
+        const clampedElo = Math.max(1320, Math.min(3190, Math.round(elo)));
+        worker.postMessage("setoption name UCI_LimitStrength value true");
+        worker.postMessage(`setoption name UCI_Elo value ${clampedElo}`);
+        currentLimitStrength = true;
+        currentElo = clampedElo;
       }
     },
-    async analyze(fen: string, depth = 12): Promise<Eval> {
+    async analyze(fen: string, depth = 12, options?: EngineOptions): Promise<Eval> {
       if (hasFailed || !worker) {
         return mock.analyze(fen, depth);
       }
 
       const id = ++seq;
-      return new Promise<Eval>((resolve) => {
-        let settled = false;
-        // Fast 700ms timeout so the game never lags or blocks
-        const timer = setTimeout(async () => {
-          if (settled) return;
-          settled = true;
-          const idx = queue.findIndex((q) => q.id === id);
-          if (idx !== -1) queue.splice(idx, 1);
-          const fallback = await mock.analyze(fen, depth);
-          resolve(fallback);
-        }, 700);
-
-        queue.push({
-          id,
-          resolve: (ev) => {
-            if (settled) return;
-            settled = true;
-            clearTimeout(timer);
-            resolve(ev);
-          },
-        });
-
-        worker?.postMessage(`position fen ${fen}`);
-        worker?.postMessage(`go depth ${Math.min(depth, 10)}`);
+      return new Promise<Eval>((resolve, reject) => {
+        queue.push({ id, fen, depth, options, resolve, reject });
+        processNext();
       });
     },
     quit() {
+      if (taskTimer) clearTimeout(taskTimer);
       try {
         worker?.terminate();
       } catch {}
