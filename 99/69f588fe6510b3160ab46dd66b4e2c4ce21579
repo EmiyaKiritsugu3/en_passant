@@ -1,0 +1,23 @@
+lib/engine/engine.ts
+  s_6078f5f5383f72::t_e013f9b0f5fe7a 9-13,16,31-34,40-48,74,76-80,82-94,96,101-102,105-106,110-111,141-151,160-181,185,188-193,195,197-202,204,206-210,212-218,221,228-291,295-299,302,308-310,314
+lib/postgame.test.ts
+  s_6078f5f5383f72::t_c25601a7776cb5 17-33
+lib/postgame.ts
+  s_6078f5f5383f72::t_5b1c813a657e54 31-32,43,45-47,53-63,71-73
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "9969f588fe6510b3160ab46dd66b4e2c4ce21579",
+  "prompts": {},
+  "sessions": {
+    "s_6078f5f5383f72": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "57ca2664-21ba-49d7-b43b-b4e10a0ad5e4",
+        "model": "unknown"
+      },
+      "human_author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
