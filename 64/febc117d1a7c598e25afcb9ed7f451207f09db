@@ -1,0 +1,84 @@
+components/arena/CoachConsole.tsx
+  s_1883d9740604c9::t_73b4123891aa01 31-43
+  s_1883d9740604c9::t_93c6c19ddb6385 167,197,231-242,268
+  s_1883d9740604c9::t_f03513b5dc6125 269
+  s_1883d9740604c9::t_7ab7aa9642bc12 217
+  s_1883d9740604c9::t_132750f23ec95a 28-30
+  s_1883d9740604c9::t_0e19adb8eb6afa 44-46,164-166
+  s_1883d9740604c9::t_59a239de63cfc7 168-170,194-196
+  s_1883d9740604c9::t_d9fb54eb05be56 198-200,214-216
+  s_1883d9740604c9::t_83787111500299 218-220,228-230
+  s_1883d9740604c9::t_1337076c8df020 243-245,265-267
+  s_1883d9740604c9::t_1193717b347933 270-272
+  s_1883d9740604c9::t_113c4aff95d6fd 1-27,47-163,171-193,201-213,221-227,246-264,273-329
+lib/chess/material.ts
+  s_6078f5f5383f72::t_29dfef2ecba97b 52-63
+  s_6078f5f5383f72::t_0f29dd74927c44 69
+  s_6078f5f5383f72::t_4f44dca5e7bafa 49-51
+  s_6078f5f5383f72::t_15b1866f39f174 64-68
+  s_6078f5f5383f72::t_0c529682708bfe 70-72
+  s_6078f5f5383f72::t_238313d183566b 1-48,73-86
+lib/chess/material.test.ts
+  s_6078f5f5383f72::t_cbdaece9e785b4 41
+  s_6078f5f5383f72::t_c2cb41cd9af27e 9,11-12,17,19,21-22,30,36-37,39-40,42-48,52-53,56-57
+  s_6078f5f5383f72::t_90d419a5527cbf 6-8
+  s_6078f5f5383f72::t_94729cdf779ff3 10
+  s_6078f5f5383f72::t_884e9702fd050c 13-16
+  s_6078f5f5383f72::t_38709993adeb5e 18
+  s_6078f5f5383f72::t_b3691623069335 20
+  s_6078f5f5383f72::t_b018650b98d5b3 23-25,27-29
+  s_6078f5f5383f72::t_185fe9f45ae73a 31-35
+  s_6078f5f5383f72::t_309d0baf7bbfda 38
+  s_6078f5f5383f72::t_cffadb3e03a07b 49-51
+  s_6078f5f5383f72::t_32e102093f7b93 54-55
+  s_6078f5f5383f72::t_16684255f05c5f 58
+  s_6078f5f5383f72::t_003c7a311bb8b2 1-5,26
+components/Board.tsx
+  s_1883d9740604c9::t_b46c43bb6b797c 103
+app/play/page.tsx
+  s_1883d9740604c9::t_45abe74b9e903f 641
+  s_1883d9740604c9::t_287cd9a773650d 611
+  s_1883d9740604c9::t_df8c0840f3271e 608-610
+  s_1883d9740604c9::t_b6fd559460ba35 612-614
+  s_1883d9740604c9::t_ff1a05c807bb28 640
+  s_1883d9740604c9::t_924bef49de8eea 642-644
+  s_1883d9740604c9::t_921b7439e783bb 9-21,46-52,60,67-68,74-106,150,156,164,184-190,195,202-203,217,221-251,299-300,305-314,361,371-396,407,410,413-414,417-418,422,426,431,455,465-467,470-471,474-476,478-480,483-485,537-553,555-558,560-564,566-567,569-570,572-578,581-594,596-601,603-604,606-607,615-631,633-637,645-648,650,652-664,666-699,703,705,792-798
+components/arena/EvalBar.tsx
+  s_1883d9740604c9::t_e20ae2fe8fb684 1-58
+components/arena/MoveHistory.tsx
+  s_1883d9740604c9::t_7a09d29b2432d4 1-184
+components/arena/PlayerCard.tsx
+  s_1883d9740604c9::t_d9d4bf754b669b 1-133
+lib/chess/evalbar.test.ts
+  s_1883d9740604c9::t_54a559ea3df377 1-61
+lib/chess/evalbar.ts
+  s_1883d9740604c9::t_f8e6c24f08bbb1 1-35
+lib/sound/audio.test.ts
+  s_1883d9740604c9::t_255cad61b28a02 1-43
+lib/sound/audio.ts
+  s_1883d9740604c9::t_df5b31f8b809e5 1-182
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "64febc117d1a7c598e25afcb9ed7f451207f09db",
+  "prompts": {},
+  "sessions": {
+    "s_1883d9740604c9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "38faab4d-401b-423d-86b2-0c4615343724",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    },
+    "s_6078f5f5383f72": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "57ca2664-21ba-49d7-b43b-b4e10a0ad5e4",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
