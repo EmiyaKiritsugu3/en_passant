@@ -1,0 +1,19 @@
+components/ServiceWorkerRegister.tsx
+  s_6078f5f5383f72::t_14c35452920b57 9-14,16-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "66c48af98989f1f3b5f6ed59f3397b607ad7c3d0",
+  "prompts": {},
+  "sessions": {
+    "s_6078f5f5383f72": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "57ca2664-21ba-49d7-b43b-b4e10a0ad5e4",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
