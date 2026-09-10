@@ -1,0 +1,21 @@
+components/ServiceWorkerRegister.tsx
+  s_6078f5f5383f72::t_43f152f8442dff 8-21
+public/sw.js
+  s_6078f5f5383f72::t_b9da328bfe5b1c 27-45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "3ff194e3e09eb53ad3b425dd4a820d8d88af0936",
+  "prompts": {},
+  "sessions": {
+    "s_6078f5f5383f72": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "57ca2664-21ba-49d7-b43b-b4e10a0ad5e4",
+        "model": "unknown"
+      },
+      "human_author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
