@@ -1,0 +1,21 @@
+app/train/page.tsx
+  s_6078f5f5383f72::t_239d956ce70f6b 3,12-13,37-38,43,57-66,263-268,290-292
+lib/sm2/scheduler.ts
+  s_6078f5f5383f72::t_f12b339a950e14 33-72,85-87,89,92-93
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "eedc2cb60c9c36105e49661dd82b8f8f2c62c694",
+  "prompts": {},
+  "sessions": {
+    "s_6078f5f5383f72": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "57ca2664-21ba-49d7-b43b-b4e10a0ad5e4",
+        "model": "unknown"
+      },
+      "human_author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
