@@ -26,10 +26,34 @@ export function saveChat(messages: ChatMessage[]): void {
   storage.setItem(KEY, JSON.stringify(messages.slice(-50)));
 }
 
+const chatListeners = new Set<() => void>();
+
+function notifyChatListeners() {
+  for (const l of chatListeners) l();
+}
+
+let cachedChat: ChatMessage[] | null = null;
+
+export function subscribeChat(listener: () => void): () => void {
+  chatListeners.add(listener);
+  return () => {
+    chatListeners.delete(listener);
+  };
+}
+
+export function getChatSnapshot(): ChatMessage[] {
+  if (cachedChat === null) {
+    cachedChat = loadChat();
+  }
+  return cachedChat;
+}
+
 export function appendMessage(msg: ChatMessage): ChatMessage[] {
   const current = loadChat();
   const next = [...current, msg].slice(-50);
   saveChat(next);
+  cachedChat = next;
+  notifyChatListeners();
   return next;
 }
 

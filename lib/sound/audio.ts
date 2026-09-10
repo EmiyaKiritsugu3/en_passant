@@ -2,6 +2,11 @@ const AUDIO_MUTED_KEY = "chess_audio_muted";
 
 let cachedMuted: boolean | null = null;
 let audioCtx: AudioContext | null = null;
+const mutedListeners = new Set<() => void>();
+
+function notifyMutedListeners() {
+  for (const l of mutedListeners) l();
+}
 
 function getContext(): AudioContext | null {
   if (typeof window === "undefined") return null;
@@ -40,6 +45,18 @@ export function setAudioMuted(muted: boolean): void {
       // Ignore storage error
     }
   }
+  notifyMutedListeners();
+}
+
+export function subscribeAudioMuted(listener: () => void): () => void {
+  mutedListeners.add(listener);
+  return () => {
+    mutedListeners.delete(listener);
+  };
+}
+
+export function getAudioMutedSnapshot(): boolean {
+  return getAudioMuted();
 }
 
 /**

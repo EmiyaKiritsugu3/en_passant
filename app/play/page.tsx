@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useSearchParams } from "next/navigation";
 import { Chess, type Square } from "chess.js";
 import type { Key } from "chessground/types";
@@ -16,13 +16,21 @@ import {
   playCaptureSound,
   playCheckSound,
   playGameEndSound,
-  getAudioMuted,
+  getAudioMutedSnapshot,
   setAudioMuted,
+  subscribeAudioMuted,
 } from "@/lib/sound/audio";
 import { classifyMove, detectPhase, phaseAverages, type Label, type Phase } from "@/lib/chess/measure";
 import { createMockEngine, createStockfishEngine, type Engine, type Eval } from "@/lib/engine/engine";
-import { applyPostgame, loadProfile, saveProfile, type Profile } from "@/lib/profile/store";
-import { appendMessage, loadChat, type ChatMessage } from "@/lib/chat/store";
+import {
+  applyPostgame,
+  DEFAULT_PROFILE,
+  getProfileSnapshot,
+  subscribeProfile,
+  saveProfile,
+  type Profile,
+} from "@/lib/profile/store";
+import { appendMessage, getChatSnapshot, subscribeChat, type ChatMessage } from "@/lib/chat/store";
 import { enqueue } from "@/lib/coach/queue";
 import type { PostgameResponse, TurnResponse } from "@/lib/coach/schemas";
 import { generateMoveAnalysis, type MoveAnalysisInput } from "@/lib/coach/analysis";
@@ -32,6 +40,7 @@ import { saveGame, addAnalysis } from "@/lib/library/storage";
 import Link from "next/link";
 
 const PIECE_VALUES: Record<string, number> = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
+const EMPTY_CHAT: ChatMessage[] = [];
 
 type Tab = "critique" | "intent" | "position" | "chat";
 
@@ -45,7 +54,7 @@ function PlayContent() {
 
   // Arena & Audio States
   const [boardOrientation, setBoardOrientation] = useState<"white" | "black">(color);
-  const [isMuted, setIsMutedState] = useState<boolean>(() => getAudioMuted());
+  const isMuted = useSyncExternalStore(subscribeAudioMuted, getAudioMutedSnapshot, () => false);
   const [movesHistory, setMovesHistory] = useState<HistoryMove[]>([]);
   const [viewingPly, setViewingPly] = useState<number>(0);
 
@@ -58,18 +67,23 @@ function PlayContent() {
   const [lastEval, setLastEval] = useState<Eval | null>(null);
   const [isEngineThinking, setIsEngineThinking] = useState(false);
   const [isHintLoading, setIsHintLoading] = useState(false);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>(() => loadChat());
+  const chatMessages = useSyncExternalStore(subscribeChat, getChatSnapshot, () => EMPTY_CHAT);
   const [chatInput, setChatInput] = useState("");
   const [isChatSending, setIsChatSending] = useState(false);
   const [postgame, setPostgame] = useState<PostgameResponse | null>(null);
   const [isPostgameLoading, setIsPostgameLoading] = useState(false);
   const [tbCategory, setTbCategory] = useState<string | null>(null);
   const [aiDifficulty, setAiDifficulty] = useState<"grandmaster" | "master" | "adaptive">("grandmaster");
-  const [playerRating] = useState(() => loadProfile().rating);
+  const profile = useSyncExternalStore(subscribeProfile, getProfileSnapshot, () => DEFAULT_PROFILE);
+  const playerRating = profile.rating;
 
   const engineRef = useRef<Engine | null>(null);
-  const profileRef = useRef(loadProfile());
+  const profileRef = useRef<Profile>(DEFAULT_PROFILE);
   const eloSetRef = useRef(false);
+
+  useEffect(() => {
+    profileRef.current = profile;
+  }, [profile]);
 
   // Compute viewing position for non-destructive history review
   const viewingFen = useMemo(() => {
@@ -95,9 +109,7 @@ function PlayContent() {
   }, [viewingFen]);
 
   const handleToggleAudio = () => {
-    const next = !isMuted;
-    setIsMutedState(next);
-    setAudioMuted(next);
+    setAudioMuted(!isMuted);
   };
 
   const handleFlipBoard = () => {
@@ -490,7 +502,6 @@ function PlayContent() {
     if (!text.trim() || isChatSending) return;
     const userMsg: ChatMessage = { role: "user", content: text.trim() };
     const updated = appendMessage(userMsg);
-    setChatMessages(updated);
     setChatInput("");
     setIsChatSending(true);
 
@@ -521,14 +532,14 @@ function PlayContent() {
         data = await doFetch(); // retry 1x
       }
       const assistantMsg: ChatMessage = { role: "assistant", content: data.reply };
-      setChatMessages(appendMessage(assistantMsg));
+      appendMessage(assistantMsg);
     } catch {
       enqueue({ type: "chat", ...payload });
       const fallbackMsg: ChatMessage = {
         role: "assistant",
         content: "Coach offline, mensagem na fila. Analise a posição atual e busque peças desprotegidas.",
       };
-      setChatMessages(appendMessage(fallbackMsg));
+      appendMessage(fallbackMsg);
     } finally {
       setIsChatSending(false);
     }
