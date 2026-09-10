@@ -1,0 +1,36 @@
+lib/sound/audio.ts
+  s_6078f5f5383f72::t_e2c6aaaaae7da3 5-9
+  s_6078f5f5383f72::t_0293626421968e 48-59
+app/play/page.tsx
+  s_6078f5f5383f72::t_9f551fc162506a 57
+  s_6078f5f5383f72::t_df1d6b85e75288 25-27,30-32
+  s_6078f5f5383f72::t_5413ca14b67e15 19,21
+  s_6078f5f5383f72::t_5c1b19036b33de 43
+  s_6078f5f5383f72::t_80b86b1e4a85ba 81,84
+  s_6078f5f5383f72::t_6171f15ff93ca1 535
+  s_6078f5f5383f72::t_a53d39fe66b81e 542
+  s_6078f5f5383f72::t_9d5b207859a4d9 3
+  s_6078f5f5383f72::t_a48cb8073310f5 28-29,33
+  s_6078f5f5383f72::t_ea8a899b833e74 70
+  s_6078f5f5383f72::t_6ab80613bbd0bb 77-78,85-86
+  s_6078f5f5383f72::t_61994df0e0ff13 112
+  s_6078f5f5383f72::t_368d574aec30a2 87
+lib/chat/store.ts
+  s_6078f5f5383f72::t_86bf0442614ced 29-50,55-56
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "e67449c352a3e2f253dd31ffc6a13967450c92e3",
+  "prompts": {},
+  "sessions": {
+    "s_6078f5f5383f72": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "57ca2664-21ba-49d7-b43b-b4e10a0ad5e4",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
