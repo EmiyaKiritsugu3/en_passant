@@ -1,0 +1,23 @@
+lib/punishment/ladder.test.ts
+  s_29342941d3cdff::t_b6e14ffff9e56b 1-47
+app/trainer/punishment/page.tsx
+  s_29342941d3cdff::t_ed8691d9dc8ea3 1-222
+lib/punishment/ladder.ts
+  s_29342941d3cdff::t_e88f922780e1eb 1-61
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "d7ea1215dc97c082e03018372c4c97b3887f4ebc",
+  "prompts": {},
+  "sessions": {
+    "s_29342941d3cdff": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5d8306d2-d16c-4b59-9b7e-802ecd5c50b1",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
