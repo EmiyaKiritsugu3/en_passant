@@ -36,7 +36,36 @@ export function saveGame(pgn: string): string {
   const result = pgn.includes("1-0") ? "1-0" : pgn.includes("0-1") ? "0-1" : "1/2-1/2";
   games.unshift({ id, pgn, date: Date.now(), result, analyses: [], note: "" });
   write(games);
+  refreshCache();
   return id;
+}
+
+const gamesListeners = new Set<() => void>();
+
+function notifyGamesListeners() {
+  for (const l of gamesListeners) l();
+}
+
+let cachedGames: SavedGame[] | null = null;
+
+export function subscribeGames(listener: () => void): () => void {
+  gamesListeners.add(listener);
+  return () => {
+    gamesListeners.delete(listener);
+  };
+}
+
+export function getGamesSnapshot(): SavedGame[] {
+  if (cachedGames === null) {
+    cachedGames = read();
+  }
+  return cachedGames;
+}
+
+function refreshCache(): SavedGame[] {
+  cachedGames = read();
+  notifyGamesListeners();
+  return cachedGames;
 }
 
 export function listGames(): SavedGame[] {
@@ -53,6 +82,7 @@ export function addAnalysis(id: string, a: Omit<Analysis, "id" | "date">): void 
   if (!g) return;
   g.analyses.push({ ...a, id: crypto.randomUUID(), date: Date.now() });
   write(games);
+  refreshCache();
 }
 
 export function setNote(id: string, note: string): void {
@@ -61,9 +91,11 @@ export function setNote(id: string, note: string): void {
   if (!g) return;
   g.note = note;
   write(games);
+  refreshCache();
 }
 
 export function deleteGame(id: string): void {
   const games = read().filter((g) => g.id !== id);
   write(games);
+  refreshCache();
 }

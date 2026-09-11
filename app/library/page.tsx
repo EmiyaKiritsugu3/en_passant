@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { Chess } from "chess.js";
 import Board from "@/components/Board";
@@ -10,37 +10,42 @@ import {
   addAnalysis,
   deleteGame,
   saveGame,
+  subscribeGames,
+  getGamesSnapshot,
   type SavedGame,
   type Analysis,
 } from "@/lib/library/storage";
 import { collectEvals, type Row } from "@/lib/postgame";
 import { createMockEngine, createStockfishEngine, type Engine } from "@/lib/engine/engine";
-import { loadProfile, type Profile } from "@/lib/profile/store";
+import { DEFAULT_PROFILE, getProfileSnapshot, subscribeProfile } from "@/lib/profile/store";
 import type { DrawShape } from "chessground/draw";
 import type { Key } from "chessground/types";
 
+const EMPTY_GAMES: SavedGame[] = [];
+
 export default function LibraryPage() {
-  const [games, setGames] = useState<SavedGame[]>(() => listGames());
-  const [selectedGameId, setSelectedGameId] = useState<string | null>(() => {
-    const list = listGames();
-    return list[0]?.id || null;
-  });
+  const games = useSyncExternalStore(subscribeGames, getGamesSnapshot, () => EMPTY_GAMES);
+  const [selectedGameId, setSelectedGameId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [resultFilter, setResultFilter] = useState<string>("all");
   const [currentPly, setCurrentPly] = useState(0);
   const [reanalyzeDepth, setReanalyzeDepth] = useState<number>(12);
   const [isReanalyzing, setIsReanalyzing] = useState(false);
-  const [noteText, setNoteText] = useState(() => {
-    const list = listGames();
-    return list[0]?.note || "";
-  });
-  const [selectedAnalysisIdx, setSelectedAnalysisIdx] = useState<number>(() => {
-    const list = listGames();
-    return list[0] ? Math.max(0, list[0].analyses.length - 1) : 0;
-  });
+  const [noteText, setNoteText] = useState("");
+  const [selectedAnalysisIdx, setSelectedAnalysisIdx] = useState<number>(0);
   const [importPgnText, setImportPgnText] = useState("");
   const [showImport, setShowImport] = useState(false);
-  const [profile] = useState<Profile | null>(() => loadProfile());
+  const profile = useSyncExternalStore(subscribeProfile, getProfileSnapshot, () => DEFAULT_PROFILE);
+
+  // ponytail: render-adjustment instead of mount effect (lint: set-state-in-effect). SSR-safe: games empty server-side.
+  const [syncedGameId, setSyncedGameId] = useState<string | null>(null);
+  const preselected = games.find((g) => g.id === selectedGameId) ?? games[0] ?? null;
+  if (preselected && preselected.id !== syncedGameId) {
+    setSyncedGameId(preselected.id);
+    setSelectedGameId(preselected.id);
+    setNoteText(preselected.note || "");
+    setSelectedAnalysisIdx(Math.max(0, preselected.analyses.length - 1));
+  }
 
   const engineRef = useRef<Engine | null>(null);
 
@@ -104,13 +109,11 @@ export default function LibraryPage() {
   const handleSaveNote = () => {
     if (!selectedGameId) return;
     setNote(selectedGameId, noteText);
-    setGames(listGames());
   };
 
   const handleDelete = (id: string) => {
     deleteGame(id);
     const updated = listGames();
-    setGames(updated);
     if (selectedGameId === id) {
       setSelectedGameId(updated[0]?.id || null);
       setCurrentPly(0);
@@ -125,9 +128,7 @@ export default function LibraryPage() {
       const engine = engineRef.current ?? createMockEngine();
       const rows = await collectEvals(selectedGame.pgn, engine);
       addAnalysis(selectedGame.id, { depth: reanalyzeDepth, rows });
-      const updated = listGames();
-      setGames(updated);
-      const newly = updated.find((g) => g.id === selectedGame.id);
+      const newly = listGames().find((g) => g.id === selectedGame.id);
       if (newly) {
         setSelectedAnalysisIdx(newly.analyses.length - 1);
       }
@@ -142,8 +143,6 @@ export default function LibraryPage() {
       const c = new Chess();
       c.loadPgn(importPgnText.trim());
       const newId = saveGame(importPgnText.trim());
-      const updated = listGames();
-      setGames(updated);
       setSelectedGameId(newId);
       setCurrentPly(0);
       setImportPgnText("");
