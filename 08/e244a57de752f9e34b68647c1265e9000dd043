@@ -1,0 +1,28 @@
+lib/sm2/scheduler.test.ts
+  s_29342941d3cdff::t_43074c200e5bdf 24-26,28-32
+  s_29342941d3cdff::t_a04ad49bf6a1db 2
+  s_29342941d3cdff::t_de648903c51083 27
+lib/sm2/scheduler.ts
+  s_29342941d3cdff::t_641057e2808a83 94-95
+  s_29342941d3cdff::t_23199c6c81a241 33-53
+app/dashboard/page.tsx
+  s_29342941d3cdff::t_d66ca82780c01b 11-16
+  s_29342941d3cdff::t_17ec51b52e86fe 24-32
+  s_29342941d3cdff::t_c4fccf2bfa8edc 138-186
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "08e244a57de752f9e34b68647c1265e9000dd043",
+  "prompts": {},
+  "sessions": {
+    "s_29342941d3cdff": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5d8306d2-d16c-4b59-9b7e-802ecd5c50b1",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
