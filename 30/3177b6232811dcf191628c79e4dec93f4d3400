@@ -1,0 +1,27 @@
+lib/library/storage.ts
+  s_6078f5f5383f72::t_5cebfde3942c82 43-70
+  s_6078f5f5383f72::t_b8abd1a6e53436 39
+  s_6078f5f5383f72::t_2091dd9110158f 85,94,100
+app/library/page.tsx
+  s_6078f5f5383f72::t_d2210a7d6342e6 3,13-14,20
+  s_6078f5f5383f72::t_edb87b41f8c835 40-48
+  s_6078f5f5383f72::t_93197d3d75931f 131
+  s_6078f5f5383f72::t_2e0854b8c4cd84 34-35,38-39
+  s_6078f5f5383f72::t_91d8becf615aa8 24-25,27-28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "303177b6232811dcf191628c79e4dec93f4d3400",
+  "prompts": {},
+  "sessions": {
+    "s_6078f5f5383f72": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "57ca2664-21ba-49d7-b43b-b4e10a0ad5e4",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
