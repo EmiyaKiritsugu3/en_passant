@@ -30,6 +30,27 @@ export function dueCards(cards: Card[], now = Date.now()): Card[] {
   return cards.filter((c) => c.nextReview <= now).sort((a, b) => a.nextReview - b.nextReview);
 }
 
+export interface DueSummary {
+  total: number;
+  due: number;
+  fresh: number;
+  byContext: { context: string; due: number }[];
+}
+
+export function summarizeDue(cards: Card[], now = Date.now()): DueSummary {
+  const due = dueCards(cards, now);
+  const byMap = new Map<string, number>();
+  for (const c of due) byMap.set(c.context || "Tática", (byMap.get(c.context || "Tática") ?? 0) + 1);
+  return {
+    total: cards.length,
+    due: due.length,
+    fresh: cards.filter((c) => c.reps === 0).length,
+    byContext: [...byMap.entries()]
+      .map(([context, d]) => ({ context, due: d }))
+      .sort((a, b) => b.due - a.due),
+  };
+}
+
 let cachedCards: Card[] = [];
 let lastRaw: string | null = null;
 const listeners = new Set<() => void>();
@@ -69,6 +90,8 @@ export function getCardsSnapshot(): Card[] {
   }
   return cachedCards;
 }
+
+export const EMPTY_CARDS: Card[] = [];
 
 export function loadCards(): Card[] {
   if (typeof window === "undefined" || typeof localStorage === "undefined") {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { reviewCard, dueCards, type Card } from "./scheduler";
+import { reviewCard, dueCards, summarizeDue, type Card } from "./scheduler";
 
 const card = (o: Partial<Card> = {}): Card =>
   ({ id: "1", fen: "f", bestMove: "e2e4", context: "c", EF: 2.5, interval: 0, reps: 0, nextReview: 0, ...o });
@@ -20,5 +20,14 @@ describe("sm2", () => {
 
   it("dueCards filters by nextReview", () => {
     expect(dueCards([card({ nextReview: 5 }), card({ nextReview: 50 })], 10)).toHaveLength(1);
+  });
+
+  it("summarizeDue groups by context", () => {
+    const s = summarizeDue(
+      [card({ nextReview: 1, context: "London", reps: 0 }), card({ nextReview: 2, context: "London", reps: 2 }), card({ nextReview: 99, reps: 3 })],
+      10
+    );
+    expect(s).toMatchObject({ total: 3, due: 2, fresh: 1 });
+    expect(s.byContext).toEqual([{ context: "London", due: 2 }]);
   });
 });

@@ -8,6 +8,12 @@ import {
   subscribeProfile,
   type Profile,
 } from "@/lib/profile/store";
+import {
+  EMPTY_CARDS,
+  getCardsSnapshot,
+  subscribeCards,
+  summarizeDue,
+} from "@/lib/sm2/scheduler";
 
 export default function DashboardPage() {
   const profile: Profile = useSyncExternalStore(
@@ -15,6 +21,15 @@ export default function DashboardPage() {
     getProfileSnapshot,
     () => DEFAULT_PROFILE
   );
+  const allCards = useSyncExternalStore(subscribeCards, getCardsSnapshot, () => EMPTY_CARDS);
+  const due = summarizeDue(allCards);
+  const skills = [
+    { label: "Tática", value: profile.errorTags.tactics, color: "bg-rose-500" },
+    { label: "Seg. do Rei", value: profile.errorTags.kingSafety, color: "bg-amber-500" },
+    { label: "Peões", value: profile.errorTags.pawns, color: "bg-sky-500" },
+    { label: "Finais", value: profile.errorTags.endgame, color: "bg-indigo-500" },
+  ];
+  const maxSkill = Math.max(1, ...skills.map((s) => s.value));
 
 
 
@@ -118,6 +133,55 @@ export default function DashboardPage() {
             Seus erros mais frequentes envolvem <strong>#{topTags[0] ?? "tática"}</strong> e{" "}
             <strong>#{topTags[1] ?? "finais"}</strong>. Treine esses conceitos no módulo SM-2 e estude partidas clássicas do tema.
           </p>
+        </div>
+
+        {/* Daily Review Card */}
+        <Link
+          href={due.due > 0 ? "/train" : "/trainer/punishment"}
+          className="bg-amber-950/20 border border-amber-900/40 rounded-2xl p-6 flex justify-between items-center gap-4 hover:border-amber-700/60 transition-colors"
+        >
+          <div className="flex flex-col gap-1">
+            <span className="text-xs uppercase font-mono font-bold text-amber-400">Revisão Diária</span>
+            {due.due > 0 ? (
+              <p className="text-sm text-amber-200">
+                <strong>{due.due} posição{due.due > 1 ? "ões" : ""} pronta{due.due > 1 ? "s" : ""}</strong>
+                {due.byContext[0] ? ` — ${due.byContext[0].context}: ${due.byContext[0].due}` : ""} para revisar.
+              </p>
+            ) : (
+              <p className="text-sm text-amber-200">
+                Nada pendente. Reforce no <strong>Punishment Lab</strong> e volte amanhã.
+              </p>
+            )}
+            <span className="text-[11px] font-mono text-zinc-500">
+              Total: {due.total} · Novas: {due.fresh}
+            </span>
+          </div>
+          <span className="text-xs font-mono px-4 py-2 rounded-xl bg-amber-600 text-white font-semibold shrink-0">
+            {due.due > 0 ? "Revisar →" : "Treinar →"}
+          </span>
+        </Link>
+
+        {/* Skills Radar (error-tag bars) */}
+        <div className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-6 flex flex-col gap-5">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-300">
+            Radar de Habilidades (erros acumulados)
+          </h2>
+          <div className="flex flex-col gap-4">
+            {skills.map(({ label, value, color }) => (
+              <div key={label} className="flex flex-col gap-1.5">
+                <div className="flex justify-between text-xs font-mono">
+                  <span className="text-zinc-300">{label}</span>
+                  <span className="text-amber-400 font-bold">{value}</span>
+                </div>
+                <div className="h-3 w-full bg-zinc-950 rounded-full overflow-hidden border border-zinc-800">
+                  <div
+                    className={`h-full ${color} rounded-full transition-all duration-500`}
+                    style={{ width: `${Math.max(4, Math.min(100, (value / maxSkill) * 100))}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* History List */}
