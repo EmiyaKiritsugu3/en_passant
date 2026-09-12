@@ -31,6 +31,8 @@ test.describe("Dashboard & Analytics", () => {
 
     // Training Recommendation & Daily Review (SM-2)
     await expect(page.getByText(/Plano de Treino Recomendado/i)).toBeVisible();
+    await expect(page.getByText(/Você ainda não tem partidas registradas/i)).toBeVisible();
+    await expect(page.getByRole("link", { name: /Jogar Agora/i })).toHaveAttribute("href", "/play");
     await expect(page.getByText(/Revisão Diária/i)).toBeVisible();
 
     // Skills Radar
@@ -78,5 +80,37 @@ test.describe("Dashboard & Analytics", () => {
     await expect(reviewCard).toHaveAttribute("href", "/train");
     await reviewCard.click();
     await expect(page).toHaveURL("/train");
+  });
+
+  test("shows tailored training plan when profile has games", async ({ page }) => {
+    await page.addInitScript(() => {
+      const profile = {
+        version: 1,
+        rating: 1250,
+        games: 3,
+        errorTags: { tactics: 4, kingSafety: 2, pawns: 1, endgame: 0 },
+        recentErrorFens: [],
+        openings: {},
+        phaseHistory: [
+          { game: 1, opening: 80, middlegame: 60, endgame: 50 },
+          { game: 2, opening: 70, middlegame: 55, endgame: 40 },
+          { game: 3, opening: 85, middlegame: 65, endgame: 30 },
+        ],
+      };
+      localStorage.setItem("profile.v1", JSON.stringify(profile));
+    });
+    await page.goto("/dashboard");
+
+    await expect(page.getByText(/Foco prioritário na fase de/i)).toBeVisible();
+    await expect(page.getByText(/Final/i).first()).toBeVisible();
+    await expect(page.getByText(/#tactics/i)).toBeVisible();
+  });
+
+  test("library shows unified empty state with CTAs when no games recorded", async ({ page }) => {
+    await page.goto("/library");
+
+    await expect(page.getByText("Sua Biblioteca está Vazia")).toBeVisible();
+    await expect(page.getByRole("link", { name: /Jogar na Arena/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /\+ Importar PGN/i })).toBeVisible();
   });
 });

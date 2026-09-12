@@ -34,6 +34,8 @@ export default function DashboardPage() {
 
 
 
+  const hasGames = profile.games > 0;
+
   const latestPhases = profile.phaseHistory[profile.phaseHistory.length - 1] ?? {
     opening: 0,
     middlegame: 0,
@@ -41,6 +43,7 @@ export default function DashboardPage() {
   };
 
   const topTags = Object.entries(profile.errorTags)
+    .filter(([, val]) => val > 0)
     .sort(([, a], [, b]) => b - a)
     .slice(0, 2)
     .map(([tag]) => tag);
@@ -118,13 +121,33 @@ export default function DashboardPage() {
         </div>
 
         {/* Weakest Phase Recommendation */}
-        <div className="bg-amber-950/20 border border-amber-900/40 rounded-2xl p-6 flex flex-col gap-2">
+        <div className="bg-amber-950/20 border border-amber-900/40 rounded-2xl p-6 flex flex-col gap-3">
           <span className="text-xs uppercase font-mono font-bold text-amber-400">Plano de Treino Recomendado</span>
-          <p className="text-sm text-amber-200 leading-relaxed">
-            Foco prioritário na fase de <strong>{weakestPhase.label}</strong> (precisão {weakestPhase.score}%).
-            Seus erros mais frequentes envolvem <strong>#{topTags[0] ?? "tática"}</strong> e{" "}
-            <strong>#{topTags[1] ?? "finais"}</strong>. Treine esses conceitos no módulo SM-2 e estude partidas clássicas do tema.
-          </p>
+          {!hasGames ? (
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <p className="text-sm text-amber-200/90 leading-relaxed">
+                Você ainda não tem partidas registradas. Jogue sua primeira partida na Arena GM para receber um plano de treino personalizado baseado em seus erros.
+              </p>
+              <Link
+                href="/play"
+                className="text-xs font-mono px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold transition-colors shrink-0 text-center"
+              >
+                Jogar Agora →
+              </Link>
+            </div>
+          ) : (
+            <p className="text-sm text-amber-200 leading-relaxed">
+              Foco prioritário na fase de <strong>{weakestPhase.label}</strong> (precisão {weakestPhase.score}%).
+              {topTags.length > 0 ? (
+                <>
+                  {" "}Seus erros mais frequentes envolvem <strong>#{topTags[0]}</strong>
+                  {topTags[1] ? <> e <strong>#{topTags[1]}</strong></> : ""}. Treine esses conceitos no módulo SM-2 e estude partidas clássicas do tema.
+                </>
+              ) : (
+                " Continue jogando para identificar padrões táticos e receber recomendações específicas."
+              )}
+            </p>
+          )}
         </div>
 
         {/* Daily Review Card */}
