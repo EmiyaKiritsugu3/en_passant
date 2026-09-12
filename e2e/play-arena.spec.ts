@@ -1,6 +1,15 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Play Arena — Game & Coach Console", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch {}
+    });
+  });
+
   test("arena loads with 3-column layout and controls", async ({ page }) => {
     await page.goto("/play?side=white");
 
@@ -24,14 +33,15 @@ test.describe("Play Arena — Game & Coach Console", () => {
 
     const soundBtn = page.locator("header button").filter({ hasText: /🔊|🔇/ });
     await expect(soundBtn).toBeVisible();
+    await expect(soundBtn).toHaveAttribute("title", "Desativar som");
 
-    const beforeTitle = await soundBtn.getAttribute("title");
-    // Click sound toggle
+    // Click sound toggle -> mutes audio
     await soundBtn.click();
-    await expect(soundBtn).toHaveAttribute(
-      "title",
-      beforeTitle === "Ativar som" ? "Desativar som" : "Ativar som"
-    );
+    await expect(soundBtn).toHaveAttribute("title", "Ativar som");
+
+    // Click again -> unmutes audio
+    await soundBtn.click();
+    await expect(soundBtn).toHaveAttribute("title", "Desativar som");
   });
 
   test("ai difficulty selector updates opponent card", async ({ page }) => {
@@ -83,7 +93,7 @@ test.describe("Play Arena — Game & Coach Console", () => {
 
     // User message should appear in chat
     await expect(page.getByText("Qual é o plano principal das brancas?")).toBeVisible();
-    await expect(page.getByText("Você", { exact: true }).first()).toBeVisible();
+    await expect(page.locator(".bg-amber-600\\/20").getByText("Você")).toBeVisible();
   });
 
   test("hint button triggers tactial advice", async ({ page }) => {

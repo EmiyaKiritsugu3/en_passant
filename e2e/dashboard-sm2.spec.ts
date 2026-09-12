@@ -1,6 +1,15 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Dashboard & Analytics", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch {}
+    });
+  });
+
   test("renders student analytics and navigation", async ({ page }) => {
     await page.goto("/dashboard");
 
@@ -66,6 +75,7 @@ test.describe("Dashboard & Analytics", () => {
 
     const reviewCard = page.locator("a", { hasText: /revisão diária/i });
     await expect(reviewCard).toBeVisible();
+    await expect(reviewCard).toHaveAttribute("href", "/train");
     await reviewCard.click();
     await expect(page).toHaveURL("/train");
   });

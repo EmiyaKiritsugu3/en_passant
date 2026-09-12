@@ -1,6 +1,15 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Punishment Lab & Socratic Ladder", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch {}
+    });
+  });
+
   test("complete ladder flow: recognize → hint → reveal → SM-2 save", async ({ page }) => {
     await page.goto("/trainer/punishment");
 
@@ -49,12 +58,15 @@ test.describe("Punishment Lab & Socratic Ladder", () => {
     const storedCards = await page.evaluate(() => localStorage.getItem("cards.v1"));
     expect(storedCards).not.toBeNull();
     const cards = JSON.parse(storedCards!);
-    expect(cards.length).toBeGreaterThan(0);
+    expect(cards).toHaveLength(1);
     expect(cards[0].context).toBe("London System");
   });
 
   test("switch drill variation resets board and stage", async ({ page }) => {
     await page.goto("/trainer/punishment");
+
+    // Wait for client hydration on the board
+    await expect(page.locator(".cg-wrap piece").first()).toBeVisible();
 
     // Initial recognize stage
     await expect(page.getByText(/Estágio 1 — Reconhecimento/i)).toBeVisible();
