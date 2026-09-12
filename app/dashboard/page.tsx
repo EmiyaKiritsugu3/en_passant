@@ -141,12 +141,11 @@ export default function DashboardPage() {
               {topTags.length > 0 ? (
                 <>
                   {" "}Seus erros mais frequentes envolvem <strong>#{topTags[0]}</strong>
-                  {topTags[1] ? <> e <strong>#{topTags[1]}</strong></> : ""}.
+                  {topTags[1] ? <> e <strong>#{topTags[1]}</strong></> : ""}. Treine esses conceitos no módulo SM-2 e estude partidas clássicas do tema.
                 </>
               ) : (
-                " "
+                " Continue jogando para identificar padrões táticos e receber recomendações específicas."
               )}
-              {" "}Treine esses conceitos no módulo SM-2 e estude partidas clássicas do tema.
             </p>
           )}
         </div>

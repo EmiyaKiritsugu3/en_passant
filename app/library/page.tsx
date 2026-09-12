@@ -42,6 +42,7 @@ export default function LibraryPage() {
   const currentTargetId = selectedGame?.id ?? null;
   if (currentTargetId !== prevGameId) {
     setPrevGameId(currentTargetId);
+    setSelectedGameId(currentTargetId);
     setNoteText(selectedGame?.note || "");
     setSelectedAnalysisIdx(selectedGame ? Math.max(0, selectedGame.analyses.length - 1) : 0);
   }
