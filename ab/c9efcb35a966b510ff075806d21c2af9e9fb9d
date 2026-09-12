@@ -1,0 +1,21 @@
+lib/profile/store.ts
+  s_3b653c0d5350e8::t_5fcb0b18e053f2 53-60
+lib/sm2/scheduler.ts
+  s_3b653c0d5350e8::t_9fad1b8397d1fd 86-87
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "abc9efcb35a966b510ff075806d21c2af9e9fb9d",
+  "prompts": {},
+  "sessions": {
+    "s_3b653c0d5350e8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8ff2b0cb-5b02-43f5-97ce-942157373c84",
+        "model": "deepseek-ai/deepseek-v4-flash-0731"
+      },
+      "human_author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
