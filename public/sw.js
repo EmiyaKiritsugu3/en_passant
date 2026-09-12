@@ -6,6 +6,7 @@ const SHELL = [
   "/library",
   "/study",
   "/dashboard",
+  "/trainer/punishment",
   "/manifest.webmanifest",
 ];
 

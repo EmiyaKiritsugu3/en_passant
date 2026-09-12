@@ -22,8 +22,13 @@ export default function PunishmentPage() {
   const [shape, setShape] = useState<DrawShape[]>([]);
   const [saved, setSaved] = useState(false);
 
-  const game = useMemo(() => new Chess(drill.fenBlunder), [drill]);
-  game.load(fen);
+  const game = useMemo(() => {
+    const g = new Chess(drill.fenBlunder);
+    try {
+      g.load(fen);
+    } catch {}
+    return g;
+  }, [drill.fenBlunder, fen]);
 
   const selectDrill = (id: string) => {
     const d = getDrill(id) ?? londonDrills[0];

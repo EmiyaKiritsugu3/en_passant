@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { memo, useEffect, useRef } from "react";
 
 export interface HistoryMove {
   ply: number;
@@ -16,7 +16,7 @@ interface MoveHistoryProps {
   onFlipBoard: () => void;
 }
 
-export default function MoveHistory({
+export default memo(function MoveHistory({
   moves,
   currentViewingPly,
   onSelectPly,
@@ -181,4 +181,4 @@ export default function MoveHistory({
       </div>
     </div>
   );
-}
+});

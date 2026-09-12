@@ -81,6 +81,8 @@ export default function Board({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const canMove = Boolean(onMove);
+
   useEffect(() => {
     if (!api.current) return;
     const { dests, turnColor } = getLegalDests(fen);
@@ -91,14 +93,14 @@ export default function Board({
       orientation,
       turnColor,
       movable: {
-        color: !isThinking && onMove && isPlayerTurn ? orientation : undefined,
-        dests: !isThinking && onMove && isPlayerTurn ? dests : new Map(),
+        color: !isThinking && canMove && isPlayerTurn ? orientation : undefined,
+        dests: !isThinking && canMove && isPlayerTurn ? dests : new Map(),
       },
       drawable: {
         shapes: shape ?? [],
       },
     });
-  }, [fen, orientation, onMove, shape, isThinking]);
+  }, [fen, orientation, canMove, shape, isThinking]);
 
   return <div ref={ref} style={{ width: "100%", aspectRatio: "1" }} />;
 }
