@@ -37,14 +37,13 @@ export default function LibraryPage() {
   const [showImport, setShowImport] = useState(false);
   const profile = useSyncExternalStore(subscribeProfile, getProfileSnapshot, () => DEFAULT_PROFILE);
 
-  // ponytail: render-adjustment instead of mount effect (lint: set-state-in-effect). SSR-safe: games empty server-side.
-  const [syncedGameId, setSyncedGameId] = useState<string | null>(null);
-  const preselected = games.find((g) => g.id === selectedGameId) ?? games[0] ?? null;
-  if (preselected && preselected.id !== syncedGameId) {
-    setSyncedGameId(preselected.id);
-    setSelectedGameId(preselected.id);
-    setNoteText(preselected.note || "");
-    setSelectedAnalysisIdx(Math.max(0, preselected.analyses.length - 1));
+  const selectedGame = games.find((g) => g.id === selectedGameId) ?? games[0] ?? null;
+  const [prevGameId, setPrevGameId] = useState<string | null>(null);
+  const currentTargetId = selectedGame?.id ?? null;
+  if (currentTargetId !== prevGameId) {
+    setPrevGameId(currentTargetId);
+    setNoteText(selectedGame?.note || "");
+    setSelectedAnalysisIdx(selectedGame ? Math.max(0, selectedGame.analyses.length - 1) : 0);
   }
 
   const engineRef = useRef<Engine | null>(null);
@@ -59,8 +58,6 @@ export default function LibraryPage() {
       engineRef.current?.quit();
     };
   }, []);
-
-  const selectedGame = games.find((g) => g.id === selectedGameId);
 
   // Parse moves from PGN
   const parsedMoves = useMemo(() => {
@@ -226,7 +223,70 @@ export default function LibraryPage() {
       )}
 
       {/* Main layout */}
-      <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      {games.length === 0 ? (
+        <div className="w-full max-w-2xl bg-zinc-900/60 border border-zinc-800 rounded-2xl p-8 sm:p-10 flex flex-col items-center justify-center text-center gap-5 shadow-xl mt-4">
+          <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-2xl">
+            📚
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-white">Sua Biblioteca está Vazia</h2>
+            <p className="text-xs text-zinc-400 mt-1 max-w-md leading-relaxed">
+              Você ainda não tem partidas salvas. Complete uma partida na Arena GM para gravá-la automaticamente ou importe um arquivo PGN existente.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-3 justify-center pt-2">
+            <Link
+              href="/play"
+              className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold font-mono transition-colors"
+            >
+              Jogar na Arena →
+            </Link>
+            <button
+              type="button"
+              onClick={() => setShowImport(true)}
+              className="px-5 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold font-mono border border-zinc-700 transition-colors"
+            >
+              + Importar PGN
+            </button>
+            <Link
+              href="/study"
+              className="px-5 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold font-mono border border-zinc-700 transition-colors"
+            >
+              📖 Modo Estudo
+            </Link>
+          </div>
+
+          {showImport && (
+            <div className="w-full mt-2 p-4 bg-zinc-950 rounded-xl border border-zinc-800 flex flex-col gap-3 text-left">
+              <span className="text-xs font-mono text-zinc-400 uppercase font-semibold">Colar PGN</span>
+              <textarea
+                value={importPgnText}
+                onChange={(e) => setImportPgnText(e.target.value)}
+                placeholder="Cole o PGN aqui..."
+                className="w-full h-28 bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-xs font-mono text-zinc-200 resize-none focus:outline-none focus:border-amber-500"
+              />
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowImport(false)}
+                  className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 text-xs rounded-lg"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleImport}
+                  className="px-4 py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold rounded-lg transition-all"
+                >
+                  Importar Partida
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Games List & Filters (4 cols) */}
         <div className="lg:col-span-4 flex flex-col gap-4">
           <div className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-4 flex flex-col gap-3 shadow-xl">
@@ -282,7 +342,7 @@ export default function LibraryPage() {
             <div className="max-h-[520px] overflow-y-auto flex flex-col gap-2 pr-1">
               {filteredGames.length === 0 ? (
                 <div className="text-center py-8 text-xs text-zinc-500">
-                  Nenhuma partida encontrada. Finalize uma partida no modo Jogar ou importe um PGN.
+                  Nenhuma partida encontrada para os filtros selecionados.
                 </div>
               ) : (
                 filteredGames.map((g) => (
@@ -533,6 +593,7 @@ export default function LibraryPage() {
           )}
         </div>
       </div>
+      )}
     </main>
   );
 }
