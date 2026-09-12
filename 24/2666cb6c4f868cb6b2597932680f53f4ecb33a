@@ -1,0 +1,37 @@
+components/arena/MoveHistory.tsx
+  s_7934dd32b95140::t_4b807861a72296 3,19
+  s_7934dd32b95140::t_b404fcea3e1831 184
+lib/lichess/explorer.ts
+  s_7934dd32b95140::t_832642141f84fe 15-24,27-56,60-61,65-72
+components/arena/EvalBar.tsx
+  s_7934dd32b95140::t_8b9ec82aff3773 58
+  s_7934dd32b95140::t_0fa7382d0c9b04 3,11
+lib/library/storage.ts
+  s_7934dd32b95140::t_3942849bc8b847 49-57
+app/study/page.tsx
+  s_7934dd32b95140::t_1668bcadff2f2a 138-140,142
+  s_7934dd32b95140::t_460850826b1c20 3
+  s_7934dd32b95140::t_980384bfee2b55 195
+public/sw.js
+  s_7934dd32b95140::t_a9aa3c6da7fd84 9
+app/trainer/punishment/page.tsx
+  s_7934dd32b95140::t_44e52ffe39d6d7 25-31
+components/Board.tsx
+  s_7934dd32b95140::t_7b3f0e90f105e9 84-85,96-97,103
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "242666cb6c4f868cb6b2597932680f53f4ecb33a",
+  "prompts": {},
+  "sessions": {
+    "s_7934dd32b95140": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "84f9f20b-77bb-4361-b16d-cd0ec3d54077",
+        "model": "gemini-3.8-flash"
+      },
+      "human_author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
