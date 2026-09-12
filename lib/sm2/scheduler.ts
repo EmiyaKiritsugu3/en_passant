@@ -83,7 +83,8 @@ export function getCardsSnapshot(): Card[] {
   if (raw !== lastRaw) {
     lastRaw = raw;
     try {
-      cachedCards = raw ? JSON.parse(raw) : [];
+      const parsed = raw ? JSON.parse(raw) : [];
+      cachedCards = Array.isArray(parsed) ? (parsed as Card[]) : [];
     } catch {
       cachedCards = [];
     }
