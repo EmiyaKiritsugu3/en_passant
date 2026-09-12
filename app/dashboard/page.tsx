@@ -34,14 +34,6 @@ export default function DashboardPage() {
 
 
 
-  if (!profile) {
-    return (
-      <main className="min-h-screen bg-[#161512] text-zinc-100 flex items-center justify-center">
-        <p className="text-zinc-400 font-mono text-sm">Carregando painel...</p>
-      </main>
-    );
-  }
-
   const latestPhases = profile.phaseHistory[profile.phaseHistory.length - 1] ?? {
     opening: 0,
     middlegame: 0,

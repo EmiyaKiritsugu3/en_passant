@@ -38,7 +38,7 @@ export default function PunishmentPage() {
   };
 
   const handleMove = (from: string, to: string) => {
-    if (stage.kind === "done") return;
+    if (stage.kind === "done" || stage.kind === "recognize") return;
     const legal = game.moves({ verbose: true }).find((m) => m.from === from && m.to === to);
     if (!legal) return;
     const ok = accepts(drill, legal.san);
@@ -57,11 +57,10 @@ export default function PunishmentPage() {
       }
     } else if (stage.kind === "hint") {
       if (ok) {
-        game.move(legal.san);
-        setFen(game.fen());
+        // ponytail: don't commit the move — execute stage replays same FEN, avoids black-to-move lock
         setStage(reduce(stage, { type: "CORRECT" }));
         setShape([{ orig: from as Key, dest: to as Key, brush: "green" }]);
-        setStatus("Boa descoberta! Agora finalize no estágio de execução.");
+        setStatus(`Boa descoberta — ${legal.san}! Jogue de novo para finalizar.`);
       } else {
         setAttempts((a) => a + 1);
         setShape([{ orig: from as Key, dest: to as Key, brush: "red" }]);
@@ -79,16 +78,30 @@ export default function PunishmentPage() {
   const reveal = () => {
     setStage(reduce(stage, { type: "REVEAL" }));
     setStatus(`${drill.punishmentExplanation} Lance: ${drill.idealResponseSan}.`);
-    const orig = drill.idealResponseSan.slice(0, 2) as Key;
-    setShape([{ orig, dest: orig, brush: "blue" }]);
+    try {
+      const probe = new Chess(drill.fenBlunder);
+      const m = probe.move(drill.idealResponseSan);
+      setShape([{ orig: m.from as Key, dest: m.to as Key, brush: "blue" }]);
+    } catch {
+      setShape([]);
+    }
   };
 
   const saveSm2 = () => {
     if (stage.kind !== "done") return;
     const q = qualityFor(stage, attempts, hintsUsed);
-    addCard({ fen: drill.fenBlunder, bestMove: drill.idealResponseSan, context: drill.variationName });
+    // ponytail: /train matches UCI prefix + slice(0,2) square, so convert SAN→UCI here
+    let uci = drill.idealResponseSan;
+    try {
+      const probe = new Chess(drill.fenBlunder);
+      const m = probe.move(drill.idealResponseSan);
+      uci = `${m.from}${m.to}${m.promotion ?? ""}`;
+    } catch {
+      // keep SAN fallback
+    }
+    addCard({ fen: drill.fenBlunder, bestMove: uci, context: "London System" }, q);
     setSaved(true);
-    setStatus(`Salvo no SM-2 (qualidade ${q}). Revise amanhã.`);
+    setStatus(q === 0 ? "Salvo no SM-2 para reaprender amanhã." : `Salvo no SM-2 (qualidade ${q}).`);
   };
 
   return (
@@ -132,7 +145,12 @@ export default function PunishmentPage() {
             Erro preto: <strong className="text-rose-400">{drill.opponentMistakeSan}</strong>
             {" · "}Gatilho: {drill.triggerType}
           </div>
-          <Board fen={fen} orientation="white" onMove={handleMove} shape={shape} />
+          <Board
+            fen={fen}
+            orientation="white"
+            onMove={stage.kind === "recognize" ? undefined : handleMove}
+            shape={shape}
+          />
         </div>
 
         <div className="w-full lg:w-80 flex flex-col gap-4">
@@ -155,7 +173,7 @@ export default function PunishmentPage() {
                     Vi o erro
                   </button>
                   <button
-                    onClick={() => { setStage(reduce(stage, { type: "MISS" })); setStatus(drill.triggerDescription); }}
+                    onClick={() => { setStage(reduce(stage, { type: "MISS" })); setHintsUsed((h) => h + 1); setStatus(drill.triggerDescription); }}
                     className="flex-1 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold rounded-xl border border-zinc-700"
                   >
                     Não vi

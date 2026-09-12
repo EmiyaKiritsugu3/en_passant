@@ -116,8 +116,9 @@ export function saveCards(cards: Card[]): void {
   notifyListeners();
 }
 
-export function addCard(input: Pick<Card, "fen" | "bestMove" | "context">): void {
-  const cards = loadCards();
+export function addCard(input: Pick<Card, "fen" | "bestMove" | "context">, quality?: 5 | 4 | 2 | 0): void {
+  const cards = loadCards().filter((c) => c.fen !== input.fen);
   const id = typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2);
-  saveCards([...cards, { ...input, id, EF: 2.5, interval: 0, reps: 0, nextReview: 0 }]);
+  const fresh: Card = { ...input, id, EF: 2.5, interval: 0, reps: 0, nextReview: 0 };
+  saveCards([...cards, quality === undefined ? fresh : reviewCard(fresh, quality)]);
 }
