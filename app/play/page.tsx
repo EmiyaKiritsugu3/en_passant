@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useSearchParams } from "next/navigation";
 import { Chess, type Square } from "chess.js";
 import type { Key } from "chessground/types";
@@ -112,9 +112,9 @@ function PlayContent() {
     setAudioMuted(!isMuted);
   };
 
-  const handleFlipBoard = () => {
+  const handleFlipBoard = useCallback(() => {
     setBoardOrientation((prev) => (prev === "white" ? "black" : "white"));
-  };
+  }, []);
 
   const triggerPostgame = async () => {
     setIsPostgameLoading(true);

@@ -23,7 +23,10 @@ interface RawExplorerData {
 const rawCache = new Map<string, RawExplorerData | null>();
 const inFlight = new Map<string, Promise<RawExplorerData | null>>();
 
+let cacheGeneration = 0;
+
 export function clearCache(): void {
+  cacheGeneration++;
   rawCache.clear();
   inFlight.clear();
 }
@@ -32,6 +35,7 @@ async function fetchRaw(fen: string): Promise<RawExplorerData | null> {
   if (rawCache.has(fen)) return rawCache.get(fen)!;
   if (inFlight.has(fen)) return inFlight.get(fen)!;
 
+  const currentGen = cacheGeneration;
   const promise = (async () => {
     try {
       const ctrl = new AbortController();
@@ -42,13 +46,16 @@ async function fetchRaw(fen: string): Promise<RawExplorerData | null> {
       clearTimeout(t);
       if (!res.ok) throw new Error("explorer " + res.status);
       const data = (await res.json()) as RawExplorerData;
-      rawCache.set(fen, data);
+      if (currentGen === cacheGeneration) {
+        rawCache.set(fen, data);
+      }
       return data;
     } catch {
-      rawCache.set(fen, null);
       return null;
     } finally {
-      inFlight.delete(fen);
+      if (currentGen === cacheGeneration) {
+        inFlight.delete(fen);
+      }
     }
   })();
 
