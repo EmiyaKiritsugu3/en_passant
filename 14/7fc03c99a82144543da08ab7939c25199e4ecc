@@ -1,0 +1,23 @@
+app/page.tsx
+  s_3b653c0d5350e8::t_f5d1715dc18770 3,5-55,59-62,69-77,80-89,91-95,97-101,103-254,256
+e2e/smoke.spec.ts
+  s_3b653c0d5350e8::t_5900d272ef80c4 50-54
+  s_3b653c0d5350e8::t_19fca4e21f7131 37-41,43-49,55-62
+  s_3b653c0d5350e8::t_d3abf126afddc8 42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "147fc03c99a82144543da08ab7939c25199e4ecc",
+  "prompts": {},
+  "sessions": {
+    "s_3b653c0d5350e8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8ff2b0cb-5b02-43f5-97ce-942157373c84",
+        "model": "gemini-3.8-flash"
+      },
+      "human_author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
