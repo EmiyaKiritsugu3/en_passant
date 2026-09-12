@@ -44,6 +44,13 @@ test.describe("Punishment Lab & Socratic Ladder", () => {
     // Feedback confirms SM-2 save & Next drill button appears
     await expect(page.getByText(/Salvo no SM-2/i)).toBeVisible();
     await expect(page.getByRole("button", { name: /próximo drill/i })).toBeVisible();
+
+    // Verify SM-2 card was actually persisted to localStorage
+    const storedCards = await page.evaluate(() => localStorage.getItem("cards.v1"));
+    expect(storedCards).not.toBeNull();
+    const cards = JSON.parse(storedCards!);
+    expect(cards.length).toBeGreaterThan(0);
+    expect(cards[0].context).toBe("London System");
   });
 
   test("switch drill variation resets board and stage", async ({ page }) => {
@@ -56,13 +63,12 @@ test.describe("Punishment Lab & Socratic Ladder", () => {
     await page.getByRole("button", { name: /não vi/i }).click();
     await expect(page.getByText(/Estágio 2 — Dica/i)).toBeVisible();
 
-    // Click on another drill tab if available
-    const drillButtons = page.locator("button", { hasText: /\.\.\./i });
-    const count = await drillButtons.count();
-    if (count > 1) {
-      await drillButtons.nth(1).click();
-      // Should reset back to Stage 1
-      await expect(page.getByText(/Estágio 1 — Reconhecimento/i)).toBeVisible();
-    }
+    // Select second drill variation
+    const drillButtons = page.locator(".flex.flex-wrap.gap-2 button");
+    await expect(drillButtons.first()).toBeVisible();
+    await drillButtons.nth(1).click();
+
+    // Should reset back to Stage 1
+    await expect(page.getByText(/Estágio 1 — Reconhecimento/i)).toBeVisible();
   });
 });

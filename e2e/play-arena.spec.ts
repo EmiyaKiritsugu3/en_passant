@@ -25,9 +25,13 @@ test.describe("Play Arena — Game & Coach Console", () => {
     const soundBtn = page.locator("header button").filter({ hasText: /🔊|🔇/ });
     await expect(soundBtn).toBeVisible();
 
+    const beforeTitle = await soundBtn.getAttribute("title");
     // Click sound toggle
     await soundBtn.click();
-    await expect(soundBtn).toHaveText(/🔊|🔇/);
+    await expect(soundBtn).toHaveAttribute(
+      "title",
+      beforeTitle === "Ativar som" ? "Desativar som" : "Ativar som"
+    );
   });
 
   test("ai difficulty selector updates opponent card", async ({ page }) => {
@@ -89,8 +93,8 @@ test.describe("Play Arena — Game & Coach Console", () => {
     await expect(hintBtn).toBeVisible();
     await hintBtn.click();
 
-    // Notice pill should appear with hint
-    await expect(page.locator("span", { hasText: /💡/ })).toBeVisible({ timeout: 10000 });
+    // Notice pill should appear with hint generated text
+    await expect(page.getByText(/Dica GM:/i)).toBeVisible({ timeout: 10000 });
   });
 
   test("making a move on board updates move history", async ({ page }) => {
@@ -100,14 +104,14 @@ test.describe("Play Arena — Game & Coach Console", () => {
     const board = page.locator(".cg-wrap");
     const box = await board.boundingBox();
     expect(box).not.toBeNull();
-    if (!box) return;
+    const { x, y, width, height } = box!;
 
-    const sqW = box.width / 8;
-    const sqH = box.height / 8;
+    const sqW = width / 8;
+    const sqH = height / 8;
 
     // Click e2 (file 4, row 6 from top), then e4 (file 4, row 4 from top)
-    await page.mouse.click(box.x + sqW * 4.5, box.y + sqH * 6.5);
-    await page.mouse.click(box.x + sqW * 4.5, box.y + sqH * 4.5);
+    await page.mouse.click(x + sqW * 4.5, y + sqH * 6.5);
+    await page.mouse.click(x + sqW * 4.5, y + sqH * 4.5);
 
     // Verify move recorded in MoveHistory
     await expect(page.getByText(/1\.\s*e4/i)).toBeVisible({ timeout: 5000 });

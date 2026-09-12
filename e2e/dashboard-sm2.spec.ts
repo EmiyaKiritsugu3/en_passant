@@ -36,14 +36,37 @@ test.describe("Dashboard & Analytics", () => {
     await expect(page).toHaveURL("/");
   });
 
-  test("daily review card navigates to punishment or training", async ({ page }) => {
+  test("daily review card navigates to /trainer/punishment when no cards due", async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem("cards.v1", JSON.stringify([]));
+    });
     await page.goto("/dashboard");
 
     const reviewCard = page.locator("a", { hasText: /revisão diária/i });
     await expect(reviewCard).toBeVisible();
     await reviewCard.click();
+    await expect(page).toHaveURL("/trainer/punishment");
+  });
 
-    // Should navigate to either /train or /trainer/punishment
-    await expect(page).toHaveURL(/\/(train|trainer\/punishment)/);
+  test("daily review card navigates to /train when cards are due", async ({ page }) => {
+    await page.addInitScript(() => {
+      const card = {
+        id: "test-card-1",
+        fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        bestMove: "e2e4",
+        context: "Openings",
+        interval: 1,
+        reps: 1,
+        EF: 2.5,
+        nextReview: Date.now() - 86400000,
+      };
+      localStorage.setItem("cards.v1", JSON.stringify([card]));
+    });
+    await page.goto("/dashboard");
+
+    const reviewCard = page.locator("a", { hasText: /revisão diária/i });
+    await expect(reviewCard).toBeVisible();
+    await reviewCard.click();
+    await expect(page).toHaveURL("/train");
   });
 });
