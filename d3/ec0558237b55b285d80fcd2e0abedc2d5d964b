@@ -1,0 +1,27 @@
+lib/sm2/scheduler.ts
+  s_29342941d3cdff::t_3eeec576083715 119-120,122-123
+lib/sm2/scheduler.test.ts
+  s_29342941d3cdff::t_6a2c42518c4b69 2
+  s_29342941d3cdff::t_c226e6bbe6f1c8 25-37
+app/trainer/punishment/page.tsx
+  s_29342941d3cdff::t_95eb5eb91a40c8 176
+  s_29342941d3cdff::t_c0329e25e79867 41,60,63
+  s_29342941d3cdff::t_e417f0fc98b7d9 81-87,93-102,104
+  s_29342941d3cdff::t_699405524ed99d 148-153
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "d3ec0558237b55b285d80fcd2e0abedc2d5d964b",
+  "prompts": {},
+  "sessions": {
+    "s_29342941d3cdff": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5d8306d2-d16c-4b59-9b7e-802ecd5c50b1",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
