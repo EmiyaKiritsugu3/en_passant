@@ -50,7 +50,14 @@ export function loadProfile(): Profile {
       storage.setItem(KEY + ".bak", raw); // backup before migrate
       return structuredClone(DEFAULT_PROFILE);
     }
-    return { ...structuredClone(DEFAULT_PROFILE), ...p };
+    // Guard against stale/malformed persisted shape (e.g. errorTags null/array)
+    const next = { ...structuredClone(DEFAULT_PROFILE), ...p };
+    next.errorTags = { ...structuredClone(DEFAULT_PROFILE.errorTags), ...(p.errorTags ?? {}) };
+    next.phaseHistory = Array.isArray(p.phaseHistory) ? p.phaseHistory : structuredClone(DEFAULT_PROFILE.phaseHistory);
+    next.recentErrorFens = Array.isArray(p.recentErrorFens)
+      ? p.recentErrorFens
+      : structuredClone(DEFAULT_PROFILE.recentErrorFens);
+    return next;
   } catch {
     return structuredClone(DEFAULT_PROFILE);
   }

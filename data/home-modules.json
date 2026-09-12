@@ -1,0 +1,47 @@
+[
+  {
+    "title": "Arena GM",
+    "badge": "Stockfish 18",
+    "badgeColor": "bg-amber-500/15 text-amber-400 border-amber-500/30",
+    "description": "Partida completa com auxílio socrático em tempo real, cálculo de imprecisões e chat tático.",
+    "href": "/play?side=white",
+    "icon": "⚔️",
+    "actionLabel": "Entrar na Arena"
+  },
+  {
+    "title": "Punishment Lab",
+    "badge": "Trap Lab",
+    "badgeColor": "bg-rose-500/15 text-rose-400 border-rose-500/30",
+    "description": "Reconheça desvios na abertura e execute a punição correta usando a escada de 4 dicas progressivas.",
+    "href": "/trainer/punishment",
+    "icon": "🎯",
+    "actionLabel": "Treinar Punições"
+  },
+  {
+    "title": "Treino Diário SM-2",
+    "badge": "Repetição Espaçada",
+    "badgeColor": "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+    "description": "Fixe lances críticos na memória de longo prazo com o algoritmo adaptativo SuperMemo-2.",
+    "href": "/train",
+    "icon": "🧠",
+    "actionLabel": "Iniciar Revisão"
+  },
+  {
+    "title": "Estudo Clássico",
+    "badge": "Teoria & Mestres",
+    "badgeColor": "bg-sky-500/15 text-sky-400 border-sky-500/30",
+    "description": "Partidas clássicas anotadas lance a lance e repertório posicional para absorver planos de mestre.",
+    "href": "/study",
+    "icon": "📖",
+    "actionLabel": "Estudar Partidas"
+  },
+  {
+    "title": "Biblioteca de Jogos",
+    "badge": "Histórico & PGN",
+    "badgeColor": "bg-indigo-500/15 text-indigo-400 border-indigo-500/30",
+    "description": "Armazene suas partidas gravadas, filtre por resultado, importe PGNs e reanalise com a engine.",
+    "href": "/library",
+    "icon": "📚",
+    "actionLabel": "Ver Biblioteca"
+  }
+]
