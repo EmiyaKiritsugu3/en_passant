@@ -151,6 +151,8 @@ export default function TrainPage() {
     setSm2Shape([]);
     if (currentSm2Index >= due.length - 1) {
       setCurrentSm2Index(0);
+    } else {
+      setCurrentSm2Index((prev) => prev + 1);
     }
   };
 
@@ -422,12 +424,14 @@ export default function TrainPage() {
                     Você revisou todos os puzzles pendentes para hoje. Suas jogadas com erro em partidas anteriores entrarão na fila espaçada conforme o algoritmo SM-2.
                   </p>
                 </div>
-                <button
-                  onClick={handleSeedExample}
-                  className="mt-2 text-xs font-mono px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-amber-400 border border-zinc-700 transition-colors"
-                >
-                  + Adicionar Puzzle de Teste
-                </button>
+                {process.env.NODE_ENV === "development" && (
+                  <button
+                    onClick={handleSeedExample}
+                    className="mt-2 text-xs font-mono px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-amber-400 border border-zinc-700 transition-colors"
+                  >
+                    + Adicionar Puzzle de Teste
+                  </button>
+                )}
               </div>
             )}
           </div>
