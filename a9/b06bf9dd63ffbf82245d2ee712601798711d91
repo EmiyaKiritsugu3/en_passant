@@ -1,0 +1,21 @@
+app/library/page.tsx
+  s_7934dd32b95140::t_bc7bbe741ca55e 45
+app/dashboard/page.tsx
+  s_7934dd32b95140::t_d51939876bdf6e 144,147
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "a9b06bf9dd63ffbf82245d2ee712601798711d91",
+  "prompts": {},
+  "sessions": {
+    "s_7934dd32b95140": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "84f9f20b-77bb-4361-b16d-cd0ec3d54077",
+        "model": "gemini-3.8-flash"
+      },
+      "human_author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
