@@ -47,9 +47,9 @@ export default function MoveHistory({
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800/80 bg-zinc-900/90">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-300">
+          <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-300">
             Lances
-          </span>
+          </h2>
           <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">
             {Math.floor(moves.length / 2)} {moves.length % 2 !== 0 ? "½" : ""}
           </span>
@@ -81,6 +81,8 @@ export default function MoveHistory({
       {/* Move List Table */}
       <div
         ref={scrollRef}
+        id="moves-list"
+        aria-label="Lances da partida"
         className="flex-1 overflow-y-auto px-2 py-2 space-y-0.5 font-mono text-xs select-none max-h-[190px] sm:max-h-[220px]"
       >
         {rows.length === 0 ? (
@@ -136,6 +138,7 @@ export default function MoveHistory({
             onClick={() => onSelectPly(0)}
             disabled={currentViewingPly === 0}
             title="Início da partida"
+            aria-label="Início da partida"
             className="p-1.5 rounded-lg hover:bg-zinc-800 hover:text-zinc-200 disabled:opacity-30 disabled:hover:bg-transparent transition-colors text-xs"
           >
             ⏮
@@ -145,6 +148,7 @@ export default function MoveHistory({
             onClick={() => onSelectPly(Math.max(0, currentViewingPly - 1))}
             disabled={currentViewingPly === 0}
             title="Lance anterior"
+            aria-label="Lance anterior"
             className="p-1.5 rounded-lg hover:bg-zinc-800 hover:text-zinc-200 disabled:opacity-30 disabled:hover:bg-transparent transition-colors text-xs"
           >
             ◀
@@ -154,6 +158,7 @@ export default function MoveHistory({
             onClick={() => onSelectPly(Math.min(moves.length, currentViewingPly + 1))}
             disabled={currentViewingPly === moves.length}
             title="Próximo lance"
+            aria-label="Próximo lance"
             className="p-1.5 rounded-lg hover:bg-zinc-800 hover:text-zinc-200 disabled:opacity-30 disabled:hover:bg-transparent transition-colors text-xs"
           >
             ▶
@@ -163,6 +168,7 @@ export default function MoveHistory({
             onClick={() => onSelectPly(moves.length)}
             disabled={currentViewingPly === moves.length}
             title="Último lance (ao vivo)"
+            aria-label="Último lance (ao vivo)"
             className="p-1.5 rounded-lg hover:bg-zinc-800 hover:text-zinc-200 disabled:opacity-30 disabled:hover:bg-transparent transition-colors text-xs"
           >
             ⏭
@@ -173,6 +179,7 @@ export default function MoveHistory({
           type="button"
           onClick={onFlipBoard}
           title="Inverter orientação do tabuleiro"
+          aria-label="Inverter orientação do tabuleiro"
           className="p-1.5 rounded-lg hover:bg-zinc-800 hover:text-amber-400 transition-colors text-xs flex items-center gap-1 font-mono text-[11px]"
         >
           <span>🔄</span>

@@ -569,7 +569,16 @@ function PlayContent() {
   const isLiveMode = viewingPly === movesHistory.length;
 
   return (
-    <main className="min-h-screen bg-[#161512] text-zinc-100 flex flex-col items-center select-none pb-8">
+    <main aria-labelledby="arena-title" className="min-h-screen bg-[#161512] text-zinc-100 flex flex-col items-center select-none pb-8">
+      <h1 id="arena-title" className="sr-only">
+        Arena GM — jogar contra Stockfish
+      </h1>
+      <a
+        href="#arena-board"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:bg-amber-600 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:font-mono focus:text-xs"
+      >
+        Pular para o tabuleiro
+      </a>
       {/* ================= TOPBAR HEADER ================= */}
       <header className="w-full max-w-7xl px-4 py-3 flex items-center justify-between border-b border-zinc-800/80 bg-zinc-950/60 backdrop-blur-sm sticky top-0 z-30">
         <div className="flex items-center gap-3">
@@ -609,6 +618,8 @@ function PlayContent() {
             type="button"
             onClick={handleToggleAudio}
             title={isMuted ? "Ativar som" : "Desativar som"}
+            aria-label={isMuted ? "Ativar som" : "Desativar som"}
+            aria-pressed={!isMuted}
             className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-amber-400 transition-colors text-sm"
           >
             {isMuted ? "🔇" : "🔊"}
@@ -619,7 +630,7 @@ function PlayContent() {
       {/* ================= MAIN ARENA GRID ================= */}
       <div className="w-full max-w-7xl px-3 sm:px-6 py-4 sm:py-6 flex flex-col lg:flex-row gap-6 items-start justify-center">
         {/* LEFT COLUMN: BOARD ARENA */}
-        <div className="w-full lg:w-[560px] lg:shrink-0 flex flex-col items-center gap-3">
+        <section aria-label="Tabuleiro e oponente" className="w-full lg:w-[560px] lg:shrink-0 flex flex-col items-center gap-3">
           {/* Opponent Card (Top) */}
           <div className="w-full max-w-[560px]">
             <PlayerCard
@@ -649,7 +660,14 @@ function PlayContent() {
             </div>
 
             {/* Chessground Board */}
-            <div className="relative flex-1 min-w-0 max-w-[500px] sm:max-w-[520px]">
+            <div id="arena-board" tabIndex={-1} className="relative flex-1 min-w-0 max-w-[500px] sm:max-w-[520px]">
+              <p role="status" className="sr-only">
+                {movesHistory.length === 0
+                  ? "Partida nova. Sua vez de jogar."
+                  : `Lance ${movesHistory.length}: ${movesHistory[movesHistory.length - 1].san}. ${
+                      isPlayerTurn ? "Sua vez." : "Vez do oponente."
+                    }`}
+              </p>
               <Board
                 fen={viewingFen}
                 orientation={boardOrientation}
@@ -672,10 +690,10 @@ function PlayContent() {
               materialAdvantage={color === "white" ? material.whiteAdvantage : material.blackAdvantage}
             />
           </div>
-        </div>
+        </section>
 
         {/* RIGHT COLUMN: INTERACTIVE CONSOLE (MoveHistory + CoachConsole) */}
-        <div className="w-full lg:w-[420px] flex flex-col gap-4">
+        <section aria-label="Lances e coach" className="w-full lg:w-[420px] flex flex-col gap-4">
           {/* Upper Box: Move Notation & Transport */}
           <div className="h-[260px] sm:h-[280px]">
             <MoveHistory
@@ -708,7 +726,7 @@ function PlayContent() {
               isChatSending={isChatSending}
             />
           </div>
-        </div>
+        </section>
       </div>
 
       {/* ================= POSTGAME MODAL ================= */}
