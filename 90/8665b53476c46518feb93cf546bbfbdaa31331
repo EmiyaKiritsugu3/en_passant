@@ -1,0 +1,22 @@
+lib/lichess/explorer.ts
+  s_7934dd32b95140::t_56f49e8b088a87 26-27,29,38,49-51,56-58
+app/play/page.tsx
+  s_7934dd32b95140::t_c325dd5d3c000b 115,117
+  s_7934dd32b95140::t_8bdaba661871a6 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "908665b53476c46518feb93cf546bbfbdaa31331",
+  "prompts": {},
+  "sessions": {
+    "s_7934dd32b95140": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "84f9f20b-77bb-4361-b16d-cd0ec3d54077",
+        "model": "gemini-3.8-flash"
+      },
+      "human_author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
