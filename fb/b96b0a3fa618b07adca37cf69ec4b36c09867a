@@ -1,0 +1,25 @@
+e2e/dashboard-sm2.spec.ts
+  s_3b653c0d5350e8::t_a5f3d8611ae457 39-42,48-58,62-65,67-70
+  s_3b653c0d5350e8::t_1938d607fc7b4f 59-61
+e2e/play-arena.spec.ts
+  s_3b653c0d5350e8::t_6c74e23868483c 28,31-34
+  s_3b653c0d5350e8::t_0fe3f888974aca 96-97,107,109-110,113-114
+e2e/punishment-lab.spec.ts
+  s_3b653c0d5350e8::t_c9a1ff791e5bec 47-53,66-72
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "fbb96b0a3fa618b07adca37cf69ec4b36c09867a",
+  "prompts": {},
+  "sessions": {
+    "s_3b653c0d5350e8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8ff2b0cb-5b02-43f5-97ce-942157373c84",
+        "model": "gemini-3.8-flash"
+      },
+      "human_author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
