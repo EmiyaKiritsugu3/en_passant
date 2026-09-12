@@ -31,6 +31,7 @@ export default function EvalBar({ evaluation, orientation }: EvalBarProps) {
 
   return (
     <div
+      role="img"
       className="relative w-6 sm:w-7 h-full rounded-lg overflow-hidden border border-zinc-800 bg-[#262421] shadow-inner select-none flex flex-col justify-end"
       title={`Avaliação da posição: ${scoreText}`}
       aria-label={`Barra de avaliação: ${scoreText}`}

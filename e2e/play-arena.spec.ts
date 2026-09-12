@@ -26,6 +26,13 @@ test.describe("Play Arena — Game & Coach Console", () => {
     // Player Cards
     await expect(page.getByText(/GM Coach \(Stockfish 18\)/i)).toBeVisible();
     await expect(page.getByText(/Você/i).first()).toBeVisible();
+
+    // A11y landmarks
+    await expect(page.getByRole("heading", { level: 1, name: /Arena GM/i })).toBeAttached();
+    await expect(page.getByRole("region", { name: /Tabuleiro e oponente/i })).toBeVisible();
+    await expect(page.getByRole("region", { name: /Lances e coach/i })).toBeVisible();
+    await expect(page.getByRole("img", { name: /Tabuleiro de xadrez/i })).toBeVisible();
+    await expect(page.getByRole("img", { name: /Barra de avaliação/i })).toBeVisible();
   });
 
   test("sound toggle changes mute state", async ({ page }) => {
@@ -42,6 +49,11 @@ test.describe("Play Arena — Game & Coach Console", () => {
     // Click again -> unmutes audio
     await soundBtn.click();
     await expect(soundBtn).toHaveAttribute("title", "Desativar som");
+    await expect(soundBtn).toHaveAttribute("aria-pressed", "true");
+
+    // Transport controls expose accessible names
+    await expect(page.getByRole("button", { name: "Lance anterior" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Inverter orientação do tabuleiro" })).toBeVisible();
   });
 
   test("ai difficulty selector updates opponent card", async ({ page }) => {
@@ -65,20 +77,25 @@ test.describe("Play Arena — Game & Coach Console", () => {
   test("coach console tab navigation and chat interaction", async ({ page }) => {
     await page.goto("/play?side=white");
 
+    // Tabs expose tab semantics
+    await expect(page.getByRole("tablist", { name: /Seções do coach/i })).toBeVisible();
+    await expect(page.getByRole("tab", { name: "Crítica" })).toHaveAttribute("aria-selected", "true");
+
     // Navigate to Intent tab
-    const intentTab = page.getByRole("button", { name: "Intenção" });
+    const intentTab = page.getByRole("tab", { name: "Intenção" });
     await expect(intentTab).toBeVisible();
     await intentTab.click();
+    await expect(page.getByRole("tab", { name: "Intenção" })).toHaveAttribute("aria-selected", "true");
     await expect(page.getByText(/Plano & Estratégia/i)).toBeVisible();
 
     // Navigate to Position tab
-    const positionTab = page.getByRole("button", { name: "Posição" });
+    const positionTab = page.getByRole("tab", { name: "Posição" });
     await expect(positionTab).toBeVisible();
     await positionTab.click();
     await expect(page.getByText(/Diagnóstico Espacial/i)).toBeVisible();
 
     // Navigate to Chat tab
-    const chatTab = page.getByRole("button", { name: "Conversar" });
+    const chatTab = page.getByRole("tab", { name: "Conversar" });
     await expect(chatTab).toBeVisible();
     await chatTab.click();
 

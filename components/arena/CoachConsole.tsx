@@ -81,12 +81,47 @@ export default function CoachConsole({
 }: CoachConsoleProps) {
   const currentBadge = label ? BADGE_CONFIG[label] : null;
 
+  const handleTabKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const tabs: ("critique" | "intent" | "position" | "chat")[] = [
+      "critique",
+      "intent",
+      "position",
+      "chat",
+    ];
+    const idx = tabs.indexOf(tab);
+    if (idx === -1) return;
+
+    let nextIdx = -1;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+      nextIdx = (idx + 1) % tabs.length;
+    } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+      nextIdx = (idx - 1 + tabs.length) % tabs.length;
+    }
+
+    if (nextIdx !== -1) {
+      e.preventDefault();
+      const nextTab = tabs[nextIdx];
+      onTabChange(nextTab);
+      document.getElementById(`tab-${nextTab}`)?.focus();
+    }
+  };
+
   return (
     <div className="flex flex-col h-full bg-zinc-900/80 backdrop-blur-md border border-zinc-800/80 rounded-2xl overflow-hidden shadow-xl">
       {/* Navigation Tabs */}
-      <div className="flex border-b border-zinc-800/80 bg-zinc-900/90 text-xs font-mono select-none">
+      <div
+        role="tablist"
+        aria-label="Seções do coach"
+        onKeyDown={handleTabKeyDown}
+        className="flex border-b border-zinc-800/80 bg-zinc-900/90 text-xs font-mono select-none"
+      >
         <button
           type="button"
+          id="tab-critique"
+          role="tab"
+          tabIndex={tab === "critique" ? 0 : -1}
+          aria-selected={tab === "critique"}
+          aria-controls="coach-panel"
           onClick={() => onTabChange("critique")}
           className={`flex-1 py-3 px-2 text-center transition-all border-b-2 font-bold ${
             tab === "critique"
@@ -98,6 +133,11 @@ export default function CoachConsole({
         </button>
         <button
           type="button"
+          id="tab-intent"
+          role="tab"
+          tabIndex={tab === "intent" ? 0 : -1}
+          aria-selected={tab === "intent"}
+          aria-controls="coach-panel"
           onClick={() => onTabChange("intent")}
           className={`flex-1 py-3 px-2 text-center transition-all border-b-2 font-bold ${
             tab === "intent"
@@ -109,6 +149,11 @@ export default function CoachConsole({
         </button>
         <button
           type="button"
+          id="tab-position"
+          role="tab"
+          tabIndex={tab === "position" ? 0 : -1}
+          aria-selected={tab === "position"}
+          aria-controls="coach-panel"
           onClick={() => onTabChange("position")}
           className={`flex-1 py-3 px-2 text-center transition-all border-b-2 font-bold ${
             tab === "position"
@@ -120,6 +165,11 @@ export default function CoachConsole({
         </button>
         <button
           type="button"
+          id="tab-chat"
+          role="tab"
+          tabIndex={tab === "chat" ? 0 : -1}
+          aria-selected={tab === "chat"}
+          aria-controls="coach-panel"
           onClick={() => onTabChange("chat")}
           className={`flex-1 py-3 px-2 text-center transition-all border-b-2 font-bold ${
             tab === "chat"
@@ -132,10 +182,15 @@ export default function CoachConsole({
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-5 text-sm space-y-4 min-h-[220px]">
+      <div
+        id="coach-panel"
+        role="tabpanel"
+        aria-labelledby={`tab-${tab}`}
+        className="flex-1 overflow-y-auto p-4 sm:p-5 text-sm space-y-4 min-h-[220px]"
+      >
         {/* Notice Pill (e.g. Hint) */}
         {notice && (
-          <div className="p-3 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs font-mono shadow-sm flex items-center gap-2 animate-in fade-in">
+          <div role="status" className="p-3 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs font-mono shadow-sm flex items-center gap-2 animate-in fade-in">
             <span className="text-base">💡</span>
             <span className="font-semibold">{notice}</span>
           </div>
@@ -145,9 +200,9 @@ export default function CoachConsole({
         {tab === "critique" && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-mono uppercase tracking-wider text-zinc-400">
+              <h2 className="text-xs font-mono uppercase tracking-wider text-zinc-400">
                 Análise do GM
-              </span>
+              </h2>
               {currentBadge && (
                 <span
                   className={`text-xs font-mono font-bold px-2 py-0.5 rounded-full border ${currentBadge.bg} ${currentBadge.border} ${currentBadge.text}`}
@@ -248,7 +303,7 @@ export default function CoachConsole({
         {/* TAB 4: CHAT */}
         {tab === "chat" && (
           <div className="flex flex-col h-full space-y-3">
-            <div className="space-y-2 max-h-[160px] overflow-y-auto pr-1">
+            <div aria-live="polite" className="space-y-2 max-h-[160px] overflow-y-auto pr-1">
               {chatMessages.length === 0 ? (
                 <p className="text-zinc-500 text-xs italic">
                   Pergunte qualquer coisa ao GM Coach sobre o lance atual.
@@ -273,7 +328,11 @@ export default function CoachConsole({
             </div>
 
             <div className="flex gap-2 pt-2 border-t border-zinc-800">
+              <label htmlFor="coach-chat-input" className="sr-only">
+                Perguntar ao GM Coach
+              </label>
               <input
+                id="coach-chat-input"
                 type="text"
                 value={chatInput}
                 onChange={(e) => onChatInputChange(e.target.value)}

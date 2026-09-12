@@ -37,12 +37,14 @@ export default function Board({
   onMove,
   shape,
   isThinking = false,
+  describedBy,
 }: {
   fen: string;
   orientation: "white" | "black";
   onMove?: (from: string, to: string) => void;
   shape?: DrawShape[];
   isThinking?: boolean;
+  describedBy?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const api = useRef<Api | null>(null);
@@ -100,6 +102,22 @@ export default function Board({
     });
   }, [fen, orientation, onMove, shape, isThinking]);
 
-  return <div ref={ref} style={{ width: "100%", aspectRatio: "1" }} />;
+  // ponytail: announce-only, no keyboard move entry. Upgrade path: hidden input + getLegalDests() + chess.js validation.
+  const turnColor = (() => {
+    try {
+      return new Chess(fen).turn() === "w" ? "brancas" : "pretas";
+    } catch {
+      return "brancas";
+    }
+  })();
+  return (
+    <div
+      ref={ref}
+      role="img"
+      aria-label={`Tabuleiro de xadrez, vez das ${turnColor}`}
+      aria-describedby={describedBy}
+      style={{ width: "100%", aspectRatio: "1" }}
+    />
+  );
 }
 
