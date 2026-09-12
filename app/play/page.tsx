@@ -663,7 +663,9 @@ function PlayContent() {
             <div id="arena-board" tabIndex={-1} className="relative flex-1 min-w-0 max-w-[500px] sm:max-w-[520px]">
               <p role="status" className="sr-only">
                 {movesHistory.length === 0
-                  ? "Partida nova. Sua vez de jogar."
+                  ? isPlayerTurn
+                    ? "Partida nova. Sua vez de jogar."
+                    : "Partida nova. Aguardando lance do oponente."
                   : `Lance ${movesHistory.length}: ${movesHistory[movesHistory.length - 1].san}. ${
                       isPlayerTurn ? "Sua vez." : "Vez do oponente."
                     }`}
@@ -674,6 +676,7 @@ function PlayContent() {
                 onMove={isLiveMode ? onMove : undefined}
                 shape={arrow}
                 isThinking={isEngineThinking}
+                describedBy="moves-list"
               />
             </div>
           </div>

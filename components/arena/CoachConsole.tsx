@@ -81,13 +81,45 @@ export default function CoachConsole({
 }: CoachConsoleProps) {
   const currentBadge = label ? BADGE_CONFIG[label] : null;
 
+  const handleTabKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const tabs: ("critique" | "intent" | "position" | "chat")[] = [
+      "critique",
+      "intent",
+      "position",
+      "chat",
+    ];
+    const idx = tabs.indexOf(tab);
+    if (idx === -1) return;
+
+    let nextIdx = -1;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+      nextIdx = (idx + 1) % tabs.length;
+    } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+      nextIdx = (idx - 1 + tabs.length) % tabs.length;
+    }
+
+    if (nextIdx !== -1) {
+      e.preventDefault();
+      const nextTab = tabs[nextIdx];
+      onTabChange(nextTab);
+      document.getElementById(`tab-${nextTab}`)?.focus();
+    }
+  };
+
   return (
     <div className="flex flex-col h-full bg-zinc-900/80 backdrop-blur-md border border-zinc-800/80 rounded-2xl overflow-hidden shadow-xl">
       {/* Navigation Tabs */}
-      <div role="tablist" aria-label="Seções do coach" className="flex border-b border-zinc-800/80 bg-zinc-900/90 text-xs font-mono select-none">
+      <div
+        role="tablist"
+        aria-label="Seções do coach"
+        onKeyDown={handleTabKeyDown}
+        className="flex border-b border-zinc-800/80 bg-zinc-900/90 text-xs font-mono select-none"
+      >
         <button
           type="button"
+          id="tab-critique"
           role="tab"
+          tabIndex={tab === "critique" ? 0 : -1}
           aria-selected={tab === "critique"}
           aria-controls="coach-panel"
           onClick={() => onTabChange("critique")}
@@ -101,7 +133,9 @@ export default function CoachConsole({
         </button>
         <button
           type="button"
+          id="tab-intent"
           role="tab"
+          tabIndex={tab === "intent" ? 0 : -1}
           aria-selected={tab === "intent"}
           aria-controls="coach-panel"
           onClick={() => onTabChange("intent")}
@@ -115,7 +149,9 @@ export default function CoachConsole({
         </button>
         <button
           type="button"
+          id="tab-position"
           role="tab"
+          tabIndex={tab === "position" ? 0 : -1}
           aria-selected={tab === "position"}
           aria-controls="coach-panel"
           onClick={() => onTabChange("position")}
@@ -129,7 +165,9 @@ export default function CoachConsole({
         </button>
         <button
           type="button"
+          id="tab-chat"
           role="tab"
+          tabIndex={tab === "chat" ? 0 : -1}
           aria-selected={tab === "chat"}
           aria-controls="coach-panel"
           onClick={() => onTabChange("chat")}
@@ -144,7 +182,12 @@ export default function CoachConsole({
       </div>
 
       {/* Main Content Area */}
-      <div id="coach-panel" role="tabpanel" className="flex-1 overflow-y-auto p-4 sm:p-5 text-sm space-y-4 min-h-[220px]">
+      <div
+        id="coach-panel"
+        role="tabpanel"
+        aria-labelledby={`tab-${tab}`}
+        className="flex-1 overflow-y-auto p-4 sm:p-5 text-sm space-y-4 min-h-[220px]"
+      >
         {/* Notice Pill (e.g. Hint) */}
         {notice && (
           <div role="status" className="p-3 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs font-mono shadow-sm flex items-center gap-2 animate-in fade-in">

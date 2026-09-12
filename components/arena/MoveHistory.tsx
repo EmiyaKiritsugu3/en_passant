@@ -82,6 +82,7 @@ export default function MoveHistory({
       <div
         ref={scrollRef}
         id="moves-list"
+        role="region"
         aria-label="Lances da partida"
         className="flex-1 overflow-y-auto px-2 py-2 space-y-0.5 font-mono text-xs select-none max-h-[190px] sm:max-h-[220px]"
       >

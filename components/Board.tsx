@@ -37,12 +37,14 @@ export default function Board({
   onMove,
   shape,
   isThinking = false,
+  describedBy,
 }: {
   fen: string;
   orientation: "white" | "black";
   onMove?: (from: string, to: string) => void;
   shape?: DrawShape[];
   isThinking?: boolean;
+  describedBy?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const api = useRef<Api | null>(null);
@@ -113,7 +115,7 @@ export default function Board({
       ref={ref}
       role="img"
       aria-label={`Tabuleiro de xadrez, vez das ${turnColor}`}
-      aria-describedby="moves-list"
+      aria-describedby={describedBy}
       style={{ width: "100%", aspectRatio: "1" }}
     />
   );
