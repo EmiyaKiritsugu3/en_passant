@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, Suspense } from "react";
+import { useEffect, useMemo, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Chess } from "chess.js";
@@ -13,7 +13,6 @@ import {
   type ExplorerMove,
   type ExplorerStats,
 } from "@/lib/lichess/explorer";
-import { createMockEngine, createStockfishEngine, type Engine } from "@/lib/engine/engine";
 import type { ExploreResponse } from "@/lib/coach/schemas";
 import type { DrawShape } from "chessground/draw";
 import type { Key } from "chessground/types";
@@ -102,19 +101,6 @@ function StudyContent() {
   const [freeExploreFen, setFreeExploreFen] = useState<string | null>(null);
   const [freeExploreShapes, setFreeExploreShapes] = useState<DrawShape[]>([]);
 
-  const engineRef = useRef<Engine | null>(null);
-
-  useEffect(() => {
-    try {
-      engineRef.current = createStockfishEngine();
-    } catch {
-      engineRef.current = createMockEngine();
-    }
-    return () => {
-      engineRef.current?.quit();
-    };
-  }, []);
-
   // Parse moves of active chapter
   const parsedMoves = useMemo(() => {
     if (!activeChapter) return [];
@@ -149,10 +135,12 @@ function StudyContent() {
   };
 
   // Fetch coach comment for current ply
+  const currentCommentKey = activeChapter ? `${activeChapter.id}:${currentPly}` : "";
+  const hasCachedComment = Boolean(commentsCache[currentCommentKey]);
+
   useEffect(() => {
-    if (isExploreMode || !activeChapter || parsedMoves.length === 0 || currentPly === 0) return;
+    if (isExploreMode || !activeChapter || parsedMoves.length === 0 || currentPly === 0 || hasCachedComment) return;
     const cacheKey = `${activeChapter.id}:${currentPly}`;
-    if (commentsCache[cacheKey]) return;
 
     let cancelled = false;
 
@@ -204,7 +192,7 @@ function StudyContent() {
     return () => {
       cancelled = true;
     };
-  }, [activeChapter, currentPly, isExploreMode, parsedMoves, commentsCache]);
+  }, [activeChapter, currentPly, isExploreMode, parsedMoves, hasCachedComment]);
 
   // Handle free exploration move
   const handleFreeMove = async (from: string, to: string) => {

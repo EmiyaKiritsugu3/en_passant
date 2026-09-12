@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { memo, useMemo } from "react";
 import { calculateEvalPercentage, formatEvalScore } from "@/lib/chess/evalbar";
 
 interface EvalBarProps {
@@ -8,7 +8,7 @@ interface EvalBarProps {
   orientation: "white" | "black";
 }
 
-export default function EvalBar({ evaluation, orientation }: EvalBarProps) {
+export default memo(function EvalBar({ evaluation, orientation }: EvalBarProps) {
   const cp = evaluation?.cp ?? 0;
   const mate = evaluation?.mate ?? null;
 
@@ -56,4 +56,4 @@ export default function EvalBar({ evaluation, orientation }: EvalBarProps) {
       </div>
     </div>
   );
-}
+});

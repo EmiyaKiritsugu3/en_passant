@@ -46,6 +46,15 @@ function notifyGamesListeners() {
   for (const l of gamesListeners) l();
 }
 
+if (typeof window !== "undefined") {
+  window.addEventListener("storage", (e) => {
+    if (e.key === KEY) {
+      cachedGames = null;
+      notifyGamesListeners();
+    }
+  });
+}
+
 let cachedGames: SavedGame[] | null = null;
 
 export function subscribeGames(listener: () => void): () => void {
