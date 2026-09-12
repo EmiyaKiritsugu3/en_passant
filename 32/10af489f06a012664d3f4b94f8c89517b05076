@@ -1,0 +1,26 @@
+app/play/page.tsx
+  s_7934dd32b95140::t_97a2f71cc16823 666-668,679
+components/Board.tsx
+  s_7934dd32b95140::t_93e7d2f91eaf4e 118
+  s_7934dd32b95140::t_ee41552348f081 40,47
+components/arena/CoachConsole.tsx
+  s_7934dd32b95140::t_45089b0247f6d3 84-108,112-117,120,122,136,138,152,154,168,170,185-190
+components/arena/MoveHistory.tsx
+  s_7934dd32b95140::t_c5d3e50b4de3b3 85
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "3210af489f06a012664d3f4b94f8c89517b05076",
+  "prompts": {},
+  "sessions": {
+    "s_7934dd32b95140": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "84f9f20b-77bb-4361-b16d-cd0ec3d54077",
+        "model": "gemini-3.8-flash"
+      },
+      "human_author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
