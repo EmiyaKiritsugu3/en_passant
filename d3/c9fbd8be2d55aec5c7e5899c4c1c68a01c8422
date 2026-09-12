@@ -1,0 +1,35 @@
+e2e/punishment-lab.spec.ts
+  s_3b653c0d5350e8::t_56bed190afdc63 1-33,35-68
+  s_3b653c0d5350e8::t_4635159a9d42e4 34
+e2e/dashboard-sm2.spec.ts
+  s_3b653c0d5350e8::t_f11732ef4fd097 1-18,22-49
+  s_3b653c0d5350e8::t_b9b0a6f11f214b 19-21
+package.json
+  s_3b653c0d5350e8::t_cc656fedc5f353 10-11
+e2e/play-arena.spec.ts
+  s_3b653c0d5350e8::t_865eb6cfe59393 36-38,44-48
+  s_3b653c0d5350e8::t_99ceb7fb870f35 1-35,40-42,49-57,59-63,65-94,115
+  s_3b653c0d5350e8::t_412d393d3b9406 43
+  s_3b653c0d5350e8::t_608d75e1c0fa32 95-114
+  s_3b653c0d5350e8::t_a2259657f69187 39,58,64
+.gitignore
+  s_3b653c0d5350e8::t_a7f5e5c50b3dcd 15-16
+e2e/smoke.spec.ts
+  s_3b653c0d5350e8::t_fc3e552797bd9c 3,5-13,15-25,27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "d3c9fbd8be2d55aec5c7e5899c4c1c68a01c8422",
+  "prompts": {},
+  "sessions": {
+    "s_3b653c0d5350e8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8ff2b0cb-5b02-43f5-97ce-942157373c84",
+        "model": "gemini-3.8-flash"
+      },
+      "human_author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
