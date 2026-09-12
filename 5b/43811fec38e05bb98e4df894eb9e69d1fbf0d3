@@ -1,0 +1,33 @@
+app/train/page.tsx
+  s_7934dd32b95140::t_4e2c79255a763a 154-155
+  s_7934dd32b95140::t_4f3453ec8ac805 427-434
+app/dashboard/page.tsx
+  s_7934dd32b95140::t_93dd8beab1dddb 124,126-151
+  s_7934dd32b95140::t_181a5797ebc3dc 37-38,46
+e2e/dashboard-sm2.spec.ts
+  s_7934dd32b95140::t_cc16cd9a7537e7 34-35
+  s_7934dd32b95140::t_6824b2118f63de 84-87,89-91,94-115
+  s_7934dd32b95140::t_a51108ceaecdc4 88,92-93
+app/library/page.tsx
+  s_7934dd32b95140::t_306ac44ef7d56b 40-41,45-46
+  s_7934dd32b95140::t_a81d17901aeb29 226-289
+  s_7934dd32b95140::t_1d81c712d67d0f 345
+  s_7934dd32b95140::t_e1f193bbb9e5eb 42-44
+  s_7934dd32b95140::t_8e597d3c1dfe44 596
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "5b43811fec38e05bb98e4df894eb9e69d1fbf0d3",
+  "prompts": {},
+  "sessions": {
+    "s_7934dd32b95140": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "84f9f20b-77bb-4361-b16d-cd0ec3d54077",
+        "model": "gemini-3.8-flash"
+      },
+      "human_author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
