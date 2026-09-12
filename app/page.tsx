@@ -6,7 +6,17 @@ import Link from "next/link";
 import { DEFAULT_PROFILE, getProfileSnapshot, subscribeProfile } from "@/lib/profile/store";
 import { EMPTY_CARDS, getCardsSnapshot, subscribeCards, summarizeDue } from "@/lib/sm2/scheduler";
 
-const MODULES = [
+interface Module {
+  title: string;
+  badge: string;
+  badgeColor: string;
+  description: string;
+  href: string;
+  icon: string;
+  actionLabel: string;
+}
+
+const MODULES: Module[] = [
   {
     title: "Arena GM",
     badge: "Stockfish 18",
