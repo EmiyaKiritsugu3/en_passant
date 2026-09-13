@@ -18,6 +18,7 @@ import {
 import { collectEvals, type Row } from "@/lib/postgame";
 import { createMockEngine, createStockfishEngine, type Engine } from "@/lib/engine/engine";
 import { DEFAULT_PROFILE, getProfileSnapshot, subscribeProfile } from "@/lib/profile/store";
+import { BookOpen, Library } from "lucide-react";
 import type { DrawShape } from "chessground/draw";
 import type { Key } from "chessground/types";
 
@@ -182,7 +183,7 @@ export default function LibraryPage() {
             href="/study"
             className="text-xs font-mono px-3 py-2 rounded-lg bg-emerald-950/60 hover:bg-emerald-900/60 text-emerald-300 border border-emerald-800 transition-colors"
           >
-            📖 Modo Estudo
+            <span className="inline-flex items-center gap-1.5"><BookOpen size={14} /> Modo Estudo</span>
           </Link>
           <Link
             href="/train"
@@ -226,8 +227,8 @@ export default function LibraryPage() {
       {/* Main layout */}
       {games.length === 0 ? (
         <div className="w-full max-w-2xl bg-zinc-900/60 border border-zinc-800 rounded-2xl p-8 sm:p-10 flex flex-col items-center justify-center text-center gap-5 shadow-xl mt-4">
-          <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-2xl">
-            📚
+          <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+            <Library size={20} />
           </div>
           <div>
             <h2 className="text-lg font-bold text-white">Sua Biblioteca está Vazia</h2>
@@ -254,7 +255,7 @@ export default function LibraryPage() {
               href="/study"
               className="px-5 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold font-mono border border-zinc-700 transition-colors"
             >
-              📖 Modo Estudo
+              <span className="inline-flex items-center gap-1.5"><BookOpen size={14} /> Modo Estudo</span>
             </Link>
           </div>
 

@@ -1,6 +1,16 @@
 "use client";
 
 import { useMemo } from "react";
+import {
+  Bot,
+  ChessBishop,
+  ChessKnight,
+  ChessPawn,
+  ChessQueen,
+  ChessRook,
+  Star,
+  User,
+} from "lucide-react";
 
 interface PlayerCardProps {
   name: string;
@@ -14,12 +24,12 @@ interface PlayerCardProps {
   isEngine?: boolean;
 }
 
-const PIECE_GLYPHS: Record<string, { white: string; black: string }> = {
-  p: { white: "♙", black: "♟" },
-  n: { white: "♘", black: "♞" },
-  b: { white: "♗", black: "♝" },
-  r: { white: "♖", black: "♜" },
-  q: { white: "♕", black: "♛" },
+const PIECE_ICONS: Record<string, typeof ChessPawn> = {
+  p: ChessPawn,
+  n: ChessKnight,
+  b: ChessBishop,
+  r: ChessRook,
+  q: ChessQueen,
 };
 
 export default function PlayerCard({
@@ -66,7 +76,7 @@ export default function PlayerCard({
                 : ""
             }`}
           >
-            {isEngine ? "🤖" : "👤"}
+            {isEngine ? <Bot size={16} /> : <User size={16} />}
           </div>
 
           {/* Color Indicator Dot */}
@@ -93,7 +103,7 @@ export default function PlayerCard({
           <div className="flex items-center gap-2 mt-0.5">
             {rating !== undefined && (
               <span className="text-[11px] font-mono text-zinc-400 flex items-center gap-0.5">
-                <span className="text-amber-500">★</span> {rating}
+                <Star size={11} className="text-amber-500" /> {rating}
               </span>
             )}
             {isThinking && (
@@ -109,16 +119,20 @@ export default function PlayerCard({
       <div className="flex items-center gap-2 sm:gap-3">
         {/* Pieces Row */}
         <div className="flex items-center text-sm sm:text-base leading-none text-zinc-300 font-serif tracking-tighter">
-          {sortedPieces.map((p, idx) => (
-            <span
-              key={idx}
-              className={`inline-block -ml-1 first:ml-0 drop-shadow-sm ${
-                capturedColor === "white" ? "text-zinc-100" : "text-zinc-400"
-              }`}
-            >
-              {PIECE_GLYPHS[p]?.[capturedColor] || p}
-            </span>
-          ))}
+          {sortedPieces.map((p, idx) => {
+            const Icon = PIECE_ICONS[p];
+            return Icon ? (
+              <Icon
+                key={idx}
+                size={16}
+                className={`inline-block -ml-1 first:ml-0 drop-shadow-sm ${
+                  capturedColor === "white" ? "text-zinc-100" : "text-zinc-400"
+                }`}
+              />
+            ) : (
+              <span key={idx}>{p}</span>
+            );
+          })}
         </div>
 
         {/* Material Advantage Badge */}

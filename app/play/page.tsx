@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Chess, type Square } from "chess.js";
 import type { Key } from "chessground/types";
 import type { DrawShape } from "chessground/draw";
+import { Flag, Volume2, VolumeX } from "lucide-react";
 import Board from "@/components/Board";
 import EvalBar from "@/components/arena/EvalBar";
 import PlayerCard from "@/components/arena/PlayerCard";
@@ -681,7 +682,7 @@ function PlayContent() {
                 : "bg-zinc-900 border-zinc-800 text-zinc-300 hover:text-rose-400"
             } disabled:opacity-40`}
           >
-            🏳️
+            <Flag size={16} />
           </button>
 
           {/* Sound Toggle Button */}
@@ -693,7 +694,7 @@ function PlayContent() {
             aria-pressed={!isMuted}
             className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-amber-400 transition-colors text-sm"
           >
-            {isMuted ? "🔇" : "🔊"}
+            {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
           </button>
         </div>
       </header>

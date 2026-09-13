@@ -3,6 +3,7 @@
 import type { TurnResponse } from "@/lib/coach/schemas";
 import type { Label } from "@/lib/chess/measure";
 import type { ChatMessage } from "@/lib/chat/store";
+import { Lightbulb } from "lucide-react";
 
 interface CoachConsoleProps {
   tab: "critique" | "intent" | "position" | "chat";
@@ -29,34 +30,34 @@ const BADGE_CONFIG: Record<
   { label: string; bg: string; border: string; text: string }
 > = {
   brilliant: {
-    label: "🌟 Lance Brilhante!",
+    label: "Lance Brilhante",
     bg: "bg-cyan-500/20",
     border: "border-cyan-500/40",
     text: "text-cyan-300",
   },
   solid: {
-    label: "✨ Bom Lance",
+    label: "Bom Lance",
     bg: "bg-blue-500/20",
     border: "border-blue-500/40",
     text: "text-blue-300",
   },
   inaccurate: {
-    label: "⚠️ Imprecisão",
+    label: "Imprecisão",
     bg: "bg-amber-500/20",
     border: "border-amber-500/40",
     text: "text-amber-300",
   },
   mistake: {
-    label: "❌ Erro Tático",
+    label: "Erro Tático",
     bg: "bg-orange-500/20",
     border: "border-orange-500/40",
     text: "text-orange-300",
   },
   blunder: {
-    label: "💥 Capivarada!",
+    label: "Capivarada",
     bg: "bg-rose-500/25",
     border: "border-rose-500/40",
-    text: "text-rose-300 font-black tracking-wide animate-pulse",
+    text: "text-rose-300 font-black tracking-wide",
   },
 };
 
@@ -191,7 +192,7 @@ export default function CoachConsole({
         {/* Notice Pill (e.g. Hint) */}
         {notice && (
           <div role="status" className="p-3 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs font-mono shadow-sm flex items-center gap-2 animate-in fade-in">
-            <span className="text-base">💡</span>
+            <Lightbulb size={16} className="shrink-0" />
             <span className="font-semibold">{notice}</span>
           </div>
         )}
@@ -361,7 +362,7 @@ export default function CoachConsole({
           disabled={isHintLoading}
           className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-mono font-bold shadow-md shadow-amber-900/20 border border-amber-500/40 flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
         >
-          <span>💡</span>
+          <Lightbulb size={14} />
           <span>{isHintLoading ? "Calculando Dica GM..." : "Pedir Dica Tática (GM)"}</span>
         </button>
 

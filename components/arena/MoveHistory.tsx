@@ -1,6 +1,13 @@
 "use client";
 
 import { memo, useEffect, useRef } from "react";
+import {
+  ArrowLeftRight,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
 
 export interface HistoryMove {
   ply: number;
@@ -73,7 +80,7 @@ export default memo(function MoveHistory({
             onClick={() => onSelectPly(moves.length)}
             className="px-2 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 transition-colors"
           >
-            Voltar ao jogo ⏭
+            Voltar ao jogo
           </button>
         </div>
       )}
@@ -142,7 +149,7 @@ export default memo(function MoveHistory({
             aria-label="Início da partida"
             className="p-1.5 rounded-lg hover:bg-zinc-800 hover:text-zinc-200 disabled:opacity-30 disabled:hover:bg-transparent transition-colors text-xs"
           >
-            ⏮
+            <ChevronsLeft size={14} />
           </button>
           <button
             type="button"
@@ -152,7 +159,7 @@ export default memo(function MoveHistory({
             aria-label="Lance anterior"
             className="p-1.5 rounded-lg hover:bg-zinc-800 hover:text-zinc-200 disabled:opacity-30 disabled:hover:bg-transparent transition-colors text-xs"
           >
-            ◀
+            <ChevronLeft size={14} />
           </button>
           <button
             type="button"
@@ -162,7 +169,7 @@ export default memo(function MoveHistory({
             aria-label="Próximo lance"
             className="p-1.5 rounded-lg hover:bg-zinc-800 hover:text-zinc-200 disabled:opacity-30 disabled:hover:bg-transparent transition-colors text-xs"
           >
-            ▶
+            <ChevronRight size={14} />
           </button>
           <button
             type="button"
@@ -172,7 +179,7 @@ export default memo(function MoveHistory({
             aria-label="Último lance (ao vivo)"
             className="p-1.5 rounded-lg hover:bg-zinc-800 hover:text-zinc-200 disabled:opacity-30 disabled:hover:bg-transparent transition-colors text-xs"
           >
-            ⏭
+            <ChevronsRight size={14} />
           </button>
         </div>
 
@@ -183,7 +190,7 @@ export default memo(function MoveHistory({
           aria-label="Inverter orientação do tabuleiro"
           className="p-1.5 rounded-lg hover:bg-zinc-800 hover:text-amber-400 transition-colors text-xs flex items-center gap-1 font-mono text-[11px]"
         >
-          <span>🔄</span>
+          <ArrowLeftRight size={14} />
           <span className="hidden sm:inline">Inverter</span>
         </button>
       </div>

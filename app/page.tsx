@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { DEFAULT_PROFILE, getProfileSnapshot, subscribeProfile } from "@/lib/profile/store";
 import { EMPTY_CARDS, getCardsSnapshot, subscribeCards, summarizeDue } from "@/lib/sm2/scheduler";
+import { Dices } from "lucide-react";
 import moduleData from "@/data/home-modules.json";
 
 interface Module {
@@ -123,7 +124,7 @@ export default function Setup() {
               className="w-full py-3 px-4 rounded-xl bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 active:scale-[0.99] border border-amber-600/40 font-medium flex items-center justify-between transition-all"
             >
               <div className="flex items-center gap-2">
-                <span className="text-sm">🎲</span>
+                <Dices size={14} />
                 <span className="text-sm font-semibold">3. Random</span>
               </div>
               <span className="text-xs text-amber-400/80 font-mono">Cor aleatória</span>

@@ -25,6 +25,7 @@ import type { ExploreResponse } from "@/lib/coach/schemas";
 import repertoireData from "@/data/repertoire.json";
 import type { DrawShape } from "chessground/draw";
 import type { Key } from "chessground/types";
+import { CircleCheck } from "lucide-react";
 
 type MainTab = "sm2" | "openings";
 type OpeningMode = "drill" | "explore";
@@ -221,7 +222,7 @@ export default function TrainPage() {
 
         if (nextPly >= activeLine.line.length) {
           setDrillCompleted(true);
-          setDrillStatus("🎉 Linha concluída com sucesso! Repertório memorizado.");
+          setDrillStatus("Linha concluída com sucesso! Repertório memorizado.");
           return;
         }
 
@@ -238,7 +239,7 @@ export default function TrainPage() {
               setDrillPly(afterOppPly);
               if (afterOppPly >= activeLine.line.length) {
                 setDrillCompleted(true);
-                setDrillStatus("🎉 Linha concluída com sucesso! Repertório memorizado.");
+                setDrillStatus("Linha concluída com sucesso! Repertório memorizado.");
               } else {
                 setDrillStatus("Sua vez de jogar.");
               }
@@ -254,7 +255,7 @@ export default function TrainPage() {
         const fenAfter = openingGame.fen();
         setOpeningFen(fenAfter);
 
-        setDrillStatus(`⚠️ Desvio teórico! Lance jogado: ${move.san}. Esperado: ${check.expected}`);
+        setDrillStatus(`Desvio teórico! Lance jogado: ${move.san}. Esperado: ${check.expected}`);
         setOpeningShape([
           { orig: from as Key, dest: to as Key, brush: "red" },
         ]);
@@ -415,8 +416,8 @@ export default function TrainPage() {
               </>
             ) : (
               <div className="w-full max-w-[560px] aspect-square rounded-2xl border border-zinc-800 bg-zinc-900/40 flex flex-col items-center justify-center p-8 text-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xl font-bold">
-                  ✓
+                <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                  <CircleCheck size={20} />
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-white">Treino em dia!</h3>
