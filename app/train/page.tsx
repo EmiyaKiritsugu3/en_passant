@@ -339,24 +339,24 @@ export default function TrainPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#161512] text-zinc-100 p-4 md:p-8 flex flex-col items-center">
+    <main className="min-h-screen bg-noir-bg text-noir-ink p-4 md:p-8 flex flex-col items-center">
       {/* Top Header */}
-      <header className="w-full max-w-5xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 border-b border-zinc-800/80 pb-4">
+      <header className="w-full max-w-5xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 border-b border-noir-line pb-4">
         <div>
-          <span className="text-xs font-mono uppercase tracking-widest text-amber-500 font-semibold">
+          <span className="text-xs font-mono uppercase text-bronze font-semibold">
             Centro de Treinamento
           </span>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Treinador & Aberturas</h1>
+          <h1 className="text-2xl font-bold font-display text-noir-ink tracking-tight">Treinador & Aberturas</h1>
         </div>
 
         {/* Tab switcher */}
-        <div className="flex gap-2 p-1 bg-zinc-900 border border-zinc-800 rounded-xl">
+        <div className="flex gap-2 p-1 bg-noir-raised border border-noir-line rounded-xl">
           <button
             onClick={() => setMainTab("sm2")}
             className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all ${
               mainTab === "sm2"
-                ? "bg-amber-600 text-white shadow-md"
-                : "text-zinc-400 hover:text-white"
+                ? "bg-bronze-deep text-white shadow-md"
+                : "text-noir-muted hover:text-noir-ink"
             }`}
           >
             Puzzles de Erros (SM-2)
@@ -365,8 +365,8 @@ export default function TrainPage() {
             onClick={() => setMainTab("openings")}
             className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all ${
               mainTab === "openings"
-                ? "bg-amber-600 text-white shadow-md"
-                : "text-zinc-400 hover:text-white"
+                ? "bg-bronze-deep text-white shadow-md"
+                : "text-noir-muted hover:text-noir-ink"
             }`}
           >
             Repertório & Explorer
@@ -376,13 +376,13 @@ export default function TrainPage() {
         <div className="flex gap-3">
           <Link
             href="/dashboard"
-            className="text-xs font-mono px-3 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition-colors"
+            className="text-xs font-mono px-3 py-2 rounded-lg bg-noir-raised hover:bg-noir-line text-noir-muted transition-colors"
           >
             Painel
           </Link>
           <Link
             href="/play"
-            className="text-xs font-mono px-3 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-amber-400 font-semibold transition-colors"
+            className="text-xs font-mono px-3 py-2 rounded-lg bg-noir-raised hover:bg-noir-line text-bronze font-semibold transition-colors"
           >
             Jogar
           </Link>
@@ -398,10 +398,10 @@ export default function TrainPage() {
           <div className="flex flex-col items-center gap-4 w-full lg:w-auto">
             {currentCard ? (
               <>
-                <div className="flex justify-between items-center w-full max-w-[560px] text-xs font-mono text-zinc-400">
+                <div className="flex justify-between items-center w-full max-w-[560px] text-xs font-mono text-noir-muted">
                   <span>
                     Vez das:{" "}
-                    <strong className="text-amber-400">
+                    <strong className="text-bronze">
                       {sm2Orientation === "white" ? "Brancas" : "Pretas"}
                     </strong>
                   </span>
@@ -415,20 +415,20 @@ export default function TrainPage() {
                 />
               </>
             ) : (
-              <div className="w-full max-w-[560px] aspect-square rounded-2xl border border-zinc-800 bg-zinc-900/40 flex flex-col items-center justify-center p-8 text-center gap-4">
+              <div className="w-full max-w-[560px] aspect-square rounded-2xl border border-noir-line bg-noir-surface/40 flex flex-col items-center justify-center p-8 text-center gap-4">
                 <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
                   <CircleCheck size={20} />
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-white">Treino em dia!</h3>
-                  <p className="text-xs text-zinc-400 mt-1 max-w-sm">
+                  <p className="text-xs text-noir-muted mt-1 max-w-sm">
                     Você revisou todos os puzzles pendentes para hoje. Suas jogadas com erro em partidas anteriores entrarão na fila espaçada conforme o algoritmo SM-2.
                   </p>
                 </div>
                 {process.env.NODE_ENV === "development" && (
                   <button
                     onClick={handleSeedExample}
-                    className="mt-2 text-xs font-mono px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-amber-400 border border-zinc-700 transition-colors"
+                    className="mt-2 text-xs font-mono px-4 py-2 rounded-xl bg-noir-raised hover:bg-noir-line text-bronze border border-noir-line transition-colors"
                   >
                     + Adicionar Puzzle de Teste
                   </button>
@@ -439,10 +439,10 @@ export default function TrainPage() {
 
           {/* Controls & Progress Column */}
           <div className="w-full lg:w-80 flex flex-col gap-4">
-            <div className="bg-zinc-900/70 border border-zinc-800 rounded-2xl p-5 flex flex-col gap-4 shadow-xl">
-              <div className="flex justify-between items-center border-b border-zinc-800 pb-3">
-                <span className="text-xs font-mono uppercase tracking-wider text-zinc-400">Progresso SM-2</span>
-                <span className="text-xs font-mono font-bold text-amber-400">
+            <div className="bg-noir-surface/70 border border-noir-line rounded-2xl p-5 flex flex-col gap-4 shadow-xl">
+              <div className="flex justify-between items-center border-b border-noir-line pb-3">
+                <span className="text-xs font-mono uppercase tracking-wider text-noir-muted">Progresso SM-2</span>
+                <span className="text-xs font-mono font-bold text-bronze">
                   Pendentes: {due.length} | Feitos: {doneCount}
                 </span>
               </div>
@@ -456,7 +456,7 @@ export default function TrainPage() {
                           ? "bg-emerald-950/40 border border-emerald-800 text-emerald-300"
                           : sm2Attempts > 0
                           ? "bg-rose-950/40 border border-rose-800 text-rose-300"
-                          : "bg-amber-950/40 border border-amber-800 text-amber-300"
+                          : "bg-bronze/10 border border-bronze/30 text-bronze"
                       }`}
                     >
                       {sm2StatusText}
@@ -468,7 +468,7 @@ export default function TrainPage() {
                       <button
                         onClick={handleSm2Hint}
                         disabled={hintUsed}
-                        className="w-full py-2.5 bg-zinc-800 hover:bg-zinc-700 disabled:opacity-40 text-amber-300 text-xs font-semibold rounded-xl transition-all border border-zinc-700"
+                        className="w-full py-2.5 bg-noir-raised hover:bg-noir-line disabled:opacity-40 text-bronze text-xs font-semibold rounded-xl transition-all border border-noir-line"
                       >
                         {hintUsed ? "Dica revelada" : "Obter Dica (-1 qualidade)"}
                       </button>
@@ -482,13 +482,13 @@ export default function TrainPage() {
                   ) : (
                     <button
                       onClick={handleSm2Next}
-                      className="w-full py-3 bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold rounded-xl transition-all shadow-lg"
+                      className="w-full py-3 bg-bronze-deep hover:bg-bronze text-white text-xs font-semibold rounded-xl transition-all shadow-lg"
                     >
                       Próximo Puzzle →
                     </button>
                   )}
 
-                  <div className="text-[11px] font-mono text-zinc-500 space-y-1 pt-2 border-t border-zinc-800/80">
+                  <div className="text-[11px] font-mono text-noir-muted space-y-1 pt-2 border-t border-noir-line">
                     <div>Repetições: {currentCard.reps}</div>
                     <div>Intervalo: {currentCard.interval} dia(s)</div>
                     <div>Fator EF: {currentCard.EF.toFixed(2)}</div>
@@ -506,14 +506,14 @@ export default function TrainPage() {
       {mainTab === "openings" && (
         <div className="w-full max-w-5xl flex flex-col gap-6">
           {/* Controls bar */}
-          <div className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-4 flex flex-wrap gap-4 items-center justify-between">
+          <div className="bg-noir-surface/80 border border-noir-line rounded-2xl p-4 flex flex-wrap gap-4 items-center justify-between">
             <div className="flex items-center gap-3">
-              <span className="text-xs font-mono uppercase text-zinc-400">Jogando de:</span>
-              <div className="flex bg-zinc-950 p-1 rounded-lg border border-zinc-800">
+              <span className="text-xs font-mono uppercase text-noir-muted">Jogando de:</span>
+              <div className="flex bg-noir-bg p-1 rounded-lg border border-noir-line">
                 <button
                   onClick={() => handleSelectColor("white")}
                   className={`px-3 py-1 text-xs rounded-md font-semibold transition-all ${
-                    selectedColor === "white" ? "bg-amber-600 text-white" : "text-zinc-400 hover:text-white"
+                    selectedColor === "white" ? "bg-bronze-deep text-white" : "text-noir-muted hover:text-noir-ink"
                   }`}
                 >
                   Brancas
@@ -521,14 +521,14 @@ export default function TrainPage() {
                 <button
                   onClick={() => handleSelectColor("black")}
                   className={`px-3 py-1 text-xs rounded-md font-semibold transition-all ${
-                    selectedColor === "black" ? "bg-amber-600 text-white" : "text-zinc-400 hover:text-white"
+                    selectedColor === "black" ? "bg-bronze-deep text-white" : "text-noir-muted hover:text-noir-ink"
                   }`}
                 >
                   Pretas
                 </button>
               </div>
 
-              <span className="text-xs font-mono uppercase text-zinc-400 ml-2">Linha:</span>
+              <span className="text-xs font-mono uppercase text-noir-muted ml-2">Linha:</span>
               <div className="flex flex-wrap gap-2">
                 {(selectedColor === "white" ? repertoireData.white : repertoireData.black).map((l) => (
                   <button
@@ -536,8 +536,8 @@ export default function TrainPage() {
                     onClick={() => handleSelectLine(l)}
                     className={`px-3 py-1.5 text-xs rounded-lg font-semibold border transition-all ${
                       activeLine.name === l.name
-                        ? "bg-amber-500/20 text-amber-300 border-amber-500/40"
-                        : "bg-zinc-950 text-zinc-400 border-zinc-800 hover:text-white"
+                        ? "bg-bronze/20 text-bronze border-bronze/40"
+                        : "bg-noir-bg text-noir-muted border-noir-line hover:text-noir-ink"
                     }`}
                   >
                     {l.name}
@@ -547,15 +547,15 @@ export default function TrainPage() {
             </div>
 
             <div className="flex items-center gap-3">
-              <span className="text-xs font-mono uppercase text-zinc-400">Modo:</span>
-              <div className="flex bg-zinc-950 p-1 rounded-lg border border-zinc-800">
+              <span className="text-xs font-mono uppercase text-noir-muted">Modo:</span>
+              <div className="flex bg-noir-bg p-1 rounded-lg border border-noir-line">
                 <button
                   onClick={() => {
                     setOpeningMode("drill");
                     resetDrillLine(activeLine, selectedColor);
                   }}
                   className={`px-3 py-1 text-xs rounded-md font-semibold transition-all ${
-                    openingMode === "drill" ? "bg-amber-600 text-white" : "text-zinc-400 hover:text-white"
+                    openingMode === "drill" ? "bg-bronze-deep text-white" : "text-noir-muted hover:text-noir-ink"
                   }`}
                 >
                   Treino Guiado
@@ -566,7 +566,7 @@ export default function TrainPage() {
                     setDrillStatus("Modo Explorador ativado. Jogue qualquer lance livremente.");
                   }}
                   className={`px-3 py-1 text-xs rounded-md font-semibold transition-all ${
-                    openingMode === "explore" ? "bg-cyan-700 text-white" : "text-zinc-400 hover:text-white"
+                    openingMode === "explore" ? "bg-cyan-700 text-white" : "text-noir-muted hover:text-noir-ink"
                   }`}
                 >
                   Explorer (Livre)
@@ -575,7 +575,7 @@ export default function TrainPage() {
 
               <button
                 onClick={() => resetDrillLine(activeLine, selectedColor)}
-                className="px-3 py-1.5 text-xs bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg transition-colors border border-zinc-700"
+                className="px-3 py-1.5 text-xs bg-noir-raised hover:bg-noir-line text-noir-muted rounded-lg transition-colors border border-noir-line"
               >
                 Reiniciar
               </button>
@@ -586,9 +586,9 @@ export default function TrainPage() {
           <div className="flex flex-col lg:flex-row gap-8 items-start justify-center">
             {/* Board */}
             <div className="flex flex-col items-center gap-4 w-full lg:w-auto">
-              <div className="flex justify-between items-center w-full max-w-[560px] text-xs font-mono text-zinc-400">
+              <div className="flex justify-between items-center w-full max-w-[560px] text-xs font-mono text-noir-muted">
                 <span>
-                  Linha: <strong className="text-amber-400">{activeLine.name}</strong>
+                  Linha: <strong className="text-bronze">{activeLine.name}</strong>
                 </span>
                 <span>
                   Lance teórico: {drillPly} / {activeLine.line.length}
@@ -603,7 +603,7 @@ export default function TrainPage() {
               />
 
               {/* Line move pills */}
-              <div className="flex flex-wrap gap-1.5 max-w-[560px] p-2 bg-zinc-900/60 rounded-xl border border-zinc-800">
+              <div className="flex flex-wrap gap-1.5 max-w-[560px] p-2 bg-noir-surface/60 rounded-xl border border-noir-line">
                 {activeLine.line.map((san, idx) => (
                   <span
                     key={idx}
@@ -611,8 +611,8 @@ export default function TrainPage() {
                       idx < drillPly
                         ? "bg-emerald-900/50 text-emerald-300 border border-emerald-700/50"
                         : idx === drillPly
-                        ? "bg-amber-500/20 text-amber-300 border border-amber-500 font-bold"
-                        : "bg-zinc-800 text-zinc-400"
+                        ? "bg-bronze/20 text-bronze border border-bronze font-bold"
+                        : "bg-noir-raised text-noir-muted"
                     }`}
                   >
                     {idx % 2 === 0 ? `${Math.floor(idx / 2) + 1}.` : ""} {san}
@@ -624,8 +624,8 @@ export default function TrainPage() {
             {/* Right details panel */}
             <div className="w-full lg:w-80 flex flex-col gap-4">
               {/* Status card */}
-              <div className="bg-zinc-900/70 border border-zinc-800 rounded-2xl p-5 flex flex-col gap-3 shadow-xl">
-                <span className="text-xs font-mono uppercase tracking-wider text-zinc-400">
+              <div className="bg-noir-surface/70 border border-noir-line rounded-2xl p-5 flex flex-col gap-3 shadow-xl">
+                <span className="text-xs font-mono uppercase tracking-wider text-noir-muted">
                   {openingMode === "drill" ? "Status do Treino" : "Explorer Lichess Masters"}
                 </span>
 
@@ -636,7 +636,7 @@ export default function TrainPage() {
                         ? "bg-emerald-950/40 border border-emerald-800 text-emerald-300"
                         : lastDeviationEval
                         ? "bg-rose-950/40 border border-rose-800 text-rose-300"
-                        : "bg-amber-950/40 border border-amber-800 text-amber-300"
+                        : "bg-bronze/10 border border-bronze/30 text-bronze"
                     }`}
                   >
                     {drillStatus}
@@ -644,21 +644,21 @@ export default function TrainPage() {
                 )}
 
                 {lastDeviationEval && (
-                  <div className="text-xs font-mono p-3 bg-zinc-950 rounded-xl border border-zinc-800 space-y-1">
-                    <div className="text-zinc-400">Avaliação da Engine:</div>
+                  <div className="text-xs font-mono p-3 bg-noir-bg rounded-xl border border-noir-line space-y-1">
+                    <div className="text-noir-muted">Avaliação da Engine:</div>
                     <div className="text-rose-400 font-bold">Perda: {lastDeviationEval.cpLoss} centipawns</div>
-                    <div className="text-zinc-300">Melhor lance: {lastDeviationEval.best}</div>
+                    <div className="text-noir-muted">Melhor lance: {lastDeviationEval.best}</div>
                   </div>
                 )}
 
                 {/* Coach Verdict in Explore mode */}
                 {coachExplore && (
-                  <div className="p-3 bg-amber-950/20 border border-amber-800/40 rounded-xl flex flex-col gap-1.5 text-xs">
-                    <span className="text-amber-400 font-bold uppercase text-[10px]">Veredito do GM:</span>
+                  <div className="p-3 bg-bronze/10 border border-bronze/30 rounded-xl flex flex-col gap-1.5 text-xs">
+                    <span className="text-bronze font-bold uppercase text-[10px]">Veredito do GM:</span>
                     <p className="font-semibold text-white">{coachExplore.verdict}</p>
-                    <p className="text-zinc-300">{coachExplore.consequences}</p>
+                    <p className="text-noir-muted">{coachExplore.consequences}</p>
                     {coachExplore.namedVariant && (
-                      <span className="text-amber-500 font-mono text-[11px] mt-1">
+                      <span className="text-bronze font-mono text-[11px] mt-1">
                         Variante: {coachExplore.namedVariant}
                       </span>
                     )}
@@ -674,8 +674,8 @@ export default function TrainPage() {
 
                 {/* Lichess Masters Explorer Table */}
                 {(explorerMoves.length > 0 || explorerStats) && (
-                  <div className="bg-zinc-900/70 border border-zinc-800 rounded-2xl p-5 flex flex-col gap-3 shadow-xl">
-                    <div className="flex justify-between items-center border-b border-zinc-800 pb-2">
+                  <div className="bg-noir-surface/70 border border-noir-line rounded-2xl p-5 flex flex-col gap-3 shadow-xl">
+                    <div className="flex justify-between items-center border-b border-noir-line pb-2">
                       <span className="text-xs font-mono uppercase tracking-wider text-cyan-400 font-bold">
                         Base de Mestres (Lichess)
                       </span>
@@ -684,13 +684,13 @@ export default function TrainPage() {
                     {explorerStats && (
                       <div className="text-xs font-mono space-y-1">
                         {explorerStats.opening && (
-                          <div className="text-zinc-200 font-bold">
+                          <div className="text-noir-ink font-bold">
                             {explorerStats.opening.eco} - {explorerStats.opening.name}
                           </div>
                         )}
-                        <div className="flex gap-2 text-[11px] text-zinc-400">
+                        <div className="flex gap-2 text-[11px] text-noir-muted">
                           <span className="text-emerald-400">1-0: {explorerStats.white}</span>
-                          <span className="text-zinc-400">½-½: {explorerStats.draws}</span>
+                          <span className="text-noir-muted">½-½: {explorerStats.draws}</span>
                           <span className="text-rose-400">0-1: {explorerStats.black}</span>
                         </div>
                       </div>
@@ -698,11 +698,11 @@ export default function TrainPage() {
 
                     {explorerMoves.length > 0 && (
                       <div className="flex flex-col gap-1.5 mt-2">
-                        <span className="text-[11px] font-mono text-zinc-400">Lances mais populares:</span>
+                        <span className="text-[11px] font-mono text-noir-muted">Lances mais populares:</span>
                         <div className="overflow-x-auto">
                           <table className="w-full text-left text-xs font-mono">
                             <thead>
-                              <tr className="border-b border-zinc-800 text-zinc-500 text-[10px]">
+                              <tr className="border-b border-noir-line text-noir-muted text-[10px]">
                                 <th className="pb-1">Lance</th>
                                 <th className="pb-1">Partidas</th>
                                 <th className="pb-1">1-0</th>
@@ -717,11 +717,11 @@ export default function TrainPage() {
                                 const dPct = Math.round((m.draws / total) * 100);
                                 const bPct = Math.round((m.black / total) * 100);
                                 return (
-                                  <tr key={m.san} className="border-b border-zinc-800/40 text-zinc-300">
-                                    <td className="py-1 text-amber-400 font-bold">{m.san}</td>
-                                    <td className="py-1 text-zinc-400">{total}</td>
+                                  <tr key={m.san} className="border-b border-noir-line text-noir-muted">
+                                    <td className="py-1 text-bronze font-bold">{m.san}</td>
+                                    <td className="py-1 text-noir-muted">{total}</td>
                                     <td className="py-1 text-emerald-400">{wPct}%</td>
-                                    <td className="py-1 text-zinc-400">{dPct}%</td>
+                                    <td className="py-1 text-noir-muted">{dPct}%</td>
                                     <td className="py-1 text-rose-400">{bPct}%</td>
                                   </tr>
                                 );

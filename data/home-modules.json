@@ -2,7 +2,7 @@
   {
     "title": "Arena GM",
     "badge": "Stockfish 18",
-    "badgeColor": "bg-amber-500/15 text-amber-400 border-amber-500/30",
+    "badgeColor": "bg-bronze/15 text-bronze border-bronze/30",
     "description": "Partida completa com auxílio socrático em tempo real, cálculo de imprecisões e chat tático.",
     "href": "/play?side=white",
     "icon": "⚔️",
