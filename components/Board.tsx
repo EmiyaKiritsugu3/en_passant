@@ -7,7 +7,7 @@ import type { Api } from "chessground/api";
 import type { DrawShape } from "chessground/draw";
 import type { Dests, Key } from "chessground/types";
 import "chessground/assets/chessground.base.css";
-import "chessground/assets/chessground.brown.css";
+import "./chessground-noir.css";
 import "chessground/assets/chessground.cburnett.css";
 
 function getLegalDests(fen: string): { dests: Dests; turnColor: "white" | "black" } {
