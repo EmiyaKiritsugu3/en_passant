@@ -73,6 +73,7 @@ function PlayContent() {
   const [postgame, setPostgame] = useState<PostgameResponse | null>(null);
   const [isPostgameLoading, setIsPostgameLoading] = useState(false);
   const [confirmResign, setConfirmResign] = useState(false);
+  const [resigned, setResigned] = useState(false);
   const [tbCategory, setTbCategory] = useState<string | null>(null);
   const [aiDifficulty, setAiDifficulty] = useState<"grandmaster" | "master" | "adaptive">("grandmaster");
   const profile = useSyncExternalStore(subscribeProfile, getProfileSnapshot, () => DEFAULT_PROFILE);
@@ -81,6 +82,7 @@ function PlayContent() {
   const engineRef = useRef<Engine | null>(null);
   const profileRef = useRef<Profile>(DEFAULT_PROFILE);
   const eloSetRef = useRef(false);
+  const resignedRef = useRef(false);
 
   useEffect(() => {
     profileRef.current = profile;
@@ -150,7 +152,9 @@ function PlayContent() {
           summary: isResignation
             ? `Desistência registrada após ${rows.length} lances.`
             : `Fim de jogo. ${won ? "Vitória do aluno!" : "Fim da partida."} Foram jogados ${rows.length} lances.`,
-          result: opts?.result ?? (won ? "1-0" : "0-1"),
+          result:
+            opts?.result ??
+            (game.isCheckmate() ? (game.turn() === "w" ? "0-1" : "1-0") : "1/2-1/2"),
           moments: rows
             .filter((r) => r.label === "mistake" || r.label === "blunder")
             .slice(0, 3)
@@ -185,7 +189,6 @@ function PlayContent() {
       profileRef.current = updated;
 
       game.setHeader("Result", opts?.result ?? postgameData.result);
-      if (isResignation) game.setHeader("Termination", "resignation");
       const savedId = saveGame(game.pgn());
       addAnalysis(savedId, { depth: 12, rows });
     } finally {
@@ -195,7 +198,7 @@ function PlayContent() {
 
   const makeEngineMove = async (currentFen: string, engineInstance?: Engine) => {
     const engineColor = color === "white" ? "b" : "w";
-    if (game.turn() !== engineColor || game.isGameOver()) {
+    if (game.turn() !== engineColor || game.isGameOver() || resignedRef.current) {
       return;
     }
 
@@ -236,7 +239,7 @@ function PlayContent() {
       }
 
       // Legal fallback if engine UCI was invalid or blocked
-      if (!moveSuccess && !game.isGameOver() && game.turn() === engineColor) {
+      if (!moveSuccess && !game.isGameOver() && !resignedRef.current && game.turn() === engineColor) {
         const legal = game.moves({ verbose: true });
         if (legal.length > 0) {
           const chosen = legal[0];
@@ -363,7 +366,7 @@ function PlayContent() {
 
   const onMove = async (from: string, to: string) => {
     const playerColor = color === "white" ? "w" : "b";
-    if (isEngineThinking || game.turn() !== playerColor) {
+    if (isEngineThinking || resignedRef.current || game.turn() !== playerColor) {
       setFen(game.fen());
       return;
     }
@@ -559,6 +562,8 @@ function PlayContent() {
 
   const handleResetGame = () => {
     game.reset();
+    resignedRef.current = false;
+    setResigned(false);
     setFen(game.fen());
     setMovesHistory([]);
     setViewingPly(0);
@@ -577,12 +582,14 @@ function PlayContent() {
   };
 
   const handleResign = () => {
-    if (game.isGameOver()) return;
+    if (game.isGameOver() || resignedRef.current || isEngineThinking || isPostgameLoading) return;
     if (!confirmResign) {
       setConfirmResign(true);
       return;
     }
     setConfirmResign(false);
+    resignedRef.current = true;
+    setResigned(true);
     playGameEndSound();
     const result = color === "white" ? "0-1" : "1-0";
     triggerPostgame({ resigned: true, result }).catch(() => {});
@@ -642,7 +649,7 @@ function PlayContent() {
           <button
             type="button"
             onClick={handleResign}
-            disabled={game.isGameOver() || movesHistory.length === 0 || isPostgameLoading}
+            disabled={game.isGameOver() || resigned || movesHistory.length === 0 || isPostgameLoading || isEngineThinking}
             title={confirmResign ? "Clique novamente para confirmar a desistência" : "Desistir da partida"}
             aria-label={confirmResign ? "Confirmar desistência" : "Desistir da partida"}
             className={`p-2 rounded-xl border text-sm transition-colors ${
@@ -685,7 +692,7 @@ function PlayContent() {
               badge={aiDifficulty === "grandmaster" ? "GM" : "BOT"}
               rating={aiDifficulty === "grandmaster" ? 2800 : aiDifficulty === "master" ? 2200 : playerRating + 250}
               color={opponentColor}
-              isTurn={!isPlayerTurn && !game.isGameOver()}
+              isTurn={!isPlayerTurn && !game.isGameOver() && !resigned}
               capturedPieces={opponentColor === "white" ? material.whiteCaptured : material.blackCaptured}
               materialAdvantage={opponentColor === "white" ? material.whiteAdvantage : material.blackAdvantage}
               isThinking={isEngineThinking}
@@ -729,7 +736,7 @@ function PlayContent() {
               badge="ALUNO"
               rating={playerRating}
               color={color}
-              isTurn={isPlayerTurn && !game.isGameOver()}
+              isTurn={isPlayerTurn && !game.isGameOver() && !resigned}
               capturedPieces={color === "white" ? material.whiteCaptured : material.blackCaptured}
               materialAdvantage={color === "white" ? material.whiteAdvantage : material.blackAdvantage}
             />

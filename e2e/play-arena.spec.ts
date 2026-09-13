@@ -1,4 +1,16 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
+
+async function playWhiteE4(page: Page) {
+  const board = page.locator(".cg-wrap");
+  const box = await board.boundingBox();
+  expect(box).not.toBeNull();
+  const { x, y, width, height } = box!;
+  const sqW = width / 8;
+  const sqH = height / 8;
+  // Click e2 (file 4, row 6 from top), then e4 (file 4, row 4 from top)
+  await page.mouse.click(x + sqW * 4.5, y + sqH * 6.5);
+  await page.mouse.click(x + sqW * 4.5, y + sqH * 4.5);
+}
 
 test.describe("Play Arena — Game & Coach Console", () => {
   test.beforeEach(async ({ page }) => {
@@ -128,17 +140,7 @@ test.describe("Play Arena — Game & Coach Console", () => {
     await page.goto("/play?side=white");
     await expect(page.locator(".cg-wrap piece").first()).toBeVisible();
 
-    const board = page.locator(".cg-wrap");
-    const box = await board.boundingBox();
-    expect(box).not.toBeNull();
-    const { x, y, width, height } = box!;
-
-    const sqW = width / 8;
-    const sqH = height / 8;
-
-    // Click e2 (file 4, row 6 from top), then e4 (file 4, row 4 from top)
-    await page.mouse.click(x + sqW * 4.5, y + sqH * 6.5);
-    await page.mouse.click(x + sqW * 4.5, y + sqH * 4.5);
+    await playWhiteE4(page);
 
     // Verify move recorded in MoveHistory
     await expect(page.getByText(/1\.\s*e4/i)).toBeVisible({ timeout: 5000 });
@@ -153,14 +155,7 @@ test.describe("Play Arena — Game & Coach Console", () => {
     await expect(resignBtn).toBeDisabled();
 
     // Play e2-e4 via board clicks
-    const board = page.locator(".cg-wrap");
-    const box = await board.boundingBox();
-    expect(box).not.toBeNull();
-    const { x, y, width, height } = box!;
-    const sqW = width / 8;
-    const sqH = height / 8;
-    await page.mouse.click(x + sqW * 4.5, y + sqH * 6.5);
-    await page.mouse.click(x + sqW * 4.5, y + sqH * 4.5);
+    await playWhiteE4(page);
     await expect(page.getByText(/1\.\s*e4/i)).toBeVisible({ timeout: 5000 });
 
     // First click arms confirm state
