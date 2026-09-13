@@ -171,26 +171,31 @@ function PlayContent() {
       }
       setPostgame(postgameData);
 
-      const blunderRows = rows.filter((r) => r.label === "blunder" || r.label === "mistake");
-      for (const b of blunderRows) {
-        if (b.best) {
-          addCard({
-            fen: b.fenBefore || b.fen,
-            bestMove: b.best,
-            context: `${b.phase} - ${b.label}: jogado ${b.san}`,
-          });
+      // Persist only completed games (checkmate/draw/resignation).
+      // Manual mid-game analysis shows the report but must not save a fake result.
+      const isCompleted = isResignation || game.isGameOver();
+      if (isCompleted) {
+        const blunderRows = rows.filter((r) => r.label === "blunder" || r.label === "mistake");
+        for (const b of blunderRows) {
+          if (b.best) {
+            addCard({
+              fen: b.fenBefore || b.fen,
+              bestMove: b.best,
+              context: `${b.phase} - ${b.label}: jogado ${b.san}`,
+            });
+          }
         }
+
+        const tags: (keyof Profile["errorTags"])[] = blunderRows.map(() => "tactics");
+        const fens = blunderRows.map((r) => r.fen);
+        const updated = applyPostgame(profileRef.current, { won, tags, fens, phases });
+        saveProfile(updated);
+        profileRef.current = updated;
+
+        game.setHeader("Result", opts?.result ?? postgameData.result);
+        const savedId = saveGame(game.pgn());
+        addAnalysis(savedId, { depth: 12, rows });
       }
-
-      const tags: (keyof Profile["errorTags"])[] = blunderRows.map(() => "tactics");
-      const fens = blunderRows.map((r) => r.fen);
-      const updated = applyPostgame(profileRef.current, { won, tags, fens, phases });
-      saveProfile(updated);
-      profileRef.current = updated;
-
-      game.setHeader("Result", opts?.result ?? postgameData.result);
-      const savedId = saveGame(game.pgn());
-      addAnalysis(savedId, { depth: 12, rows });
     } finally {
       setIsPostgameLoading(false);
     }
