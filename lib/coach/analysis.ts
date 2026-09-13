@@ -10,7 +10,6 @@ export interface MoveAnalysisInput {
   piece?: string;
   color?: "w" | "b" | string;
   captured?: string;
-  flags?: string;
   moveLabel?: "brilliant" | "great" | "best" | "good" | "inaccuracy" | "mistake" | "blunder" | string;
   cpLoss?: number;
   bestMove?: string;

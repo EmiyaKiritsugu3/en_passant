@@ -72,6 +72,8 @@ function PlayContent() {
   const [isChatSending, setIsChatSending] = useState(false);
   const [postgame, setPostgame] = useState<PostgameResponse | null>(null);
   const [isPostgameLoading, setIsPostgameLoading] = useState(false);
+  const [confirmResign, setConfirmResign] = useState(false);
+  const [resigned, setResigned] = useState(false);
   const [tbCategory, setTbCategory] = useState<string | null>(null);
   const [aiDifficulty, setAiDifficulty] = useState<"grandmaster" | "master" | "adaptive">("grandmaster");
   const profile = useSyncExternalStore(subscribeProfile, getProfileSnapshot, () => DEFAULT_PROFILE);
@@ -80,6 +82,7 @@ function PlayContent() {
   const engineRef = useRef<Engine | null>(null);
   const profileRef = useRef<Profile>(DEFAULT_PROFILE);
   const eloSetRef = useRef(false);
+  const resignedRef = useRef(false);
 
   useEffect(() => {
     profileRef.current = profile;
@@ -116,13 +119,15 @@ function PlayContent() {
     setBoardOrientation((prev) => (prev === "white" ? "black" : "white"));
   }, []);
 
-  const triggerPostgame = async () => {
+  const triggerPostgame = async (opts?: { resigned?: boolean; result?: string }) => {
     setIsPostgameLoading(true);
     try {
       const engine = engineRef.current ?? createMockEngine();
       const rows = await collectEvals(game.pgn(), engine);
       const phases = phaseAverages(rows.map((r) => ({ phase: r.phase, score: r.score })));
+      const isResignation = !!opts?.resigned;
       const won =
+        !isResignation &&
         game.isCheckmate() &&
         ((game.turn() === "b" && color === "white") || (game.turn() === "w" && color === "black"));
 
@@ -131,14 +136,25 @@ function PlayContent() {
         const res = await fetch("/api/coach/postgame", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ pgn: game.pgn(), evals: rows, phaseScores: phases }),
+          body: JSON.stringify({ pgn: game.pgn(), evals: rows, phaseScores: phases, resigned: isResignation }),
         });
         if (!res.ok) throw new Error("postgame failed");
         postgameData = (await res.json()) as PostgameResponse;
+        if (isResignation) {
+          postgameData = {
+            ...postgameData,
+            summary: `Desistência registrada após ${rows.length} lances. ${postgameData.summary}`,
+            result: opts?.result ?? postgameData.result,
+          };
+        }
       } catch {
         postgameData = {
-          summary: `Fim de jogo. ${won ? "Vitória do aluno!" : "Fim da partida."} Foram jogados ${rows.length} lances.`,
-          result: won ? "1-0" : "0-1",
+          summary: isResignation
+            ? `Desistência registrada após ${rows.length} lances.`
+            : `Fim de jogo. ${won ? "Vitória do aluno!" : "Fim da partida."} Foram jogados ${rows.length} lances.`,
+          result:
+            opts?.result ??
+            (game.isCheckmate() ? (game.turn() === "w" ? "0-1" : "1-0") : "1/2-1/2"),
           moments: rows
             .filter((r) => r.label === "mistake" || r.label === "blunder")
             .slice(0, 3)
@@ -155,25 +171,31 @@ function PlayContent() {
       }
       setPostgame(postgameData);
 
-      const blunderRows = rows.filter((r) => r.label === "blunder" || r.label === "mistake");
-      for (const b of blunderRows) {
-        if (b.best) {
-          addCard({
-            fen: b.fenBefore || b.fen,
-            bestMove: b.best,
-            context: `${b.phase} - ${b.label}: jogado ${b.san}`,
-          });
+      // Persist only completed games (checkmate/draw/resignation).
+      // Manual mid-game analysis shows the report but must not save a fake result.
+      const isCompleted = isResignation || game.isGameOver();
+      if (isCompleted) {
+        const blunderRows = rows.filter((r) => r.label === "blunder" || r.label === "mistake");
+        for (const b of blunderRows) {
+          if (b.best) {
+            addCard({
+              fen: b.fenBefore || b.fen,
+              bestMove: b.best,
+              context: `${b.phase} - ${b.label}: jogado ${b.san}`,
+            });
+          }
         }
+
+        const tags: (keyof Profile["errorTags"])[] = blunderRows.map(() => "tactics");
+        const fens = blunderRows.map((r) => r.fen);
+        const updated = applyPostgame(profileRef.current, { won, tags, fens, phases });
+        saveProfile(updated);
+        profileRef.current = updated;
+
+        game.setHeader("Result", opts?.result ?? postgameData.result);
+        const savedId = saveGame(game.pgn());
+        addAnalysis(savedId, { depth: 12, rows });
       }
-
-      const tags: (keyof Profile["errorTags"])[] = blunderRows.map(() => "tactics");
-      const fens = blunderRows.map((r) => r.fen);
-      const updated = applyPostgame(profileRef.current, { won, tags, fens, phases });
-      saveProfile(updated);
-      profileRef.current = updated;
-
-      const savedId = saveGame(game.pgn());
-      addAnalysis(savedId, { depth: 12, rows });
     } finally {
       setIsPostgameLoading(false);
     }
@@ -181,7 +203,7 @@ function PlayContent() {
 
   const makeEngineMove = async (currentFen: string, engineInstance?: Engine) => {
     const engineColor = color === "white" ? "b" : "w";
-    if (game.turn() !== engineColor || game.isGameOver()) {
+    if (game.turn() !== engineColor || game.isGameOver() || resignedRef.current) {
       return;
     }
 
@@ -222,7 +244,7 @@ function PlayContent() {
       }
 
       // Legal fallback if engine UCI was invalid or blocked
-      if (!moveSuccess && !game.isGameOver() && game.turn() === engineColor) {
+      if (!moveSuccess && !game.isGameOver() && !resignedRef.current && game.turn() === engineColor) {
         const legal = game.moves({ verbose: true });
         if (legal.length > 0) {
           const chosen = legal[0];
@@ -320,7 +342,6 @@ function PlayContent() {
       piece?: string;
       color?: string;
       captured?: string;
-      flags?: string;
       moveLabel?: Label;
       isCheck?: boolean;
       isCheckmate?: boolean;
@@ -350,7 +371,7 @@ function PlayContent() {
 
   const onMove = async (from: string, to: string) => {
     const playerColor = color === "white" ? "w" : "b";
-    if (isEngineThinking || game.turn() !== playerColor) {
+    if (isEngineThinking || resignedRef.current || game.turn() !== playerColor) {
       setFen(game.fen());
       return;
     }
@@ -457,7 +478,6 @@ function PlayContent() {
             piece: moveResult?.piece,
             color: playerColor,
             captured: moveResult?.captured,
-            flags: moveResult?.flags,
             moveLabel,
             isCheck: game.inCheck(),
             isCheckmate: game.isGameOver() && game.inCheck(),
@@ -547,6 +567,8 @@ function PlayContent() {
 
   const handleResetGame = () => {
     game.reset();
+    resignedRef.current = false;
+    setResigned(false);
     setFen(game.fen());
     setMovesHistory([]);
     setViewingPly(0);
@@ -555,12 +577,27 @@ function PlayContent() {
     setArrow([]);
     setNotice("");
     setPostgame(null);
+    setConfirmResign(false);
     if (color === "black") {
       const eng = engineRef.current ?? createMockEngine();
       setTimeout(() => {
         makeEngineMove(game.fen(), eng);
       }, 300);
     }
+  };
+
+  const handleResign = () => {
+    if (game.isGameOver() || resignedRef.current || isEngineThinking || isPostgameLoading) return;
+    if (!confirmResign) {
+      setConfirmResign(true);
+      return;
+    }
+    setConfirmResign(false);
+    resignedRef.current = true;
+    setResigned(true);
+    playGameEndSound();
+    const result = color === "white" ? "0-1" : "1-0";
+    triggerPostgame({ resigned: true, result }).catch(() => {});
   };
 
   const opponentColor = color === "white" ? "black" : "white";
@@ -613,6 +650,22 @@ function PlayContent() {
             </select>
           </div>
 
+          {/* Resign Button (two-step confirm) */}
+          <button
+            type="button"
+            onClick={handleResign}
+            disabled={game.isGameOver() || resigned || movesHistory.length === 0 || isPostgameLoading || isEngineThinking}
+            title={confirmResign ? "Clique novamente para confirmar a desistência" : "Desistir da partida"}
+            aria-label={confirmResign ? "Confirmar desistência" : "Desistir da partida"}
+            className={`p-2 rounded-xl border text-sm transition-colors ${
+              confirmResign
+                ? "bg-rose-600 border-rose-500 text-white hover:bg-rose-500"
+                : "bg-zinc-900 border-zinc-800 text-zinc-300 hover:text-rose-400"
+            } disabled:opacity-40`}
+          >
+            🏳️
+          </button>
+
           {/* Sound Toggle Button */}
           <button
             type="button"
@@ -644,7 +697,7 @@ function PlayContent() {
               badge={aiDifficulty === "grandmaster" ? "GM" : "BOT"}
               rating={aiDifficulty === "grandmaster" ? 2800 : aiDifficulty === "master" ? 2200 : playerRating + 250}
               color={opponentColor}
-              isTurn={!isPlayerTurn && !game.isGameOver()}
+              isTurn={!isPlayerTurn && !game.isGameOver() && !resigned}
               capturedPieces={opponentColor === "white" ? material.whiteCaptured : material.blackCaptured}
               materialAdvantage={opponentColor === "white" ? material.whiteAdvantage : material.blackAdvantage}
               isThinking={isEngineThinking}
@@ -688,7 +741,7 @@ function PlayContent() {
               badge="ALUNO"
               rating={playerRating}
               color={color}
-              isTurn={isPlayerTurn && !game.isGameOver()}
+              isTurn={isPlayerTurn && !game.isGameOver() && !resigned}
               capturedPieces={color === "white" ? material.whiteCaptured : material.blackCaptured}
               materialAdvantage={color === "white" ? material.whiteAdvantage : material.blackAdvantage}
             />
