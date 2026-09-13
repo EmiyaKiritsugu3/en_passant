@@ -32,24 +32,24 @@ export default memo(function EvalBar({ evaluation, orientation }: EvalBarProps) 
   return (
     <div
       role="img"
-      className="relative w-6 sm:w-7 h-full rounded-lg overflow-hidden border border-zinc-800 bg-[#262421] shadow-inner select-none flex flex-col justify-end"
+      className="relative w-6 sm:w-7 h-full rounded-lg overflow-hidden border border-noir-line bg-noir-raised shadow-inner select-none flex flex-col justify-end"
       title={`Avaliação da posição: ${scoreText}`}
       aria-label={`Barra de avaliação: ${scoreText}`}
     >
       {/* Dynamic bar representing the bottom player's color */}
       <div
         className={`w-full transition-all duration-500 ease-out ${
-          orientation === "white" ? "bg-zinc-100" : "bg-[#181715]"
+          orientation === "white" ? "bg-noir-ink" : "bg-noir-surface"
         }`}
         style={{ height: `${percentage}%` }}
       />
 
       {/* Floating score label */}
       <div
-        className={`absolute inset-x-0 flex justify-center text-[10px] sm:text-xs font-mono font-bold tracking-tighter ${
+        className={`absolute inset-x-0 flex justify-center text-[10px] sm:text-xs font-mono font-bold tracking-tighter tabular-nums ${
           isLeaderOnTop
-            ? `top-2 ${orientation === "white" ? "text-zinc-300" : "text-zinc-800"}`
-            : `bottom-2 ${orientation === "white" ? "text-zinc-800" : "text-zinc-300"}`
+            ? `top-2 ${orientation === "white" ? "text-noir-ink" : "text-noir-bg"}`
+            : `bottom-2 ${orientation === "white" ? "text-noir-bg" : "text-noir-ink"}`
         }`}
       >
         {scoreText}

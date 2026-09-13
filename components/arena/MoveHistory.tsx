@@ -50,14 +50,14 @@ export default memo(function MoveHistory({
   }, [moves.length, isReviewing]);
 
   return (
-    <div className="flex flex-col h-full bg-zinc-900/70 border border-zinc-800/80 rounded-2xl overflow-hidden shadow-lg">
+    <div className="flex flex-col h-full bg-noir-surface/70 border border-noir-line rounded-2xl overflow-hidden shadow-lg">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800/80 bg-zinc-900/90">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-noir-line bg-noir-surface/90">
         <div className="flex items-center gap-2">
-          <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-300">
+          <h2 className="text-xs font-display font-bold uppercase tracking-wider text-noir-ink">
             Lances
           </h2>
-          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">
+          <span className="text-[10px] font-mono tabular-nums px-1.5 py-0.5 rounded bg-noir-raised text-noir-muted">
             {Math.floor(moves.length / 2)} {moves.length % 2 !== 0 ? "½" : ""}
           </span>
         </div>
@@ -65,7 +65,7 @@ export default memo(function MoveHistory({
         {isReviewing && (
           <button
             onClick={() => onSelectPly(moves.length)}
-            className="text-[11px] font-mono font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1 transition-colors animate-pulse"
+            className="text-[11px] font-mono font-bold text-bronze flex items-center gap-1 transition-colors animate-pulse"
           >
             <span>● Ao vivo</span>
           </button>
@@ -74,11 +74,11 @@ export default memo(function MoveHistory({
 
       {/* Review Mode Alert Banner */}
       {isReviewing && (
-        <div className="px-3 py-1.5 bg-amber-500/10 border-b border-amber-500/20 flex items-center justify-between text-[11px] font-mono text-amber-300">
+        <div className="px-3 py-1.5 bg-bronze/10 border-b border-bronze/20 flex items-center justify-between text-[11px] font-mono text-bronze">
           <span>Modo Análise: Lance {Math.ceil(currentViewingPly / 2) || 0}</span>
           <button
             onClick={() => onSelectPly(moves.length)}
-            className="px-2 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 transition-colors"
+            className="px-2 py-0.5 rounded bg-bronze/20 hover:bg-bronze/30 text-bronze transition-colors"
           >
             Voltar ao jogo
           </button>
@@ -94,17 +94,17 @@ export default memo(function MoveHistory({
         className="flex-1 overflow-y-auto px-2 py-2 space-y-0.5 font-mono text-xs select-none max-h-[190px] sm:max-h-[220px]"
       >
         {rows.length === 0 ? (
-          <div className="h-full flex items-center justify-center text-zinc-500 text-xs py-8">
+          <div className="h-full flex items-center justify-center text-noir-muted text-xs py-8">
             Nenhum lance jogado ainda
           </div>
         ) : (
           rows.map((row) => (
             <div
               key={row.moveNum}
-              className="flex items-center py-1 px-2 rounded hover:bg-zinc-800/40 transition-colors"
+              className="flex items-center py-1 px-2 rounded hover:bg-noir-raised/40 transition-colors"
             >
               {/* Turn Number */}
-              <span className="w-8 text-zinc-500 text-[11px]">
+              <span className="w-8 text-noir-muted text-[11px] tabular-nums">
                 {row.moveNum}.
               </span>
 
@@ -114,8 +114,8 @@ export default memo(function MoveHistory({
                 onClick={() => row.white && onSelectPly(row.white.ply)}
                 className={`flex-1 text-left px-2 py-0.5 rounded transition-all ${
                   row.white?.ply === currentViewingPly
-                    ? "bg-amber-500/25 text-amber-300 font-bold shadow-sm"
-                    : "text-zinc-200 hover:text-white"
+                    ? "bg-bronze/25 text-bronze font-bold shadow-sm"
+                    : "text-noir-ink hover:text-noir-ink"
                 }`}
               >
                 {row.white?.san || ""}
@@ -127,8 +127,8 @@ export default memo(function MoveHistory({
                 onClick={() => row.black && onSelectPly(row.black.ply)}
                 className={`flex-1 text-left px-2 py-0.5 rounded transition-all ${
                   row.black?.ply === currentViewingPly
-                    ? "bg-amber-500/25 text-amber-300 font-bold shadow-sm"
-                    : "text-zinc-300 hover:text-white"
+                    ? "bg-bronze/25 text-bronze font-bold shadow-sm"
+                    : "text-noir-muted hover:text-noir-ink"
                 }`}
               >
                 {row.black?.san || ""}
@@ -139,7 +139,7 @@ export default memo(function MoveHistory({
       </div>
 
       {/* Transport Controls Bar */}
-      <div className="flex items-center justify-between px-3 py-2 border-t border-zinc-800/80 bg-zinc-900/90 text-zinc-400">
+      <div className="flex items-center justify-between px-3 py-2 border-t border-noir-line bg-noir-surface/90 text-noir-muted">
         <div className="flex items-center gap-1">
           <button
             type="button"
@@ -147,7 +147,7 @@ export default memo(function MoveHistory({
             disabled={currentViewingPly === 0}
             title="Início da partida"
             aria-label="Início da partida"
-            className="p-1.5 rounded-lg hover:bg-zinc-800 hover:text-zinc-200 disabled:opacity-30 disabled:hover:bg-transparent transition-colors text-xs"
+            className="p-1.5 rounded-lg hover:bg-noir-raised hover:text-noir-ink disabled:opacity-30 disabled:hover:bg-transparent transition-colors text-xs"
           >
             <ChevronsLeft size={14} />
           </button>
@@ -157,7 +157,7 @@ export default memo(function MoveHistory({
             disabled={currentViewingPly === 0}
             title="Lance anterior"
             aria-label="Lance anterior"
-            className="p-1.5 rounded-lg hover:bg-zinc-800 hover:text-zinc-200 disabled:opacity-30 disabled:hover:bg-transparent transition-colors text-xs"
+            className="p-1.5 rounded-lg hover:bg-noir-raised hover:text-noir-ink disabled:opacity-30 disabled:hover:bg-transparent transition-colors text-xs"
           >
             <ChevronLeft size={14} />
           </button>
@@ -167,7 +167,7 @@ export default memo(function MoveHistory({
             disabled={currentViewingPly === moves.length}
             title="Próximo lance"
             aria-label="Próximo lance"
-            className="p-1.5 rounded-lg hover:bg-zinc-800 hover:text-zinc-200 disabled:opacity-30 disabled:hover:bg-transparent transition-colors text-xs"
+            className="p-1.5 rounded-lg hover:bg-noir-raised hover:text-noir-ink disabled:opacity-30 disabled:hover:bg-transparent transition-colors text-xs"
           >
             <ChevronRight size={14} />
           </button>
@@ -177,7 +177,7 @@ export default memo(function MoveHistory({
             disabled={currentViewingPly === moves.length}
             title="Último lance (ao vivo)"
             aria-label="Último lance (ao vivo)"
-            className="p-1.5 rounded-lg hover:bg-zinc-800 hover:text-zinc-200 disabled:opacity-30 disabled:hover:bg-transparent transition-colors text-xs"
+            className="p-1.5 rounded-lg hover:bg-noir-raised hover:text-noir-ink disabled:opacity-30 disabled:hover:bg-transparent transition-colors text-xs"
           >
             <ChevronsRight size={14} />
           </button>
@@ -188,7 +188,7 @@ export default memo(function MoveHistory({
           onClick={onFlipBoard}
           title="Inverter orientação do tabuleiro"
           aria-label="Inverter orientação do tabuleiro"
-          className="p-1.5 rounded-lg hover:bg-zinc-800 hover:text-amber-400 transition-colors text-xs flex items-center gap-1 font-mono text-[11px]"
+          className="p-1.5 rounded-lg hover:bg-noir-raised hover:text-bronze transition-colors text-xs flex items-center gap-1 font-mono text-[11px]"
         >
           <ArrowLeftRight size={14} />
           <span className="hidden sm:inline">Inverter</span>

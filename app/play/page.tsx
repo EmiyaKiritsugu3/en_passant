@@ -625,47 +625,47 @@ function PlayContent() {
   const isLiveMode = viewingPly === movesHistory.length;
 
   return (
-    <main aria-labelledby="arena-title" className="min-h-screen bg-[#161512] text-zinc-100 flex flex-col items-center select-none pb-8">
+    <main aria-labelledby="arena-title" className="min-h-screen bg-noir-bg text-noir-ink flex flex-col items-center select-none pb-8">
       <h1 id="arena-title" className="sr-only">
         Arena GM — jogar contra Stockfish
       </h1>
       <a
         href="#arena-board"
-        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:bg-amber-600 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:font-mono focus:text-xs"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:bg-bronze-deep focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:font-mono focus:text-xs"
       >
         Pular para o tabuleiro
       </a>
       {/* ================= TOPBAR HEADER ================= */}
-      <header className="w-full max-w-7xl px-4 py-3 flex items-center justify-between border-b border-zinc-800/80 bg-zinc-950/60 backdrop-blur-sm sticky top-0 z-30">
+      <header className="w-full max-w-7xl px-4 py-3 flex items-center justify-between border-b border-noir-line bg-noir-surface/60 backdrop-blur-sm sticky top-0 z-30">
         <div className="flex items-center gap-3">
           <Link
             href="/dashboard"
-            className="text-xs font-mono text-zinc-400 hover:text-white px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 transition-colors flex items-center gap-1.5"
+            className="text-xs font-mono text-noir-muted hover:text-noir-ink px-2.5 py-1.5 rounded-lg bg-noir-raised border border-noir-line transition-colors flex items-center gap-1.5"
           >
             <span>←</span>
             <span className="hidden sm:inline">Painel</span>
           </Link>
           <div className="flex items-center gap-1.5">
-            <span className="text-amber-500 font-bold tracking-wider text-xs uppercase font-mono">
+            <span className="text-bronze font-bold tracking-wider text-xs uppercase font-display">
               En Passant
             </span>
-            <span className="text-zinc-500 text-xs">•</span>
-            <span className="text-xs font-semibold text-zinc-300">Arena GM</span>
+            <span className="text-noir-muted text-xs">•</span>
+            <span className="text-xs font-semibold text-noir-ink">Arena GM</span>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
           {/* AI Difficulty Selector */}
-          <div className="flex items-center gap-2 bg-zinc-900/90 border border-zinc-800 px-3 py-1.5 rounded-xl">
-            <span className="text-[11px] font-mono text-zinc-400 hidden sm:inline">Nível:</span>
+          <div className="flex items-center gap-2 bg-noir-raised/90 border border-noir-line px-3 py-1.5 rounded-xl">
+            <span className="text-[11px] font-mono text-noir-muted hidden sm:inline">Nível:</span>
             <select
               value={aiDifficulty}
               onChange={(e) => setAiDifficulty(e.target.value as "grandmaster" | "master" | "adaptive")}
-              className="bg-transparent text-xs font-mono text-amber-400 font-semibold focus:outline-none cursor-pointer"
+              className="bg-transparent text-xs font-mono text-bronze font-semibold focus:outline-none cursor-pointer"
             >
-              <option value="grandmaster" className="bg-zinc-900 text-white">Grande Mestre (SF 18)</option>
-              <option value="master" className="bg-zinc-900 text-white">Mestre (~2200)</option>
-              <option value="adaptive" className="bg-zinc-900 text-white">Adaptativo ({playerRating})</option>
+              <option value="grandmaster" className="bg-noir-ink text-noir-bg">Grande Mestre (SF 18)</option>
+              <option value="master" className="bg-noir-ink text-noir-bg">Mestre (~2200)</option>
+              <option value="adaptive" className="bg-noir-ink text-noir-bg">Adaptativo ({playerRating})</option>
             </select>
           </div>
 
@@ -679,7 +679,7 @@ function PlayContent() {
             className={`p-2 rounded-xl border text-sm transition-colors ${
               confirmResign
                 ? "bg-rose-600 border-rose-500 text-white hover:bg-rose-500"
-                : "bg-zinc-900 border-zinc-800 text-zinc-300 hover:text-rose-400"
+                : "bg-noir-raised border-noir-line text-noir-muted hover:text-rose-400"
             } disabled:opacity-40`}
           >
             <Flag size={16} />
@@ -692,7 +692,7 @@ function PlayContent() {
             title={isMuted ? "Ativar som" : "Desativar som"}
             aria-label={isMuted ? "Ativar som" : "Desativar som"}
             aria-pressed={!isMuted}
-            className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-amber-400 transition-colors text-sm"
+            className="p-2 rounded-xl bg-noir-raised border border-noir-line text-noir-muted hover:text-bronze transition-colors text-sm"
           >
             {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
           </button>
@@ -807,58 +807,58 @@ function PlayContent() {
       {/* ================= POSTGAME MODAL ================= */}
       {(postgame || isPostgameLoading) && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in">
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-xl w-full p-6 flex flex-col gap-5 shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-noir-surface border border-noir-line rounded-2xl max-w-xl w-full p-6 flex flex-col gap-5 shadow-2xl max-h-[90vh] overflow-y-auto">
             {isPostgameLoading ? (
               <div className="flex flex-col items-center justify-center py-12 gap-4">
-                <div className="w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
-                <span className="text-sm font-mono text-amber-400">GM calculando relatório pós-jogo...</span>
+                <div className="w-8 h-8 border-2 border-bronze border-t-transparent rounded-full animate-spin" />
+                <span className="text-sm font-mono text-bronze">GM calculando relatório pós-jogo...</span>
               </div>
             ) : (
               postgame && (
                 <>
-                  <div className="flex justify-between items-center border-b border-zinc-800 pb-4">
+                  <div className="flex justify-between items-center border-b border-noir-line pb-4">
                     <div>
-                      <span className="text-xs font-mono uppercase tracking-widest text-amber-500 font-semibold">
+                      <span className="text-xs font-mono uppercase tracking-widest text-bronze font-semibold">
                         Relatório Pós-Jogo
                       </span>
-                      <h2 className="text-xl font-bold text-white mt-0.5">Resultado: {postgame.result}</h2>
+                      <h2 className="text-xl font-bold font-display text-noir-ink mt-0.5">Resultado: {postgame.result}</h2>
                     </div>
-                    <span className="text-xs px-3 py-1 bg-amber-500/20 text-amber-300 rounded-full font-mono font-bold">
+                    <span className="text-xs px-3 py-1 bg-bronze/20 text-bronze rounded-full font-mono font-bold">
                       Partida Finalizada
                     </span>
                   </div>
 
-                  <div className="text-sm text-zinc-300 bg-zinc-950/60 p-4 rounded-xl border border-zinc-800">
+                  <div className="text-sm text-noir-ink bg-noir-bg/60 p-4 rounded-xl border border-noir-line">
                     {postgame.summary}
                   </div>
 
                   {postgame.moments.length > 0 && (
                     <div className="flex flex-col gap-3">
-                      <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                      <span className="text-xs font-semibold text-noir-muted uppercase tracking-wider">
                         Momentos Críticos
                       </span>
                       <div className="flex flex-col gap-2">
                         {postgame.moments.map((m, idx) => (
                           <div
                             key={idx}
-                            className="bg-zinc-950 p-3 rounded-xl border border-zinc-800 flex flex-col gap-1 text-xs"
+                            className="bg-noir-bg p-3 rounded-xl border border-noir-line flex flex-col gap-1 text-xs"
                           >
                             <div className="flex justify-between font-mono">
-                              <span className="text-zinc-300 font-bold">Lance {m.move}</span>
+                              <span className="text-noir-ink font-bold">Lance {m.move}</span>
                               <span className="text-red-400">Jogado: {m.played}</span>
                               <span className="text-emerald-400">Melhor: {m.best}</span>
                             </div>
-                            <p className="text-zinc-400">{m.why}</p>
+                            <p className="text-noir-muted">{m.why}</p>
                           </div>
                         ))}
                       </div>
                     </div>
                   )}
 
-                  <div className="flex flex-col gap-2 bg-amber-950/20 border border-amber-900/30 p-4 rounded-xl">
-                    <span className="text-xs font-bold text-amber-400 uppercase">Lição Principal</span>
-                    <p className="text-xs text-amber-200">{postgame.takeaway}</p>
-                    <p className="text-xs text-amber-400 font-mono mt-1">Exercício: {postgame.homework}</p>
+                  <div className="flex flex-col gap-2 bg-bronze/10 border border-bronze/30 p-4 rounded-xl">
+                    <span className="text-xs font-bold text-bronze uppercase">Lição Principal</span>
+                    <p className="text-xs text-bronze">{postgame.takeaway}</p>
+                    <p className="text-xs text-bronze font-mono mt-1">Exercício: {postgame.homework}</p>
                   </div>
 
                   <div className="flex flex-wrap gap-3 pt-2">
@@ -870,13 +870,13 @@ function PlayContent() {
                     </Link>
                     <Link
                       href="/dashboard"
-                      className="flex-1 min-w-[140px] py-3 bg-amber-600 hover:bg-amber-500 text-white text-center text-xs font-semibold rounded-xl transition-all"
+                      className="flex-1 min-w-[140px] py-3 bg-bronze-deep hover:bg-bronze text-white text-center text-xs font-semibold rounded-xl transition-all"
                     >
                       Ver Painel & Métricas
                     </Link>
                     <button
                       onClick={() => setPostgame(null)}
-                      className="px-5 py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold rounded-xl transition-all"
+                      className="px-5 py-3 bg-noir-raised hover:bg-noir-line text-noir-muted text-xs font-semibold rounded-xl transition-all"
                     >
                       Fechar
                     </button>
@@ -895,7 +895,7 @@ export default function PlayPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#161512] flex items-center justify-center text-zinc-400">
+        <div className="min-h-screen bg-noir-bg flex items-center justify-center text-noir-muted">
           Carregando arena de xadrez...
         </div>
       }

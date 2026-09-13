@@ -43,9 +43,9 @@ const BADGE_CONFIG: Record<
   },
   inaccurate: {
     label: "Imprecisão",
-    bg: "bg-amber-500/20",
-    border: "border-amber-500/40",
-    text: "text-amber-300",
+    bg: "bg-bronze/20",
+    border: "border-bronze/40",
+    text: "text-bronze",
   },
   mistake: {
     label: "Erro Tático",
@@ -108,13 +108,13 @@ export default function CoachConsole({
   };
 
   return (
-    <div className="flex flex-col h-full bg-zinc-900/80 backdrop-blur-md border border-zinc-800/80 rounded-2xl overflow-hidden shadow-xl">
+    <div className="flex flex-col h-full bg-noir-surface/80 backdrop-blur-md border border-noir-line rounded-2xl overflow-hidden shadow-xl">
       {/* Navigation Tabs */}
       <div
         role="tablist"
         aria-label="Seções do coach"
         onKeyDown={handleTabKeyDown}
-        className="flex border-b border-zinc-800/80 bg-zinc-900/90 text-xs font-mono select-none"
+        className="flex border-b border-noir-line bg-noir-surface/90 text-xs font-mono select-none"
       >
         <button
           type="button"
@@ -126,8 +126,8 @@ export default function CoachConsole({
           onClick={() => onTabChange("critique")}
           className={`flex-1 py-3 px-2 text-center transition-all border-b-2 font-bold ${
             tab === "critique"
-              ? "border-amber-500 text-amber-400 bg-amber-500/10"
-              : "border-transparent text-zinc-400 hover:text-zinc-200"
+              ? "border-bronze text-bronze bg-bronze/10"
+              : "border-transparent text-noir-muted hover:text-noir-ink"
           }`}
         >
           Crítica
@@ -142,8 +142,8 @@ export default function CoachConsole({
           onClick={() => onTabChange("intent")}
           className={`flex-1 py-3 px-2 text-center transition-all border-b-2 font-bold ${
             tab === "intent"
-              ? "border-amber-500 text-amber-400 bg-amber-500/10"
-              : "border-transparent text-zinc-400 hover:text-zinc-200"
+              ? "border-bronze text-bronze bg-bronze/10"
+              : "border-transparent text-noir-muted hover:text-noir-ink"
           }`}
         >
           Intenção
@@ -158,8 +158,8 @@ export default function CoachConsole({
           onClick={() => onTabChange("position")}
           className={`flex-1 py-3 px-2 text-center transition-all border-b-2 font-bold ${
             tab === "position"
-              ? "border-amber-500 text-amber-400 bg-amber-500/10"
-              : "border-transparent text-zinc-400 hover:text-zinc-200"
+              ? "border-bronze text-bronze bg-bronze/10"
+              : "border-transparent text-noir-muted hover:text-noir-ink"
           }`}
         >
           Posição
@@ -174,8 +174,8 @@ export default function CoachConsole({
           onClick={() => onTabChange("chat")}
           className={`flex-1 py-3 px-2 text-center transition-all border-b-2 font-bold ${
             tab === "chat"
-              ? "border-amber-500 text-amber-400 bg-amber-500/10"
-              : "border-transparent text-zinc-400 hover:text-zinc-200"
+              ? "border-bronze text-bronze bg-bronze/10"
+              : "border-transparent text-noir-muted hover:text-noir-ink"
           }`}
         >
           Conversar
@@ -191,7 +191,7 @@ export default function CoachConsole({
       >
         {/* Notice Pill (e.g. Hint) */}
         {notice && (
-          <div role="status" className="p-3 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs font-mono shadow-sm flex items-center gap-2 animate-in fade-in">
+          <div role="status" className="p-3 rounded-xl bg-bronze/15 border border-bronze/30 text-bronze text-xs font-mono shadow-sm flex items-center gap-2 animate-in fade-in">
             <Lightbulb size={16} className="shrink-0" />
             <span className="font-semibold">{notice}</span>
           </div>
@@ -201,7 +201,7 @@ export default function CoachConsole({
         {tab === "critique" && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-xs font-mono uppercase tracking-wider text-zinc-400">
+              <h2 className="text-xs font-display uppercase tracking-wider text-noir-muted">
                 Análise do GM
               </h2>
               {currentBadge && (
@@ -214,21 +214,21 @@ export default function CoachConsole({
             </div>
 
             {coach?.critique ? (
-              <div className="p-3.5 rounded-xl bg-zinc-800/40 border border-zinc-800 text-zinc-200 leading-relaxed text-xs sm:text-sm font-sans space-y-2">
+              <div className="p-3.5 rounded-xl bg-noir-raised/40 border border-noir-line text-noir-ink leading-relaxed text-xs sm:text-sm font-sans space-y-2">
                 <p>{coach.critique}</p>
                 {coach.homework && (
-                  <div className="pt-2 border-t border-zinc-700/50 mt-2">
-                    <span className="text-[11px] font-mono text-amber-400 font-bold block mb-1">
+                  <div className="pt-2 border-t border-noir-line mt-2">
+                    <span className="text-[11px] font-mono text-bronze font-bold block mb-1">
                       Exercício de Reflexão:
                     </span>
-                    <p className="text-xs text-zinc-300 italic">
+                    <p className="text-xs text-noir-muted italic">
                       {coach.homework}
                     </p>
                   </div>
                 )}
               </div>
             ) : (
-              <div className="p-4 rounded-xl bg-zinc-800/30 border border-zinc-800/60 text-zinc-400 text-xs leading-relaxed">
+              <div className="p-4 rounded-xl bg-noir-raised/30 border border-noir-line/60 text-noir-muted text-xs leading-relaxed">
                 {movesCount === 0
                   ? "Faça seu primeiro lance no tabuleiro para o GM Coach analisar sua abertura e intenções táticas."
                   : "Aguardando seu lance no tabuleiro..."}
@@ -240,11 +240,11 @@ export default function CoachConsole({
         {/* TAB 2: INTENT */}
         {tab === "intent" && (
           <div className="space-y-3">
-            <span className="text-xs font-mono uppercase tracking-wider text-zinc-400">
+            <span className="text-xs font-mono uppercase tracking-wider text-noir-muted">
               Plano & Estratégia
             </span>
             {coach?.intent ? (
-              <div className="p-3.5 rounded-xl bg-zinc-800/40 border border-zinc-800 text-zinc-200 text-xs sm:text-sm leading-relaxed space-y-3">
+              <div className="p-3.5 rounded-xl bg-noir-raised/40 border border-noir-line text-noir-ink text-xs sm:text-sm leading-relaxed space-y-3">
                 <div>
                   <span className="text-[11px] font-mono text-cyan-400 font-bold block mb-1">
                     Diretriz Posicional:
@@ -253,7 +253,7 @@ export default function CoachConsole({
                 </div>
               </div>
             ) : (
-              <p className="text-zinc-500 text-xs italic">
+              <p className="text-noir-muted text-xs italic">
                 O plano estratégico será traçado à medida que a partida se desenvolver.
               </p>
             )}
@@ -263,19 +263,19 @@ export default function CoachConsole({
         {/* TAB 3: POSITION */}
         {tab === "position" && (
           <div className="space-y-3">
-            <span className="text-xs font-mono uppercase tracking-wider text-zinc-400">
+            <span className="text-xs font-mono uppercase tracking-wider text-noir-muted">
               Diagnóstico Espacial
             </span>
             <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-              <div className="p-3 rounded-xl bg-zinc-800/40 border border-zinc-800">
-                <span className="text-zinc-500 block text-[10px]">Fase</span>
-                <span className="text-zinc-200 font-bold capitalize">
+              <div className="p-3 rounded-xl bg-noir-raised/40 border border-noir-line">
+                <span className="text-noir-muted block text-[10px]">Fase</span>
+                <span className="text-noir-ink font-bold capitalize">
                   {movesCount < 20 ? "Abertura" : movesCount < 60 ? "Meio-jogo" : "Final"}
                 </span>
               </div>
-              <div className="p-3 rounded-xl bg-zinc-800/40 border border-zinc-800">
-                <span className="text-zinc-500 block text-[10px]">Lances</span>
-                <span className="text-zinc-200 font-bold">{movesCount}</span>
+              <div className="p-3 rounded-xl bg-noir-raised/40 border border-noir-line">
+                <span className="text-noir-muted block text-[10px]">Lances</span>
+                <span className="text-noir-ink font-bold tabular-nums">{movesCount}</span>
               </div>
             </div>
             {tbCategory && (
@@ -285,13 +285,13 @@ export default function CoachConsole({
               </div>
             )}
             {coach && coach.tags.length > 0 && (
-              <div className="p-3 rounded-xl bg-zinc-800/40 border border-zinc-800 text-xs text-zinc-300">
-                <span className="text-amber-400 font-mono block text-[10px] uppercase font-bold mb-1">
+              <div className="p-3 rounded-xl bg-noir-raised/40 border border-noir-line text-xs text-noir-muted">
+                <span className="text-bronze font-mono block text-[10px] uppercase font-bold mb-1">
                   Conceito Chave
                 </span>
                 <div className="flex gap-1.5 flex-wrap">
                   {coach.tags.map((t) => (
-                    <span key={t} className="px-1.5 py-0.5 rounded bg-zinc-700/60 font-mono text-[11px]">
+                    <span key={t} className="px-1.5 py-0.5 rounded bg-noir-line/60 font-mono text-[11px]">
                       #{t}
                     </span>
                   ))}
@@ -306,7 +306,7 @@ export default function CoachConsole({
           <div className="flex flex-col h-full space-y-3">
             <div aria-live="polite" className="space-y-2 max-h-[160px] overflow-y-auto pr-1">
               {chatMessages.length === 0 ? (
-                <p className="text-zinc-500 text-xs italic">
+                <p className="text-noir-muted text-xs italic">
                   Pergunte qualquer coisa ao GM Coach sobre o lance atual.
                 </p>
               ) : (
@@ -315,11 +315,11 @@ export default function CoachConsole({
                     key={i}
                     className={`p-2.5 rounded-xl text-xs ${
                       msg.role === "user"
-                        ? "bg-amber-600/20 text-amber-200 border border-amber-600/30 ml-4"
-                        : "bg-zinc-800/50 text-zinc-300 border border-zinc-800 mr-4"
+                        ? "bg-bronze-deep/20 text-bronze border border-bronze-deep/30 ml-4"
+                        : "bg-noir-raised/50 text-noir-ink border border-noir-line mr-4"
                     }`}
                   >
-                    <span className="font-bold font-mono text-[10px] block text-zinc-400 mb-0.5">
+                    <span className="font-bold font-mono text-[10px] block text-noir-muted mb-0.5">
                       {msg.role === "user" ? "Você" : "GM Coach"}
                     </span>
                     {msg.content}
@@ -328,7 +328,7 @@ export default function CoachConsole({
               )}
             </div>
 
-            <div className="flex gap-2 pt-2 border-t border-zinc-800">
+            <div className="flex gap-2 pt-2 border-t border-noir-line">
               <label htmlFor="coach-chat-input" className="sr-only">
                 Perguntar ao GM Coach
               </label>
@@ -339,13 +339,13 @@ export default function CoachConsole({
                 onChange={(e) => onChatInputChange(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && onChatSend()}
                 placeholder="Ex: Por que d4 é melhor que e4 aqui?"
-                className="flex-1 bg-zinc-800/60 border border-zinc-700/60 rounded-xl px-3 py-1.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-amber-500"
+                className="flex-1 bg-noir-raised/60 border border-noir-line rounded-xl px-3 py-1.5 text-xs text-noir-ink placeholder-noir-muted focus:outline-none focus:border-bronze"
               />
               <button
                 type="button"
                 onClick={onChatSend}
                 disabled={isChatSending || !chatInput.trim()}
-                className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 disabled:opacity-40 text-white rounded-xl text-xs font-mono font-bold transition-colors"
+                className="px-3 py-1.5 bg-bronze-deep hover:bg-bronze disabled:opacity-40 text-white rounded-xl text-xs font-mono font-bold transition-colors"
               >
                 {isChatSending ? "..." : "Enviar"}
               </button>
@@ -355,12 +355,12 @@ export default function CoachConsole({
       </div>
 
       {/* Action Footer */}
-      <div className="p-3 sm:p-4 border-t border-zinc-800/80 bg-zinc-900/90 flex flex-col gap-2">
+      <div className="p-3 sm:p-4 border-t border-noir-line bg-noir-surface/90 flex flex-col gap-2">
         <button
           type="button"
           onClick={onHint}
           disabled={isHintLoading}
-          className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-mono font-bold shadow-md shadow-amber-900/20 border border-amber-500/40 flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
+          className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-bronze-deep to-bronze text-white text-xs font-mono font-bold shadow-md border border-bronze/40 flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
         >
           <Lightbulb size={14} />
           <span>{isHintLoading ? "Calculando Dica GM..." : "Pedir Dica Tática (GM)"}</span>
@@ -371,14 +371,14 @@ export default function CoachConsole({
             type="button"
             onClick={onTriggerPostgame}
             disabled={isPostgameLoading || movesCount === 0}
-            className="flex-1 py-2 px-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white text-xs font-mono font-semibold border border-zinc-700/60 transition-colors disabled:opacity-40"
+            className="flex-1 py-2 px-3 rounded-xl bg-noir-raised hover:bg-noir-line text-noir-muted hover:text-noir-ink text-xs font-mono font-semibold border border-noir-line transition-colors disabled:opacity-40"
           >
             {isPostgameLoading ? "Analisando..." : "Analisar Partida"}
           </button>
           <button
             type="button"
             onClick={onNewGame}
-            className="py-2 px-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white text-xs font-mono font-semibold border border-zinc-700/60 transition-colors"
+            className="py-2 px-3 rounded-xl bg-noir-raised hover:bg-noir-line text-noir-muted hover:text-noir-ink text-xs font-mono font-semibold border border-noir-line transition-colors"
           >
             Nova Partida
           </button>

@@ -58,8 +58,8 @@ export default function PlayerCard({
     <div
       className={`w-full flex items-center justify-between px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border transition-all duration-300 select-none ${
         isTurn
-          ? "bg-zinc-900/90 border-amber-500/40 shadow-[0_0_15px_rgba(245,158,11,0.12)]"
-          : "bg-zinc-900/50 border-zinc-800/80"
+          ? "bg-noir-surface/90 border-bronze/40 shadow-[0_0_15px_rgba(180,140,60,0.12)]"
+          : "bg-noir-surface/50 border-noir-line"
       }`}
     >
       {/* Left: Avatar, Name, Rating */}
@@ -68,11 +68,11 @@ export default function PlayerCard({
           <div
             className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-sm font-bold shadow-md transition-all ${
               isEngine
-                ? "bg-gradient-to-br from-amber-600 to-amber-800 text-amber-100"
-                : "bg-gradient-to-br from-zinc-700 to-zinc-900 text-zinc-200 border border-zinc-700"
+                ? "bg-gradient-to-br from-bronze-deep to-bronze text-noir-ink"
+                : "bg-gradient-to-br from-noir-raised to-noir-surface text-noir-ink border border-noir-line"
             } ${
               isTurn
-                ? "ring-2 ring-amber-400 ring-offset-2 ring-offset-zinc-950"
+                ? "ring-2 ring-bronze ring-offset-2 ring-offset-noir-bg"
                 : ""
             }`}
           >
@@ -81,8 +81,8 @@ export default function PlayerCard({
 
           {/* Color Indicator Dot */}
           <span
-            className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-zinc-950 shadow-sm ${
-              color === "white" ? "bg-zinc-100" : "bg-zinc-900 border-zinc-700"
+            className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-noir-bg shadow-sm ${
+              color === "white" ? "bg-noir-ink" : "bg-noir-surface border-noir-line"
             }`}
             title={`Jogando de ${color === "white" ? "Brancas" : "Pretas"}`}
           />
@@ -90,11 +90,11 @@ export default function PlayerCard({
 
         <div className="flex flex-col">
           <div className="flex items-center gap-2">
-            <span className="text-xs sm:text-sm font-bold tracking-tight text-white line-clamp-1">
+            <span className="text-xs sm:text-sm font-bold tracking-tight text-noir-ink line-clamp-1">
               {name}
             </span>
             {badge && (
-              <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/30">
+              <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-bronze/15 text-bronze border border-bronze/30">
                 {badge}
               </span>
             )}
@@ -102,12 +102,13 @@ export default function PlayerCard({
 
           <div className="flex items-center gap-2 mt-0.5">
             {rating !== undefined && (
-              <span className="text-[11px] font-mono text-zinc-400 flex items-center gap-0.5">
-                <Star size={11} className="text-amber-500" /> {rating}
+              <span className="text-[11px] font-mono text-noir-muted flex items-center gap-0.5">
+                <Star size={11} className="text-bronze" />
+                <span className="tabular-nums">{rating}</span>
               </span>
             )}
             {isThinking && (
-              <span className="text-[10px] font-mono text-amber-400 animate-pulse">
+              <span className="text-[10px] font-mono text-bronze animate-pulse">
                 • pensando...
               </span>
             )}
@@ -118,7 +119,7 @@ export default function PlayerCard({
       {/* Right: Captured Pieces & Material Balance */}
       <div className="flex items-center gap-2 sm:gap-3">
         {/* Pieces Row */}
-        <div className="flex items-center text-sm sm:text-base leading-none text-zinc-300 font-serif tracking-tighter">
+        <div className="flex items-center text-sm sm:text-base leading-none text-noir-muted font-serif tracking-tighter">
           {sortedPieces.map((p, idx) => {
             const Icon = PIECE_ICONS[p];
             return Icon ? (
@@ -126,7 +127,7 @@ export default function PlayerCard({
                 key={idx}
                 size={16}
                 className={`inline-block -ml-1 first:ml-0 drop-shadow-sm ${
-                  capturedColor === "white" ? "text-zinc-100" : "text-zinc-400"
+                  capturedColor === "white" ? "text-noir-ink" : "text-noir-muted"
                 }`}
               />
             ) : (
@@ -137,7 +138,7 @@ export default function PlayerCard({
 
         {/* Material Advantage Badge */}
         {materialAdvantage > 0 && (
-          <span className="text-xs font-mono font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 shadow-sm animate-in fade-in">
+          <span className="text-xs font-mono font-bold tabular-nums px-1.5 py-0.5 rounded bg-bronze/20 text-bronze border border-bronze/30 shadow-sm animate-in fade-in">
             +{materialAdvantage}
           </span>
         )}
