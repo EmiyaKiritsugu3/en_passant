@@ -1,0 +1,61 @@
+components/arena/CoachConsole.tsx
+  s_43f90f450f6e57::t_191018419f69bc 33,39,45,51,57,60
+  s_43f90f450f6e57::t_da7f72d6734c09 6
+  s_43f90f450f6e57::t_1a7acf91746a28 195
+  s_43f90f450f6e57::t_920507cad4ca9b 365
+app/play/page.tsx
+  s_43f90f450f6e57::t_3f5e0959f2efe1 685
+  s_43f90f450f6e57::t_a5a486b7c9ddbd 8
+  s_43f90f450f6e57::t_3ce4c18cfc3c56 697
+components/arena/MoveHistory.tsx
+  s_43f90f450f6e57::t_f83692dac8c014 193
+  s_43f90f450f6e57::t_98c4137f427916 4-10
+  s_43f90f450f6e57::t_a258f9dad8e841 152
+  s_43f90f450f6e57::t_b629b8a4284494 162
+  s_43f90f450f6e57::t_b5604caa0cbb4e 172
+  s_43f90f450f6e57::t_5871a808ca1f91 182
+  s_43f90f450f6e57::t_741adc126ee17b 83
+app/train/page.tsx
+  s_43f90f450f6e57::t_93b8fa29b34635 28
+  s_43f90f450f6e57::t_395a794e8f0c78 419-420
+  s_43f90f450f6e57::t_94a169c95ef843 225
+  s_43f90f450f6e57::t_29648d4fd9f59c 258
+  s_43f90f450f6e57::t_c064ab79c9a867 242
+components/arena/PlayerCard.tsx
+  s_43f90f450f6e57::t_91c6fd9132aca4 122-135
+  s_43f90f450f6e57::t_d97708d91505c6 4-13
+  s_43f90f450f6e57::t_b268bf29ffd066 79
+  s_43f90f450f6e57::t_974775a0b95aea 27-32
+  s_43f90f450f6e57::t_5446881261518d 106
+app/page.tsx
+  s_43f90f450f6e57::t_a9063464396b84 127
+  s_43f90f450f6e57::t_d3ff9984b0c498 8
+app/library/page.tsx
+  s_43f90f450f6e57::t_6e469477f1e8df 186
+  s_43f90f450f6e57::t_876dd8005287e5 258
+  s_43f90f450f6e57::t_7178cc430b9cb9 21
+  s_43f90f450f6e57::t_293fe1350642e4 230-231
+package.json
+  s_43f90f450f6e57::t_e08dce83040716 17
+e2e/play-arena.spec.ts
+  s_43f90f450f6e57::t_e95e97e5841ed8 125
+  s_43f90f450f6e57::t_de16b8708cfb04 53
+package-lock.json
+  s_43f90f450f6e57::t_3b1b122c4a5962 14,6176-6184
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "5565ae9e2a85255c0883b9f23453b9479e7bd921",
+  "prompts": {},
+  "sessions": {
+    "s_43f90f450f6e57": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8c233b0f-4c0f-4aa4-bad6-577748b5b713",
+        "model": "deepseek-ai/deepseek-v4-flash-0731"
+      },
+      "human_author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
