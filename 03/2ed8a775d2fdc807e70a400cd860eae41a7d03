@@ -1,0 +1,21 @@
+components/Board.tsx
+  s_43f90f450f6e57::t_0168205025606d 10
+components/chessground-noir.css
+  s_43f90f450f6e57::t_750046f0736ad7 1-51
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "032ed8a775d2fdc807e70a400cd860eae41a7d03",
+  "prompts": {},
+  "sessions": {
+    "s_43f90f450f6e57": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8c233b0f-4c0f-4aa4-bad6-577748b5b713",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
