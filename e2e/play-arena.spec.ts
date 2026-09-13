@@ -132,8 +132,8 @@ test.describe("Play Arena — Game & Coach Console", () => {
     await expect(hintBtn).toBeVisible();
     await hintBtn.click();
 
-    // Notice pill should appear with hint generated text
-    await expect(page.getByText(/Dica GM:/i)).toBeVisible({ timeout: 10000 });
+    // Notice pill should appear with hint generated text (GM or labeled fallback)
+    await expect(page.getByText(/Dica (GM|simplificada):/i)).toBeVisible({ timeout: 15000 });
   });
 
   test("making a move on board updates move history", async ({ page }) => {

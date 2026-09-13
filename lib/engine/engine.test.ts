@@ -10,6 +10,14 @@ describe("mock engine", () => {
     expect(typeof r.cp).toBe("number");
     e.quit();
   });
+
+  it("marks results as fallback so UI never labels them GM", async () => {
+    const e = createMockEngine();
+    const r = await e.analyze("2k5/2p2b1p/1p3p2/p5p1/P1p5/5NP1/1PP2PPK/3r4 w - - 0 27");
+    expect(r.fallback).toBe(true);
+    expect(r.best).toMatch(/^[a-h][1-8][a-h][1-8][qrbn]?$/);
+    e.quit();
+  });
 });
 
 describe("parseUciInfo", () => {

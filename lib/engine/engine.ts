@@ -4,11 +4,15 @@ export interface Eval {
   cp: number;
   mate: number | null;
   best: string;
+  // ponytail: true = mock 1-ply, UI must label as simplified, never "GM"
+  fallback?: boolean;
 }
 
 export interface EngineOptions {
   limitStrength?: boolean;
   elo?: number;
+  // ponytail: jump queue front (user hints); no UCI stop-preemption, waits active search
+  priority?: boolean;
 }
 
 export interface Engine {
@@ -128,10 +132,10 @@ export function createMockEngine(): Engine {
         const c = new Chess(fen);
         const white = c.turn() === "w";
         const { best, cp } = evaluatePositionWithMinimax(c, white);
-        return { cp, mate: null, best };
+        return { cp, mate: null, best, fallback: true };
       } catch {
         const white = fen.includes(" w ");
-        return { cp: white ? 20 : -20, mate: null, best: white ? "e2e4" : "e7e5" };
+        return { cp: white ? 20 : -20, mate: null, best: white ? "e2e4" : "e7e5", fallback: true };
       }
     },
     quit() {},
@@ -190,6 +194,8 @@ export function createStockfishEngine(): Engine {
         activeTask = null;
         mock.analyze(t.fen, t.depth).then(t.resolve);
       }
+      // ponytail: drop queued (stale FENs), keep UI responsive; user re-asks if needed
+      queue.length = 0;
       processNext();
     };
 
@@ -306,7 +312,10 @@ export function createStockfishEngine(): Engine {
 
       const id = ++seq;
       return new Promise<Eval>((resolve, reject) => {
-        queue.push({ id, fen, depth, options, resolve, reject });
+        const task = { id, fen, depth, options, resolve, reject };
+        // ponytail: priority = unshift, else push; no preemption of active UCI search
+        if (options?.priority) queue.unshift(task);
+        else queue.push(task);
         processNext();
       });
     },
