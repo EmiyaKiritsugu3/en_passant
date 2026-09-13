@@ -1,0 +1,33 @@
+opendesign/design-systems/arena-noir/SKILL.md
+  s_5ba0e8544aca27::t_8396182e5dad88 1-10
+opendesign/index.html
+  s_5ba0e8544aca27::t_f29a1b9332ae6b 1-325
+docs/superpowers/specs/2026-09-13-arena-noir-design.md
+  s_5ba0e8544aca27::t_bf515e6d91b42e 1-75
+opendesign/manifest.json
+  s_5ba0e8544aca27::t_4c948540623865 1
+opendesign/design-systems/arena-noir/tokens/colors_and_type.css
+  s_5ba0e8544aca27::t_af34e7d15b2a1a 1-36
+docs/superpowers/plans/2026-09-13-arena-noir-implementation.md
+  s_5ba0e8544aca27::t_07c27f549ec3b2 1-295
+opendesign/design-systems/arena-noir/brand/voice-and-tone.md
+  s_5ba0e8544aca27::t_a6ca5b0dc51af9 1-6
+opendesign/design-systems/arena-noir/README.md
+  s_5ba0e8544aca27::t_e874b09ce0dacd 1-19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "a18986f9285db94a20d4196155792398d9613c7d",
+  "prompts": {},
+  "sessions": {
+    "s_5ba0e8544aca27": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5e8740c6-cab7-4444-a63b-b0d4a914ffb4",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
