@@ -495,19 +495,37 @@ function PlayContent() {
   };
 
   const handleAskHint = async () => {
-    if (isEngineThinking || isHintLoading) return;
+    if (isEngineThinking || isHintLoading || resignedRef.current) return;
     setIsHintLoading(true);
     try {
       const engine = engineRef.current ?? createMockEngine();
-      // Always compute hint with full Grandmaster strength
-      const ev = await engine.analyze(game.fen(), 12, { limitStrength: false });
+      const fen = game.fen();
+      // Always compute hint with full Grandmaster strength; priority jumps queue front.
+      // ponytail: 6s Budget real (Stockfish WASM single-thread); fallback rotulado, nunca "GM"
+      const ev = await Promise.race([
+        engine.analyze(fen, 12, { limitStrength: false, priority: true }),
+        new Promise<null>((res) => setTimeout(() => res(null), 6000)),
+      ]);
+      if (!ev) {
+        setNotice("Engine ocupada — tente de novo em instantes.");
+        return;
+      }
+      // ponytail: descarta dica obsoleta (tabuleiro mudou durante cálculo)
+      if (game.fen() !== fen) {
+        setNotice("Posição mudou — peça outra dica.");
+        return;
+      }
       setLastEval(ev);
 
       if (ev.best && ev.best.length >= 4) {
         const orig = ev.best.slice(0, 2) as Key;
         const dest = ev.best.slice(2, 4) as Key;
         setArrow([{ orig, dest, brush: "green" }]);
-        setNotice(`Dica GM: ${orig.toUpperCase()} → ${dest.toUpperCase()}`);
+        setNotice(
+          ev.fallback
+            ? `Dica simplificada: ${orig.toUpperCase()} → ${dest.toUpperCase()} (engine indisponível)`
+            : `Dica GM: ${orig.toUpperCase()} → ${dest.toUpperCase()}`
+        );
       } else {
         setNotice("Dica indisponível para esta posição.");
       }
