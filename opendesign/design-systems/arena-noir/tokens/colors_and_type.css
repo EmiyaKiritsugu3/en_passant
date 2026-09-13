@@ -1,0 +1,36 @@
+/* Arena Noir — canonical tokens (nested path required by opendesign discovery) */
+
+:root {
+  /* raw */
+  --noir-bg: oklch(0.20 0.015 60);
+  --noir-surface: oklch(0.26 0.02 60);
+  --noir-raised: oklch(0.31 0.025 60);
+  --noir-ink: oklch(0.93 0.02 75);
+  --noir-muted: oklch(0.68 0.03 70);
+  --noir-line: oklch(0.93 0.02 75 / 0.12);
+  --bronze: oklch(0.68 0.11 70);
+  --bronze-deep: oklch(0.55 0.10 65);
+  --felt: oklch(0.48 0.11 155);
+  --felt-light: oklch(0.85 0.05 95);
+  --good: oklch(0.68 0.10 145);
+  --warn: oklch(0.74 0.12 75);
+  --bad: oklch(0.62 0.12 45);
+
+  --font-display: "Fraunces", Georgia, serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* semantic */
+  --h1: var(--font-display);
+  --h2: var(--font-display);
+  --body: var(--font-sans);
+  --caption: var(--font-sans);
+  --surface-primary: var(--noir-surface);
+  --surface-raised: var(--noir-raised);
+  --border-subtle: var(--noir-line);
+  --text-primary: var(--noir-ink);
+  --text-muted: var(--noir-muted);
+  --action-primary: var(--bronze-deep);
+  --action-accent: var(--bronze);
+}
