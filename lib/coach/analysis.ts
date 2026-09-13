@@ -200,7 +200,7 @@ export function generateMoveAnalysis(input: MoveAnalysisInput): TurnResponse {
 
   const pieceArt = PIECE_NAMES_ARTICLE_PT[pieceType] || "a peça";
   const oppColor = moverColor === "w" ? "b" : "w";
-  const isCastling = moveSan === "O-O" || moveSan === "O-O-O" || input.flags?.includes("k") || input.flags?.includes("q");
+  const isCastling = moveSan === "O-O" || moveSan === "O-O-O";
   const isCheck = Boolean(input.isCheck || moveSan.includes("+") || (cAfter && cAfter.inCheck()));
   const isCheckmate = Boolean(input.isCheckmate || moveSan.includes("#") || (cAfter && cAfter.isGameOver() && cAfter.inCheck()));
 
