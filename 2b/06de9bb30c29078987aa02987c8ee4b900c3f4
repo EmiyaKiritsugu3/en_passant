@@ -1,0 +1,19 @@
+app/play/page.tsx
+  s_f12780d1e32a83::t_053630e94a7b5e 174-186,189-193,195-198
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "2b06de9bb30c29078987aa02987c8ee4b900c3f4",
+  "prompts": {},
+  "sessions": {
+    "s_f12780d1e32a83": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a83078d8-9b27-4ea3-9a21-c4169d119e70",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
