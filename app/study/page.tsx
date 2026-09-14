@@ -220,32 +220,32 @@ function StudyContent() {
   const currentComment = activeChapter ? commentsCache[`${activeChapter.id}:${currentPly}`] : undefined;
 
   return (
-    <main className="min-h-screen bg-[#161512] text-zinc-100 p-4 md:p-8 flex flex-col items-center">
+    <main className="min-h-screen bg-noir-bg text-noir-ink p-4 md:p-8 flex flex-col items-center">
       {/* Top Header */}
-      <header className="w-full max-w-7xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b border-zinc-800 pb-4">
+      <header className="w-full max-w-7xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b border-noir-line pb-4">
         <div>
           <span className="text-xs font-mono uppercase tracking-widest text-emerald-400 font-semibold">
             Modo Estudo & Partidas Modelo
           </span>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Estudo Interativo</h1>
+          <h1 className="text-2xl font-bold font-display text-noir-ink tracking-tight">Estudo Interativo</h1>
         </div>
 
         <div className="flex gap-3">
           <Link
             href="/library"
-            className="text-xs font-mono px-3 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition-colors"
+            className="text-xs font-mono px-3 py-2 rounded-lg bg-noir-raised hover:bg-noir-line text-noir-muted transition-colors"
           >
             ← Biblioteca
           </Link>
           <Link
             href="/train"
-            className="text-xs font-mono px-3 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition-colors"
+            className="text-xs font-mono px-3 py-2 rounded-lg bg-noir-raised hover:bg-noir-line text-noir-muted transition-colors"
           >
             Treinar
           </Link>
           <Link
             href="/play"
-            className="text-xs font-mono px-3 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-semibold transition-colors"
+            className="text-xs font-mono px-3 py-2 rounded-lg bg-bronze-deep hover:bg-bronze text-white font-semibold transition-colors"
           >
             Jogar
           </Link>
@@ -256,8 +256,8 @@ function StudyContent() {
       <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Chapters / Repertoire & Classics (3 cols) */}
         <div className="lg:col-span-3 flex flex-col gap-4">
-          <div className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-4 flex flex-col gap-3 shadow-xl">
-            <span className="text-xs font-mono uppercase tracking-wider text-zinc-400">
+          <div className="bg-noir-surface/80 border border-noir-line rounded-2xl p-4 flex flex-col gap-3 shadow-xl">
+            <span className="text-xs font-mono uppercase tracking-wider text-noir-muted">
               Capítulos de Estudo
             </span>
 
@@ -271,7 +271,7 @@ function StudyContent() {
                     className={`p-3 rounded-xl border text-xs cursor-pointer transition-all flex flex-col gap-1 ${
                       isSelected
                         ? "bg-emerald-950/40 border-emerald-500 text-white shadow"
-                        : "bg-zinc-950/60 border-zinc-800/80 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
+                        : "bg-noir-bg/60 border-noir-line text-noir-muted hover:border-noir-line hover:text-noir-ink"
                     }`}
                   >
                     <div className="flex justify-between items-center">
@@ -279,17 +279,17 @@ function StudyContent() {
                       <span
                         className={`text-[9px] font-mono px-1.5 py-0.2 rounded uppercase ${
                           ch.source === "classic"
-                            ? "bg-amber-950 text-amber-300 border border-amber-800"
+                            ? "bg-bronze/10 text-bronze border border-bronze/30"
                             : "bg-cyan-950 text-cyan-300 border border-cyan-800"
                         }`}
                       >
                         {ch.source === "classic" ? "Clássico" : "Abertura"}
                       </span>
                     </div>
-                    <span className="text-[10px] text-zinc-500">{ch.subtitle}</span>
+                    <span className="text-[10px] text-noir-muted">{ch.subtitle}</span>
                     <div className="flex flex-wrap gap-1 mt-1">
                       {ch.tags.map((t) => (
-                        <span key={t} className="text-[9px] font-mono text-zinc-400 bg-zinc-900 px-1 rounded">
+                        <span key={t} className="text-[9px] font-mono text-noir-muted bg-noir-raised px-1 rounded">
                           #{t}
                         </span>
                       ))}
@@ -304,11 +304,11 @@ function StudyContent() {
         {/* Center Column: Board & Navigation (5 cols) */}
         <div className="lg:col-span-5 flex flex-col items-center gap-4">
           {activeChapter && (
-            <div className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-5 flex flex-col items-center gap-4 w-full shadow-xl">
+            <div className="bg-noir-surface/80 border border-noir-line rounded-2xl p-5 flex flex-col items-center gap-4 w-full shadow-xl">
               <div className="w-full flex justify-between items-center text-xs font-mono">
                 <div>
                   <h2 className="font-bold text-white text-sm">{activeChapter.title}</h2>
-                  <span className="text-zinc-500 text-[11px]">{activeChapter.subtitle}</span>
+                  <span className="text-noir-muted text-[11px]">{activeChapter.subtitle}</span>
                 </div>
                 <div className="flex gap-2 items-center">
                   <button
@@ -320,14 +320,14 @@ function StudyContent() {
                     className={`px-3 py-1 text-xs font-mono rounded-lg border transition-all ${
                       isExploreMode
                         ? "bg-cyan-700 border-cyan-500 text-white font-bold"
-                        : "bg-zinc-950 border-zinc-800 text-zinc-400 hover:text-white"
+                        : "bg-noir-bg border-noir-line text-noir-muted hover:text-noir-ink"
                     }`}
                   >
                     {isExploreMode ? "● Modo Livre Ativo" : "Explorar Lances"}
                   </button>
                   <button
                     onClick={() => setOrientation((o) => (o === "white" ? "black" : "white"))}
-                    className="p-1.5 bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 rounded-lg text-zinc-300 text-xs"
+                    className="p-1.5 bg-noir-bg hover:bg-noir-raised border border-noir-line rounded-lg text-noir-muted text-xs"
                     title="Girar tabuleiro"
                   >
                     ↻
@@ -351,7 +351,7 @@ function StudyContent() {
                     setFreeExploreFen(null);
                   }}
                   disabled={currentPly === 0}
-                  className="flex-1 py-2 bg-zinc-950 hover:bg-zinc-800 disabled:opacity-40 border border-zinc-800 rounded-xl text-xs font-mono text-zinc-300"
+                  className="flex-1 py-2 bg-noir-bg hover:bg-noir-raised disabled:opacity-40 border border-noir-line rounded-xl text-xs font-mono text-noir-muted"
                 >
                   |&lt;
                 </button>
@@ -361,7 +361,7 @@ function StudyContent() {
                     setFreeExploreFen(null);
                   }}
                   disabled={currentPly === 0}
-                  className="flex-1 py-2 bg-zinc-950 hover:bg-zinc-800 disabled:opacity-40 border border-zinc-800 rounded-xl text-xs font-mono text-zinc-300"
+                  className="flex-1 py-2 bg-noir-bg hover:bg-noir-raised disabled:opacity-40 border border-noir-line rounded-xl text-xs font-mono text-noir-muted"
                 >
                   &lt;
                 </button>
@@ -371,7 +371,7 @@ function StudyContent() {
                     setFreeExploreFen(null);
                   }}
                   disabled={currentPly >= parsedMoves.length}
-                  className="flex-1 py-2 bg-zinc-950 hover:bg-zinc-800 disabled:opacity-40 border border-zinc-800 rounded-xl text-xs font-mono text-zinc-300"
+                  className="flex-1 py-2 bg-noir-bg hover:bg-noir-raised disabled:opacity-40 border border-noir-line rounded-xl text-xs font-mono text-noir-muted"
                 >
                   &gt;
                 </button>
@@ -381,16 +381,16 @@ function StudyContent() {
                     setFreeExploreFen(null);
                   }}
                   disabled={currentPly >= parsedMoves.length}
-                  className="flex-1 py-2 bg-zinc-950 hover:bg-zinc-800 disabled:opacity-40 border border-zinc-800 rounded-xl text-xs font-mono text-zinc-300"
+                  className="flex-1 py-2 bg-noir-bg hover:bg-noir-raised disabled:opacity-40 border border-noir-line rounded-xl text-xs font-mono text-noir-muted"
                 >
                   &gt;|
                 </button>
               </div>
 
               {/* Lesson Callout */}
-              <div className="w-full p-3 bg-zinc-950 rounded-xl border border-zinc-800/80 text-xs">
-                <span className="text-[10px] font-mono uppercase text-amber-400 font-bold">Lição Principal</span>
-                <p className="text-zinc-300 mt-1 leading-relaxed">{activeChapter.lesson}</p>
+              <div className="w-full p-3 bg-noir-bg rounded-xl border border-noir-line text-xs">
+                <span className="text-[10px] font-mono uppercase text-bronze font-bold">Lição Principal</span>
+                <p className="text-noir-muted mt-1 leading-relaxed">{activeChapter.lesson}</p>
               </div>
             </div>
           )}
@@ -398,8 +398,8 @@ function StudyContent() {
 
         {/* Right Column: Move steps & Annotated Comments (4 cols) */}
         <div className="lg:col-span-4 flex flex-col gap-4">
-          <div className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-5 flex flex-col gap-4 shadow-xl">
-            <span className="text-xs font-mono uppercase tracking-wider text-zinc-400">
+          <div className="bg-noir-surface/80 border border-noir-line rounded-2xl p-5 flex flex-col gap-4 shadow-xl">
+            <span className="text-xs font-mono uppercase tracking-wider text-noir-muted">
               {isExploreMode ? "Exploração Livre" : "Comentários do Lance"}
             </span>
 
@@ -407,9 +407,9 @@ function StudyContent() {
             {!isExploreMode && (
               <>
                 {currentPly > 0 && parsedMoves[currentPly - 1] && (
-                  <div className="p-3 bg-zinc-950 rounded-xl border border-zinc-800 text-xs font-mono flex justify-between items-center">
-                    <span className="text-zinc-400">Lance {currentPly}:</span>
-                    <strong className="text-amber-400 text-sm">{parsedMoves[currentPly - 1].san}</strong>
+                  <div className="p-3 bg-noir-bg rounded-xl border border-noir-line text-xs font-mono flex justify-between items-center">
+                    <span className="text-noir-muted">Lance {currentPly}:</span>
+                    <strong className="text-bronze text-sm">{parsedMoves[currentPly - 1].san}</strong>
                   </div>
                 )}
 
@@ -419,20 +419,20 @@ function StudyContent() {
                       Comentário do Treinador:
                     </span>
                     <p className="font-semibold text-white">{currentComment.verdict}</p>
-                    <p className="text-zinc-300 leading-relaxed">{currentComment.consequences}</p>
+                    <p className="text-noir-muted leading-relaxed">{currentComment.consequences}</p>
                   </div>
                 ) : isCommentLoading ? (
                   <div className="text-xs font-mono text-emerald-400 animate-pulse py-3 text-center">
                     Gerando anotação do lance...
                   </div>
                 ) : (
-                  <div className="text-xs text-zinc-500 py-3 text-center">
+                  <div className="text-xs text-noir-muted py-3 text-center">
                     Avance os lances para ver as anotações do treinador.
                   </div>
                 )}
 
                 {/* Moves List Grid */}
-                <div className="max-h-60 overflow-y-auto p-2 bg-zinc-950 rounded-xl border border-zinc-800 grid grid-cols-2 gap-1 font-mono text-xs mt-2">
+                <div className="max-h-60 overflow-y-auto p-2 bg-noir-bg rounded-xl border border-noir-line grid grid-cols-2 gap-1 font-mono text-xs mt-2">
                   {parsedMoves.map((m, idx) => {
                     const plyNum = idx + 1;
                     const isSelected = plyNum === currentPly;
@@ -446,7 +446,7 @@ function StudyContent() {
                         className={`px-2 py-1 rounded text-left flex justify-between items-center transition-all ${
                           isSelected
                             ? "bg-emerald-500/20 border border-emerald-500/60 text-emerald-300 font-bold"
-                            : "hover:bg-zinc-900 text-zinc-300"
+                            : "hover:bg-noir-surface text-noir-muted"
                         }`}
                       >
                         <span>
@@ -468,15 +468,15 @@ function StudyContent() {
                 </div>
 
                 {explorerStats && (
-                  <div className="p-3 bg-zinc-950 rounded-xl border border-zinc-800 text-xs font-mono space-y-1">
+                  <div className="p-3 bg-noir-bg rounded-xl border border-noir-line text-xs font-mono space-y-1">
                     {explorerStats.opening && (
-                      <div className="text-zinc-200 font-bold">
+                      <div className="text-noir-ink font-bold">
                         {explorerStats.opening.eco} - {explorerStats.opening.name}
                       </div>
                     )}
                     <div className="flex gap-2 text-[11px]">
                       <span className="text-emerald-400">1-0: {explorerStats.white}</span>
-                      <span className="text-zinc-400">½-½: {explorerStats.draws}</span>
+                      <span className="text-noir-muted">½-½: {explorerStats.draws}</span>
                       <span className="text-rose-400">0-1: {explorerStats.black}</span>
                     </div>
                   </div>
@@ -486,7 +486,7 @@ function StudyContent() {
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-xs font-mono">
                       <thead>
-                        <tr className="border-b border-zinc-800 text-zinc-500 text-[10px]">
+                        <tr className="border-b border-noir-line text-noir-muted text-[10px]">
                           <th className="pb-1">Lance</th>
                           <th className="pb-1">Partidas</th>
                           <th className="pb-1">1-0</th>
@@ -501,11 +501,11 @@ function StudyContent() {
                           const dPct = Math.round((m.draws / total) * 100);
                           const bPct = Math.round((m.black / total) * 100);
                           return (
-                            <tr key={m.san} className="border-b border-zinc-800/40 text-zinc-300">
-                              <td className="py-1 text-amber-400 font-bold">{m.san}</td>
-                              <td className="py-1 text-zinc-400">{total}</td>
+                            <tr key={m.san} className="border-b border-noir-line text-noir-muted">
+                              <td className="py-1 text-bronze font-bold">{m.san}</td>
+                              <td className="py-1 text-noir-muted">{total}</td>
                               <td className="py-1 text-emerald-400">{wPct}%</td>
-                              <td className="py-1 text-zinc-400">{dPct}%</td>
+                              <td className="py-1 text-noir-muted">{dPct}%</td>
                               <td className="py-1 text-rose-400">{bPct}%</td>
                             </tr>
                           );
@@ -525,7 +525,7 @@ function StudyContent() {
 
 export default function StudyPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#161512] flex items-center justify-center text-zinc-400 font-mono text-xs">Carregando estudo...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-noir-bg flex items-center justify-center text-noir-muted font-mono text-xs">Carregando estudo...</div>}>
       <StudyContent />
     </Suspense>
   );

@@ -50,7 +50,7 @@ test.describe("Play Arena — Game & Coach Console", () => {
   test("sound toggle changes mute state", async ({ page }) => {
     await page.goto("/play?side=white");
 
-    const soundBtn = page.locator("header button").filter({ hasText: /🔊|🔇/ });
+    const soundBtn = page.getByTitle(/som/i);
     await expect(soundBtn).toBeVisible();
     await expect(soundBtn).toHaveAttribute("title", "Desativar som");
 
@@ -122,7 +122,7 @@ test.describe("Play Arena — Game & Coach Console", () => {
 
     // User message should appear in chat
     await expect(page.getByText("Qual é o plano principal das brancas?")).toBeVisible();
-    await expect(page.locator(".bg-amber-600\\/20").getByText("Você")).toBeVisible();
+    await expect(page.getByRole("tabpanel").getByText("Você")).toBeVisible();
   });
 
   test("hint button triggers tactial advice", async ({ page }) => {

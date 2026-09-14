@@ -110,19 +110,19 @@ export default function PunishmentPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#161512] text-zinc-100 p-4 md:p-8 flex flex-col items-center">
-      <header className="w-full max-w-5xl flex justify-between items-center gap-4 mb-6 border-b border-zinc-800/80 pb-4">
+    <main className="min-h-screen bg-noir-bg text-noir-ink p-4 md:p-8 flex flex-col items-center">
+      <header className="w-full max-w-5xl flex justify-between items-center gap-4 mb-6 border-b border-noir-line pb-4">
         <div>
-          <span className="text-xs font-mono uppercase tracking-widest text-amber-500 font-semibold">
+          <span className="text-xs font-mono uppercase text-bronze font-semibold">
             Punishment Lab
           </span>
-          <h1 className="text-2xl font-bold text-white tracking-tight">London System</h1>
+          <h1 className="text-2xl font-bold font-display text-noir-ink tracking-tight">London System</h1>
         </div>
         <div className="flex gap-3">
-          <Link href="/train" className="text-xs font-mono px-3 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300">
+          <Link href="/train" className="text-xs font-mono px-3 py-2 rounded-lg bg-noir-raised hover:bg-noir-line text-noir-muted">
             Treino
           </Link>
-          <Link href="/play" className="text-xs font-mono px-3 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-amber-400 font-semibold">
+          <Link href="/play" className="text-xs font-mono px-3 py-2 rounded-lg bg-noir-raised hover:bg-noir-line text-bronze font-semibold">
             Jogar
           </Link>
         </div>
@@ -135,8 +135,8 @@ export default function PunishmentPage() {
             onClick={() => selectDrill(d.id)}
             className={`px-3 py-1.5 text-xs rounded-lg font-semibold border transition-all ${
               d.id === drillId
-                ? "bg-amber-500/20 text-amber-300 border-amber-500/40"
-                : "bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-white"
+                ? "bg-bronze/20 text-bronze border-bronze/40"
+                : "bg-noir-surface text-noir-muted border-noir-line hover:text-noir-ink"
             }`}
           >
             {d.variationName}
@@ -146,7 +146,7 @@ export default function PunishmentPage() {
 
       <div className="w-full max-w-5xl flex flex-col lg:flex-row gap-8 items-start justify-center">
         <div className="flex flex-col items-center gap-4 w-full lg:w-auto">
-          <div className="text-xs font-mono text-zinc-400 w-full max-w-[560px]">
+          <div className="text-xs font-mono text-noir-muted w-full max-w-[560px]">
             Erro preto: <strong className="text-rose-400">{drill.opponentMistakeSan}</strong>
             {" · "}Gatilho: {drill.triggerType}
           </div>
@@ -159,8 +159,8 @@ export default function PunishmentPage() {
         </div>
 
         <div className="w-full lg:w-80 flex flex-col gap-4">
-          <div className="bg-zinc-900/70 border border-zinc-800 rounded-2xl p-5 flex flex-col gap-3">
-            <span className="text-xs font-mono uppercase tracking-wider text-zinc-400">
+          <div className="bg-noir-surface/70 border border-noir-line rounded-2xl p-5 flex flex-col gap-3">
+            <span className="text-xs font-mono uppercase tracking-wider text-noir-muted">
               {stage.kind === "recognize" && "Estágio 1 — Reconhecimento"}
               {stage.kind === "hint" && `Estágio 2 — Dica ${stage.level}/4`}
               {stage.kind === "execute" && "Estágio 3 — Execução"}
@@ -169,17 +169,17 @@ export default function PunishmentPage() {
 
             {stage.kind === "recognize" && (
               <>
-                <p className="text-sm text-zinc-200">O oponente errou com {drill.opponentMistakeSan}. Você percebeu?</p>
+                <p className="text-sm text-noir-muted">O oponente errou com {drill.opponentMistakeSan}. Você percebeu?</p>
                 <div className="flex gap-2">
                   <button
                     onClick={() => { setStage(reduce(stage, { type: "SPOT" })); setStatus("Certo — jogue a punição no tabuleiro."); }}
-                    className="flex-1 py-2.5 bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold rounded-xl"
+                    className="flex-1 py-2.5 bg-bronze-deep hover:bg-bronze text-white text-xs font-semibold rounded-xl"
                   >
                     Vi o erro
                   </button>
                   <button
                     onClick={() => { setStage(reduce(stage, { type: "MISS" })); setHintsUsed((h) => h + 1); setStatus(drill.triggerDescription); }}
-                    className="flex-1 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold rounded-xl border border-zinc-700"
+                    className="flex-1 py-2.5 bg-noir-raised hover:bg-noir-line text-noir-muted text-xs font-semibold rounded-xl border border-noir-line"
                   >
                     Não vi
                   </button>
@@ -189,12 +189,12 @@ export default function PunishmentPage() {
 
             {stage.kind === "hint" && (
               <>
-                <p className="text-sm text-amber-200">{hintText(drill, stage.level)}</p>
-                <div className="text-[11px] font-mono text-zinc-500">Jogue no tabuleiro ou peça próxima dica.</div>
+                <p className="text-sm text-bronze">{hintText(drill, stage.level)}</p>
+                <div className="text-[11px] font-mono text-noir-muted">Jogue no tabuleiro ou peça próxima dica.</div>
                 <button
                   onClick={nextHint}
                   disabled={stage.level >= 4}
-                  className="w-full py-2.5 bg-zinc-800 hover:bg-zinc-700 disabled:opacity-40 text-amber-300 text-xs font-semibold rounded-xl border border-zinc-700"
+                  className="w-full py-2.5 bg-noir-raised hover:bg-noir-line disabled:opacity-40 text-bronze text-xs font-semibold rounded-xl border border-noir-line"
                 >
                   {stage.level >= 4 ? "Última dica" : "Próxima dica"}
                 </button>
@@ -202,7 +202,7 @@ export default function PunishmentPage() {
             )}
 
             {stage.kind === "execute" && (
-              <p className="text-sm text-zinc-200">Jogue a punição no tabuleiro.</p>
+              <p className="text-sm text-noir-muted">Jogue a punição no tabuleiro.</p>
             )}
 
             {stage.kind === "done" && (
@@ -211,11 +211,11 @@ export default function PunishmentPage() {
                   {status || drill.punishmentExplanation}
                 </div>
                 {!saved ? (
-                  <button onClick={saveSm2} className="w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold rounded-xl">
+                  <button onClick={saveSm2} className="w-full py-2.5 bg-bronze-deep hover:bg-bronze text-white text-xs font-semibold rounded-xl">
                     Salvar no SM-2 →
                   </button>
                 ) : (
-                  <button onClick={() => selectDrill(londonDrills[(londonDrills.findIndex((d) => d.id === drillId) + 1) % londonDrills.length].id)} className="w-full py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold rounded-xl border border-zinc-700">
+                  <button onClick={() => selectDrill(londonDrills[(londonDrills.findIndex((d) => d.id === drillId) + 1) % londonDrills.length].id)} className="w-full py-2.5 bg-noir-raised hover:bg-noir-line text-noir-ink text-xs font-semibold rounded-xl border border-noir-line">
                     Próximo drill →
                   </button>
                 )}
@@ -223,7 +223,7 @@ export default function PunishmentPage() {
             )}
 
             {status && stage.kind !== "done" && (
-              <div className="p-3 rounded-xl text-xs font-mono bg-zinc-950 border border-zinc-800 text-zinc-300">
+              <div className="p-3 rounded-xl text-xs font-mono bg-noir-bg border border-noir-line text-noir-muted">
                 {status}
               </div>
             )}
@@ -234,7 +234,7 @@ export default function PunishmentPage() {
               </button>
             )}
 
-            <div className="text-[11px] font-mono text-zinc-500 pt-2 border-t border-zinc-800/80">
+            <div className="text-[11px] font-mono text-noir-muted pt-2 border-t border-noir-line">
               Tentativas: {attempts} · Dicas: {hintsUsed}
             </div>
           </div>

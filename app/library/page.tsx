@@ -18,6 +18,7 @@ import {
 import { collectEvals, type Row } from "@/lib/postgame";
 import { createMockEngine, createStockfishEngine, type Engine } from "@/lib/engine/engine";
 import { DEFAULT_PROFILE, getProfileSnapshot, subscribeProfile } from "@/lib/profile/store";
+import { BookOpen, Library } from "lucide-react";
 import type { DrawShape } from "chessground/draw";
 import type { Key } from "chessground/types";
 
@@ -167,14 +168,14 @@ export default function LibraryPage() {
   }, [profile]);
 
   return (
-    <main className="min-h-screen bg-[#161512] text-zinc-100 p-4 md:p-8 flex flex-col items-center">
+    <main className="min-h-screen bg-noir-bg text-noir-ink p-4 md:p-8 flex flex-col items-center">
       {/* Header */}
-      <header className="w-full max-w-6xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b border-zinc-800 pb-4">
+      <header className="w-full max-w-6xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b border-noir-line pb-4">
         <div>
-          <span className="text-xs font-mono uppercase tracking-widest text-amber-500 font-semibold">
+          <span className="text-xs font-mono uppercase text-bronze font-semibold">
             Biblioteca Pessoal
           </span>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Partidas & Análises</h1>
+          <h1 className="text-2xl font-bold font-display text-noir-ink tracking-tight">Partidas & Análises</h1>
         </div>
 
         <div className="flex gap-3">
@@ -182,23 +183,23 @@ export default function LibraryPage() {
             href="/study"
             className="text-xs font-mono px-3 py-2 rounded-lg bg-emerald-950/60 hover:bg-emerald-900/60 text-emerald-300 border border-emerald-800 transition-colors"
           >
-            📖 Modo Estudo
+            <span className="inline-flex items-center gap-1.5"><BookOpen size={14} /> Modo Estudo</span>
           </Link>
           <Link
             href="/train"
-            className="text-xs font-mono px-3 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition-colors"
+            className="text-xs font-mono px-3 py-2 rounded-lg bg-noir-raised hover:bg-noir-line text-noir-muted transition-colors"
           >
             Treinar
           </Link>
           <Link
             href="/dashboard"
-            className="text-xs font-mono px-3 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition-colors"
+            className="text-xs font-mono px-3 py-2 rounded-lg bg-noir-raised hover:bg-noir-line text-noir-muted transition-colors"
           >
             Painel
           </Link>
           <Link
             href="/play"
-            className="text-xs font-mono px-3 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-semibold transition-colors"
+            className="text-xs font-mono px-3 py-2 rounded-lg bg-bronze-deep hover:bg-bronze text-white font-semibold transition-colors"
           >
             Jogar
           </Link>
@@ -207,16 +208,16 @@ export default function LibraryPage() {
 
       {/* Weakest Tag Study Recommendation Banner */}
       {weakestTag && (
-        <div className="w-full max-w-6xl mb-6 p-4 rounded-2xl bg-amber-950/20 border border-amber-800/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="w-full max-w-6xl mb-6 p-4 rounded-2xl bg-bronze/10 border border-bronze/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div>
-            <span className="text-xs font-mono uppercase text-amber-400 font-bold">Recomendação de Estudo</span>
-            <p className="text-xs text-zinc-300 mt-0.5">
+            <span className="text-xs font-mono uppercase text-bronze font-bold">Recomendação de Estudo</span>
+            <p className="text-xs text-noir-muted mt-0.5">
               Seu perfil aponta mais erros recentes em <strong>{weakestTag}</strong>. Pratique com partidas modelo selecionadas para dominar essa fraqueza.
             </p>
           </div>
           <Link
             href={`/study?tag=${weakestTag}`}
-            className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold rounded-xl transition-all whitespace-nowrap"
+            className="px-4 py-2 bg-bronze-deep hover:bg-bronze text-white text-xs font-semibold rounded-xl transition-all whitespace-nowrap"
           >
             Ver Partidas de {weakestTag} →
           </Link>
@@ -225,13 +226,13 @@ export default function LibraryPage() {
 
       {/* Main layout */}
       {games.length === 0 ? (
-        <div className="w-full max-w-2xl bg-zinc-900/60 border border-zinc-800 rounded-2xl p-8 sm:p-10 flex flex-col items-center justify-center text-center gap-5 shadow-xl mt-4">
-          <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-2xl">
-            📚
+        <div className="w-full max-w-2xl bg-noir-surface/60 border border-noir-line rounded-2xl p-8 sm:p-10 flex flex-col items-center justify-center text-center gap-5 shadow-xl mt-4">
+          <div className="w-12 h-12 rounded-full bg-bronze/10 border border-bronze/20 flex items-center justify-center text-bronze">
+            <Library size={20} />
           </div>
           <div>
             <h2 className="text-lg font-bold text-white">Sua Biblioteca está Vazia</h2>
-            <p className="text-xs text-zinc-400 mt-1 max-w-md leading-relaxed">
+            <p className="text-xs text-noir-muted mt-1 max-w-md leading-relaxed">
               Você ainda não tem partidas salvas. Complete uma partida na Arena GM para gravá-la automaticamente ou importe um arquivo PGN existente.
             </p>
           </div>
@@ -239,46 +240,46 @@ export default function LibraryPage() {
           <div className="flex flex-wrap gap-3 justify-center pt-2">
             <Link
               href="/play"
-              className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold font-mono transition-colors"
+              className="px-5 py-2.5 rounded-xl bg-bronze-deep hover:bg-bronze text-white text-xs font-semibold font-mono transition-colors"
             >
               Jogar na Arena →
             </Link>
             <button
               type="button"
               onClick={() => setShowImport(true)}
-              className="px-5 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold font-mono border border-zinc-700 transition-colors"
+              className="px-5 py-2.5 rounded-xl bg-noir-raised hover:bg-noir-line text-noir-ink text-xs font-semibold font-mono border border-noir-line transition-colors"
             >
               + Importar PGN
             </button>
             <Link
               href="/study"
-              className="px-5 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold font-mono border border-zinc-700 transition-colors"
+              className="px-5 py-2.5 rounded-xl bg-noir-raised hover:bg-noir-line text-noir-muted text-xs font-semibold font-mono border border-noir-line transition-colors"
             >
-              📖 Modo Estudo
+              <span className="inline-flex items-center gap-1.5"><BookOpen size={14} /> Modo Estudo</span>
             </Link>
           </div>
 
           {showImport && (
-            <div className="w-full mt-2 p-4 bg-zinc-950 rounded-xl border border-zinc-800 flex flex-col gap-3 text-left">
-              <span className="text-xs font-mono text-zinc-400 uppercase font-semibold">Colar PGN</span>
+            <div className="w-full mt-2 p-4 bg-noir-bg rounded-xl border border-noir-line flex flex-col gap-3 text-left">
+              <span className="text-xs font-mono text-noir-muted uppercase font-semibold">Colar PGN</span>
               <textarea
                 value={importPgnText}
                 onChange={(e) => setImportPgnText(e.target.value)}
                 placeholder="Cole o PGN aqui..."
-                className="w-full h-28 bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-xs font-mono text-zinc-200 resize-none focus:outline-none focus:border-amber-500"
+                className="w-full h-28 bg-noir-surface border border-noir-line rounded-lg p-2.5 text-xs font-mono text-noir-ink resize-none focus:outline-none focus:border-bronze"
               />
               <div className="flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setShowImport(false)}
-                  className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 text-xs rounded-lg"
+                  className="px-3 py-1.5 bg-noir-raised hover:bg-noir-line text-noir-muted text-xs rounded-lg"
                 >
                   Cancelar
                 </button>
                 <button
                   type="button"
                   onClick={handleImport}
-                  className="px-4 py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold rounded-lg transition-all"
+                  className="px-4 py-1.5 bg-bronze-deep hover:bg-bronze text-white text-xs font-semibold rounded-lg transition-all"
                 >
                   Importar Partida
                 </button>
@@ -290,28 +291,28 @@ export default function LibraryPage() {
         <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Games List & Filters (4 cols) */}
         <div className="lg:col-span-4 flex flex-col gap-4">
-          <div className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-4 flex flex-col gap-3 shadow-xl">
+          <div className="bg-noir-surface/80 border border-noir-line rounded-2xl p-4 flex flex-col gap-3 shadow-xl">
             <div className="flex justify-between items-center">
-              <span className="text-xs font-mono uppercase text-zinc-400">Partidas Gravadas ({games.length})</span>
+              <span className="text-xs font-mono uppercase text-noir-muted">Partidas Gravadas ({games.length})</span>
               <button
                 onClick={() => setShowImport((prev) => !prev)}
-                className="text-xs font-mono text-amber-400 hover:underline"
+                className="text-xs font-mono text-bronze hover:underline"
               >
                 {showImport ? "Fechar" : "+ Importar PGN"}
               </button>
             </div>
 
             {showImport && (
-              <div className="p-3 bg-zinc-950 rounded-xl border border-zinc-800 flex flex-col gap-2">
+              <div className="p-3 bg-noir-bg rounded-xl border border-noir-line flex flex-col gap-2">
                 <textarea
                   value={importPgnText}
                   onChange={(e) => setImportPgnText(e.target.value)}
                   placeholder="Cole o PGN aqui..."
-                  className="w-full h-24 bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-xs font-mono text-zinc-200 resize-none focus:outline-none focus:border-amber-500"
+                  className="w-full h-24 bg-noir-surface border border-noir-line rounded-lg p-2 text-xs font-mono text-noir-ink resize-none focus:outline-none focus:border-bronze"
                 />
                 <button
                   onClick={handleImport}
-                  className="py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold rounded-lg transition-all"
+                  className="py-1.5 bg-bronze-deep hover:bg-bronze text-white text-xs font-semibold rounded-lg transition-all"
                 >
                   Importar Partida
                 </button>
@@ -325,12 +326,12 @@ export default function LibraryPage() {
                 placeholder="Buscar lances ou notas..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-amber-500 font-mono"
+                className="flex-1 bg-noir-bg border border-noir-line rounded-xl px-3 py-1.5 text-xs text-noir-ink focus:outline-none focus:border-bronze font-mono"
               />
               <select
                 value={resultFilter}
                 onChange={(e) => setResultFilter(e.target.value)}
-                className="bg-zinc-950 border border-zinc-800 rounded-xl px-2 py-1.5 text-xs text-zinc-300 font-mono focus:outline-none"
+                className="bg-noir-bg border border-noir-line rounded-xl px-2 py-1.5 text-xs text-noir-muted font-mono focus:outline-none"
               >
                 <option value="all">Todos</option>
                 <option value="1-0">1-0</option>
@@ -342,7 +343,7 @@ export default function LibraryPage() {
             {/* Games List */}
             <div className="max-h-[520px] overflow-y-auto flex flex-col gap-2 pr-1">
               {filteredGames.length === 0 ? (
-                <div className="text-center py-8 text-xs text-zinc-500">
+                <div className="text-center py-8 text-xs text-noir-muted">
                   Nenhuma partida encontrada para os filtros selecionados.
                 </div>
               ) : (
@@ -352,8 +353,8 @@ export default function LibraryPage() {
                     onClick={() => handleSelectGame(g)}
                     className={`p-3 rounded-xl border text-xs cursor-pointer transition-all flex flex-col gap-1.5 ${
                       selectedGameId === g.id
-                        ? "bg-amber-500/15 border-amber-500/50 text-white"
-                        : "bg-zinc-950/60 border-zinc-800/80 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
+                        ? "bg-bronze/15 border-bronze/50 text-noir-ink"
+                        : "bg-noir-bg/60 border-noir-line text-noir-muted hover:border-noir-line hover:text-noir-ink"
                     }`}
                   >
                     <div className="flex justify-between items-center font-mono">
@@ -363,21 +364,21 @@ export default function LibraryPage() {
                             ? "bg-emerald-950 border border-emerald-800 text-emerald-300"
                             : g.result === "0-1"
                             ? "bg-rose-950 border border-rose-800 text-rose-300"
-                            : "bg-zinc-800 text-zinc-300"
+                            : "bg-noir-raised text-noir-muted"
                         }`}
                       >
                         {g.result}
                       </span>
-                      <span className="text-[10px] text-zinc-500">
+                      <span className="text-[10px] text-noir-muted">
                         {new Date(g.date).toLocaleDateString("pt-BR")}
                       </span>
                     </div>
 
-                    <p className="font-mono text-[11px] text-zinc-300 truncate">
+                    <p className="font-mono text-[11px] text-noir-ink truncate">
                       {g.pgn}
                     </p>
 
-                    <div className="flex justify-between items-center text-[10px] text-zinc-500">
+                    <div className="flex justify-between items-center text-[10px] text-noir-muted">
                       <span>Análises: {g.analyses.length}</span>
                       <button
                         onClick={(e) => {
@@ -399,11 +400,11 @@ export default function LibraryPage() {
         {/* Right Column: Replay, Board, Analysis & Notebook (8 cols) */}
         <div className="lg:col-span-8 flex flex-col gap-6">
           {selectedGame ? (
-            <div className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-6 flex flex-col gap-6 shadow-xl">
+            <div className="bg-noir-surface/80 border border-noir-line rounded-2xl p-6 flex flex-col gap-6 shadow-xl">
               {/* Top controls: Re-analyse bar */}
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-800 pb-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-noir-line pb-4">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono uppercase text-zinc-400">Versão:</span>
+                  <span className="text-xs font-mono uppercase text-noir-muted">Versão:</span>
                   {selectedGame.analyses.length > 0 ? (
                     <div className="flex gap-1">
                       {selectedGame.analyses.map((an, idx) => (
@@ -412,8 +413,8 @@ export default function LibraryPage() {
                           onClick={() => setSelectedAnalysisIdx(idx)}
                           className={`px-2.5 py-1 text-xs font-mono rounded-lg border transition-all ${
                             selectedAnalysisIdx === idx
-                              ? "bg-amber-600 border-amber-500 text-white font-bold"
-                              : "bg-zinc-950 border-zinc-800 text-zinc-400 hover:text-white"
+                              ? "bg-bronze-deep border-bronze text-white font-bold"
+                              : "bg-noir-bg border-noir-line text-noir-muted hover:text-noir-ink"
                           }`}
                         >
                           v{idx + 1} (d{an.depth})
@@ -421,16 +422,16 @@ export default function LibraryPage() {
                       ))}
                     </div>
                   ) : (
-                    <span className="text-xs font-mono text-zinc-500">Sem análise</span>
+                    <span className="text-xs font-mono text-noir-muted">Sem análise</span>
                   )}
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono text-zinc-400">Profundidade:</span>
+                  <span className="text-xs font-mono text-noir-muted">Profundidade:</span>
                   <select
                     value={reanalyzeDepth}
                     onChange={(e) => setReanalyzeDepth(Number(e.target.value))}
-                    className="bg-zinc-950 border border-zinc-800 text-xs font-mono text-zinc-300 rounded-lg px-2 py-1 focus:outline-none"
+                    className="bg-noir-bg border border-noir-line text-xs font-mono text-noir-muted rounded-lg px-2 py-1 focus:outline-none"
                   >
                     <option value={10}>10 (Rápida)</option>
                     <option value={14}>14 (Padrão)</option>
@@ -439,7 +440,7 @@ export default function LibraryPage() {
                   <button
                     onClick={handleReanalyze}
                     disabled={isReanalyzing}
-                    className="px-3 py-1 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white text-xs font-semibold rounded-lg transition-all"
+                    className="px-3 py-1 bg-bronze-deep hover:bg-bronze disabled:opacity-50 text-white text-xs font-semibold rounded-lg transition-all"
                   >
                     {isReanalyzing ? "Analisando..." : "Nova Análise"}
                   </button>
@@ -460,28 +461,28 @@ export default function LibraryPage() {
                     <button
                       onClick={() => setCurrentPly(0)}
                       disabled={currentPly === 0}
-                      className="flex-1 py-2 bg-zinc-950 hover:bg-zinc-800 disabled:opacity-40 border border-zinc-800 rounded-xl text-xs font-mono text-zinc-300"
+                      className="flex-1 py-2 bg-noir-bg hover:bg-noir-raised disabled:opacity-40 border border-noir-line rounded-xl text-xs font-mono text-noir-muted"
                     >
                       |&lt;
                     </button>
                     <button
                       onClick={() => setCurrentPly((p) => Math.max(0, p - 1))}
                       disabled={currentPly === 0}
-                      className="flex-1 py-2 bg-zinc-950 hover:bg-zinc-800 disabled:opacity-40 border border-zinc-800 rounded-xl text-xs font-mono text-zinc-300"
+                      className="flex-1 py-2 bg-noir-bg hover:bg-noir-raised disabled:opacity-40 border border-noir-line rounded-xl text-xs font-mono text-noir-muted"
                     >
                       &lt;
                     </button>
                     <button
                       onClick={() => setCurrentPly((p) => Math.min(parsedMoves.length, p + 1))}
                       disabled={currentPly >= parsedMoves.length}
-                      className="flex-1 py-2 bg-zinc-950 hover:bg-zinc-800 disabled:opacity-40 border border-zinc-800 rounded-xl text-xs font-mono text-zinc-300"
+                      className="flex-1 py-2 bg-noir-bg hover:bg-noir-raised disabled:opacity-40 border border-noir-line rounded-xl text-xs font-mono text-noir-muted"
                     >
                       &gt;
                     </button>
                     <button
                       onClick={() => setCurrentPly(parsedMoves.length)}
                       disabled={currentPly >= parsedMoves.length}
-                      className="flex-1 py-2 bg-zinc-950 hover:bg-zinc-800 disabled:opacity-40 border border-zinc-800 rounded-xl text-xs font-mono text-zinc-300"
+                      className="flex-1 py-2 bg-noir-bg hover:bg-noir-raised disabled:opacity-40 border border-noir-line rounded-xl text-xs font-mono text-noir-muted"
                     >
                       &gt;|
                     </button>
@@ -492,9 +493,9 @@ export default function LibraryPage() {
                 <div className="flex-1 flex flex-col gap-4 w-full">
                   {/* Current move eval badge */}
                   {currentRow && (
-                    <div className="p-3 bg-zinc-950 rounded-xl border border-zinc-800 text-xs font-mono flex flex-col gap-1">
+                    <div className="p-3 bg-noir-bg rounded-xl border border-noir-line text-xs font-mono flex flex-col gap-1">
                       <div className="flex justify-between items-center">
-                        <span className="text-zinc-400">
+                        <span className="text-noir-muted">
                           Lance {currentRow.ply}: <strong>{currentRow.san}</strong>
                         </span>
                         <span
@@ -504,18 +505,18 @@ export default function LibraryPage() {
                               : currentRow.label === "best"
                               ? "bg-emerald-950 text-emerald-300 border border-emerald-800"
                               : currentRow.label === "inaccuracy"
-                              ? "bg-amber-950 text-amber-300 border border-amber-800"
+                              ? "bg-bronze/10 text-bronze border border-bronze/30"
                               : currentRow.label === "mistake"
                               ? "bg-orange-950 text-orange-300 border border-orange-800"
                               : currentRow.label === "blunder"
                               ? "bg-rose-950 text-rose-300 border border-rose-800"
-                              : "bg-zinc-800 text-zinc-400"
+                              : "bg-noir-raised text-noir-muted"
                           }`}
                         >
                           {currentRow.label.toUpperCase()}
                         </span>
                       </div>
-                      <div className="text-[11px] text-zinc-400">
+                      <div className="text-[11px] text-noir-muted">
                         Perda CP: <span className="text-rose-400 font-bold">{currentRow.cpLoss}</span> | Fase: {currentRow.phase}
                       </div>
                       {currentRow.best && (
@@ -527,7 +528,7 @@ export default function LibraryPage() {
                   )}
 
                   {/* Moves scroll list */}
-                  <div className="max-h-60 overflow-y-auto p-2 bg-zinc-950 rounded-xl border border-zinc-800 grid grid-cols-2 gap-1 font-mono text-xs">
+                  <div className="max-h-60 overflow-y-auto p-2 bg-noir-bg rounded-xl border border-noir-line grid grid-cols-2 gap-1 font-mono text-xs">
                     {parsedMoves.map((m, idx) => {
                       const plyNum = idx + 1;
                       const isSelected = plyNum === currentPly;
@@ -538,8 +539,8 @@ export default function LibraryPage() {
                           onClick={() => setCurrentPly(plyNum)}
                           className={`px-2 py-1 rounded text-left flex justify-between items-center transition-all ${
                             isSelected
-                              ? "bg-amber-500/20 border border-amber-500/60 text-amber-300 font-bold"
-                              : "hover:bg-zinc-900 text-zinc-300"
+                              ? "bg-bronze/20 border border-bronze/60 text-bronze font-bold"
+                              : "hover:bg-noir-surface text-noir-muted"
                           }`}
                         >
                           <span>
@@ -554,7 +555,7 @@ export default function LibraryPage() {
                                   : moveEval.label === "mistake"
                                   ? "bg-orange-900/60 text-orange-300"
                                   : moveEval.label === "inaccuracy"
-                                  ? "bg-amber-900/60 text-amber-300"
+                                  ? "bg-bronze/20 text-bronze"
                                   : "bg-emerald-900/60 text-emerald-300"
                               }`}
                             >
@@ -568,17 +569,17 @@ export default function LibraryPage() {
 
                   {/* Notebook Textarea */}
                   <div className="flex flex-col gap-2 mt-2">
-                    <span className="text-xs font-mono uppercase text-zinc-400">Caderno de Anotações</span>
+                    <span className="text-xs font-mono uppercase text-noir-muted">Caderno de Anotações</span>
                     <textarea
                       value={noteText}
                       onChange={(e) => setNoteText(e.target.value)}
                       placeholder="Anote suas impressões, lições e ideias sobre esta partida..."
-                      className="w-full h-24 bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-xs font-mono text-zinc-200 resize-none focus:outline-none focus:border-amber-500"
+                      className="w-full h-24 bg-noir-bg border border-noir-line rounded-xl p-3 text-xs font-mono text-noir-ink resize-none focus:outline-none focus:border-bronze"
                     />
                     <div className="flex justify-end">
                       <button
                         onClick={handleSaveNote}
-                        className="px-4 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-amber-400 text-xs font-semibold rounded-lg transition-all border border-zinc-700"
+                        className="px-4 py-1.5 bg-noir-raised hover:bg-noir-line text-bronze text-xs font-semibold rounded-lg transition-all border border-noir-line"
                       >
                         Salvar Anotação
                       </button>
@@ -588,7 +589,7 @@ export default function LibraryPage() {
               </div>
             </div>
           ) : (
-            <div className="bg-zinc-900/40 border border-zinc-800 rounded-2xl p-12 text-center text-zinc-500 text-xs">
+            <div className="bg-noir-surface/40 border border-noir-line rounded-2xl p-12 text-center text-noir-muted text-xs">
               Selecione uma partida na lista à esquerda para analisar e revisar.
             </div>
           )}
