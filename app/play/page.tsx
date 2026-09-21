@@ -476,7 +476,14 @@ function PlayContent() {
       // Always compute hint with full Grandmaster strength; priority jumps queue front.
       // ponytail: 6s Budget real (Stockfish WASM single-thread); fallback rotulado, nunca "GM"
       const ev = await Promise.race([
-        engine.analyze(fen, 12, { limitStrength: false, priority: true }),
+        engine.analyze(fen, 12, {
+          limitStrength: false,
+          priority: true,
+          // ponytail: live EvalBar; same fen guard as the final staleness check below
+          onProgress: (partial) => {
+            if (game.fen() === fen) setLastEval(partial);
+          },
+        }),
         new Promise<null>((res) => setTimeout(() => res(null), 6000)),
       ]);
       if (!ev) {

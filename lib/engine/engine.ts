@@ -6,6 +6,8 @@ export interface Eval {
   best: string;
   // ponytail: true = mock 1-ply, UI must label as simplified, never "GM"
   fallback?: boolean;
+  // ponytail: search depth that produced this eval (streamed partials only)
+  depth?: number;
 }
 
 export interface EngineOptions {
@@ -13,12 +15,19 @@ export interface EngineOptions {
   elo?: number;
   // ponytail: jump queue front (user hints); no UCI stop-preemption, waits active search
   priority?: boolean;
+  // ponytail: called with each parsed `info depth` line; guard staleness at call site
+  onProgress?: (partial: Eval) => void;
 }
 
 export interface Engine {
   setElo(elo: number): Promise<void>;
   analyze(fen: string, depth?: number, options?: EngineOptions): Promise<Eval>;
   quit(): void;
+}
+
+export function parseUciDepth(infoLine: string): number | null {
+  const m = infoLine.match(/^info depth (\d+)/);
+  return m ? parseInt(m[1], 10) : null;
 }
 
 export function parseUciInfo(infoLine: string, bestLine: string): Eval {
@@ -151,8 +160,15 @@ interface QueuedTask {
   reject: (err: unknown) => void;
 }
 
-// Real engine: Stockfish 18 served from public as Web Worker speaking raw UCI.
+// Real engine: Stockfish 19 (nmrugg single-thread lite build) served from public
+// as Web Worker speaking raw UCI. Binaries are copied from the npm package at
+// dev/build time (scripts/copy-stockfish.mjs) — keep in sync with package.json.
 // Uses a serialized command queue and handshake synchronization to prevent race conditions.
+//
+// Why not lila-stockfish-web: multithreaded builds need SharedArrayBuffer +
+// COEP require-corp (breaks cross-origin loads) and are AGPL-3.0. The lite
+// single-thread build runs everywhere with no special headers.
+export const STOCKFISH_FILE = "stockfish-19-lite-single.js";
 export function createStockfishEngine(): Engine {
   if (typeof window === "undefined" || typeof Worker === "undefined") {
     return createMockEngine();
@@ -185,7 +201,7 @@ export function createStockfishEngine(): Engine {
   }
 
   try {
-    worker = new Worker("/stockfish/stockfish-18-lite-single.js");
+    worker = new Worker(`/stockfish/${STOCKFISH_FILE}`);
 
     worker.onerror = () => {
       hasFailed = true;
@@ -208,6 +224,18 @@ export function createStockfishEngine(): Engine {
 
       if (line.startsWith("info depth")) {
         lastInfoLine = line;
+        const task = activeTask;
+        const onProgress = task?.options?.onProgress;
+        if (task && onProgress) {
+          const depth = parseUciDepth(line);
+          if (depth !== null) {
+            try {
+              onProgress({ ...parseUciInfo(line, ""), depth });
+            } catch {
+              // ignore progress listener errors; final result still resolves
+            }
+          }
+        }
       }
 
       if (line.startsWith("bestmove") && activeTask) {
