@@ -7,12 +7,9 @@ import { Chess } from "chess.js";
 import Board from "@/components/Board";
 import curatedGamesData from "@/data/games.json";
 import repertoireData from "@/data/repertoire.json";
-import {
-  fetchExplorerMoves,
-  fetchExplorerStats,
-  type ExplorerMove,
-  type ExplorerStats,
-} from "@/lib/lichess/explorer";
+import { fetchExplorerStats } from "@/lib/lichess/explorer";
+import { useExplorer } from "@/hooks/useExplorer";
+import { postCoachJson } from "@/lib/coach/client";
 import type { ExploreResponse } from "@/lib/coach/schemas";
 import type { DrawShape } from "chessgroundx/draw";
 import type { Key } from "chessgroundx/types";
@@ -96,8 +93,7 @@ function StudyContent() {
   const [isCommentLoading, setIsCommentLoading] = useState(false);
 
   // Explorer state
-  const [explorerMoves, setExplorerMoves] = useState<ExplorerMove[]>([]);
-  const [explorerStats, setExplorerStats] = useState<ExplorerStats | null>(null);
+  const { explorerMoves, explorerStats, loadMoves, loadStats, resetExplorer } = useExplorer();
   const [freeExploreFen, setFreeExploreFen] = useState<string | null>(null);
   const [freeExploreShapes, setFreeExploreShapes] = useState<DrawShape[]>([]);
 
@@ -130,8 +126,7 @@ function StudyContent() {
     setIsExploreMode(false);
     setFreeExploreFen(null);
     setFreeExploreShapes([]);
-    setExplorerMoves([]);
-    setExplorerStats(null);
+    resetExplorer();
   };
 
   // Fetch coach comment for current ply
@@ -157,19 +152,14 @@ function StudyContent() {
 
       try {
         const stats = await fetchExplorerStats(fenAfter);
-        const res = await fetch("/api/coach/explore", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            fenBefore,
-            sanPlayed,
-            cpLoss: 0,
-            explorerStats: stats,
-            openingName: activeChapter.title,
-          }),
+        const data = await postCoachJson<ExploreResponse>("/api/coach/explore", {
+          fenBefore,
+          sanPlayed,
+          cpLoss: 0,
+          explorerStats: stats,
+          openingName: activeChapter.title,
         });
-        if (res.ok && !cancelled) {
-          const data = (await res.json()) as ExploreResponse;
+        if (!cancelled) {
           setCommentsCache((prev) => ({ ...prev, [cacheKey]: data }));
         }
       } catch {
@@ -205,12 +195,7 @@ function StudyContent() {
       const fenAfter = c.fen();
       setFreeExploreFen(fenAfter);
 
-      const [moves, stats] = await Promise.all([
-        fetchExplorerMoves(fenAfter),
-        fetchExplorerStats(fenAfter),
-      ]);
-      setExplorerMoves(moves.slice(0, 5));
-      setExplorerStats(stats);
+      await Promise.all([loadMoves(fenAfter), loadStats(fenAfter)]);
       setFreeExploreShapes([{ orig: from as Key, dest: to as Key, brush: "green" }]);
     } catch {
       // illegal move ignored

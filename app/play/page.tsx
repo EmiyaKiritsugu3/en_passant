@@ -22,7 +22,8 @@ import {
   subscribeAudioMuted,
 } from "@/lib/sound/audio";
 import { classifyMove, detectPhase, phaseAverages, type Label, type Phase } from "@/lib/chess/measure";
-import { createMockEngine, createStockfishEngine, type Engine, type Eval } from "@/lib/engine/engine";
+import { createMockEngine, type Engine, type Eval } from "@/lib/engine/engine";
+import { useEngine } from "@/hooks/useEngine";
 import {
   applyPostgame,
   DEFAULT_PROFILE,
@@ -32,7 +33,7 @@ import {
   type Profile,
 } from "@/lib/profile/store";
 import { appendMessage, getChatSnapshot, subscribeChat, type ChatMessage } from "@/lib/chat/store";
-import { enqueue } from "@/lib/coach/queue";
+import { postCoachWithQueue } from "@/lib/coach/client";
 import type { PostgameResponse, TurnResponse } from "@/lib/coach/schemas";
 import { generateMoveAnalysis, type MoveAnalysisInput } from "@/lib/coach/analysis";
 import { collectEvals, bestMoveEndgameAware } from "@/lib/postgame";
@@ -80,7 +81,23 @@ function PlayContent() {
   const profile = useSyncExternalStore(subscribeProfile, getProfileSnapshot, () => DEFAULT_PROFILE);
   const playerRating = profile.rating;
 
-  const engineRef = useRef<Engine | null>(null);
+  const engineRef = useEngine(
+    (eng) => {
+      let timer: NodeJS.Timeout | null = null;
+      // If user chose Black, engine (White) must make the first move!
+      if (color === "black" && game.history().length === 0 && game.turn() === "w") {
+        timer = setTimeout(() => {
+          if (game.history().length === 0 && game.turn() === "w") {
+            makeEngineMove(game.fen(), eng);
+          }
+        }, 300);
+      }
+      return () => {
+        if (timer) clearTimeout(timer);
+      };
+    },
+    [color]
+  );
   const profileRef = useRef<Profile>(DEFAULT_PROFILE);
   const eloSetRef = useRef(false);
   const resignedRef = useRef(false);
@@ -202,7 +219,7 @@ function PlayContent() {
     }
   };
 
-  const makeEngineMove = async (currentFen: string, engineInstance?: Engine) => {
+  async function makeEngineMove(currentFen: string, engineInstance?: Engine) {
     const engineColor = color === "white" ? "b" : "w";
     if (game.turn() !== engineColor || game.isGameOver() || resignedRef.current) {
       return;
@@ -292,33 +309,7 @@ function PlayContent() {
     } finally {
       setIsEngineThinking(false);
     }
-  };
-
-  useEffect(() => {
-    let eng: Engine;
-    try {
-      eng = createStockfishEngine();
-    } catch {
-      eng = createMockEngine();
-    }
-    engineRef.current = eng;
-
-    let timer: NodeJS.Timeout | null = null;
-    // If user chose Black, engine (White) must make the first move!
-    if (color === "black" && game.history().length === 0 && game.turn() === "w") {
-      timer = setTimeout(() => {
-        if (game.history().length === 0 && game.turn() === "w") {
-          makeEngineMove(game.fen(), eng);
-        }
-      }, 300);
-    }
-
-    return () => {
-      if (timer) clearTimeout(timer);
-      eng.quit();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [color]);
+  }
 
   const ensureElo = async () => {
     if (!eloSetRef.current && engineRef.current) {
@@ -348,26 +339,7 @@ function PlayContent() {
       isCheckmate?: boolean;
     }
   ): Promise<TurnResponse> => {
-    const doFetch = async () => {
-      const res = await fetch("/api/coach/turn", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return (await res.json()) as TurnResponse;
-    };
-
-    try {
-      return await doFetch();
-    } catch {
-      try {
-        return await doFetch();
-      } catch {
-        enqueue(payload);
-        return generateMoveAnalysis(payload);
-      }
-    }
+    return postCoachWithQueue("/api/coach/turn", payload, () => generateMoveAnalysis(payload));
   };
 
   const onMove = async (from: string, to: string) => {
@@ -553,32 +525,16 @@ function PlayContent() {
       lastEval,
     };
 
-    const doFetch = async () => {
-      const res = await fetch("/api/coach/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return (await res.json()) as { reply: string };
-    };
-
     try {
-      let data: { reply: string };
-      try {
-        data = await doFetch();
-      } catch {
-        data = await doFetch(); // retry 1x
-      }
+      const data = await postCoachWithQueue(
+        "/api/coach/chat",
+        { type: "chat", ...payload },
+        () => ({
+          reply: "Coach offline, mensagem na fila. Analise a posição atual e busque peças desprotegidas.",
+        })
+      );
       const assistantMsg: ChatMessage = { role: "assistant", content: data.reply };
       appendMessage(assistantMsg);
-    } catch {
-      enqueue({ type: "chat", ...payload });
-      const fallbackMsg: ChatMessage = {
-        role: "assistant",
-        content: "Coach offline, mensagem na fila. Analise a posição atual e busque peças desprotegidas.",
-      };
-      appendMessage(fallbackMsg);
     } finally {
       setIsChatSending(false);
     }

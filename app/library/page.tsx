@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { Chess } from "chess.js";
 import Board from "@/components/Board";
@@ -16,7 +16,8 @@ import {
   type Analysis,
 } from "@/lib/library/storage";
 import { collectEvals, type Row } from "@/lib/postgame";
-import { createMockEngine, createStockfishEngine, type Engine } from "@/lib/engine/engine";
+import { createMockEngine } from "@/lib/engine/engine";
+import { useEngine } from "@/hooks/useEngine";
 import { DEFAULT_PROFILE, getProfileSnapshot, subscribeProfile } from "@/lib/profile/store";
 import { BookOpen, Library } from "lucide-react";
 import type { DrawShape } from "chessgroundx/draw";
@@ -48,18 +49,7 @@ export default function LibraryPage() {
     setSelectedAnalysisIdx(selectedGame ? Math.max(0, selectedGame.analyses.length - 1) : 0);
   }
 
-  const engineRef = useRef<Engine | null>(null);
-
-  useEffect(() => {
-    try {
-      engineRef.current = createStockfishEngine();
-    } catch {
-      engineRef.current = createMockEngine();
-    }
-    return () => {
-      engineRef.current?.quit();
-    };
-  }, []);
+  const engineRef = useEngine();
 
   // Parse moves from PGN
   const parsedMoves = useMemo(() => {

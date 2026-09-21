@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { Chess } from "chess.js";
 import Board from "@/components/Board";
@@ -14,13 +14,9 @@ import {
   type Card,
 } from "@/lib/sm2/scheduler";
 import { checkDrillMove } from "@/lib/repertoire/drill";
-import {
-  fetchExplorerMoves,
-  fetchExplorerStats,
-  type ExplorerMove,
-  type ExplorerStats,
-} from "@/lib/lichess/explorer";
-import { createMockEngine, createStockfishEngine, type Engine } from "@/lib/engine/engine";
+import { useExplorer } from "@/hooks/useExplorer";
+import { useEngine } from "@/hooks/useEngine";
+import { postCoachJson } from "@/lib/coach/client";
 import type { ExploreResponse } from "@/lib/coach/schemas";
 import repertoireData from "@/data/repertoire.json";
 import type { DrawShape } from "chessgroundx/draw";
@@ -78,24 +74,12 @@ export default function TrainPage() {
   const [openingShape, setOpeningShape] = useState<DrawShape[]>([]);
 
   // Explorer stats state
-  const [explorerMoves, setExplorerMoves] = useState<ExplorerMove[]>([]);
-  const [explorerStats, setExplorerStats] = useState<ExplorerStats | null>(null);
+  const { explorerMoves, explorerStats, loadMoves, loadStats, resetExplorer } = useExplorer();
   const [coachExplore, setCoachExplore] = useState<ExploreResponse | null>(null);
   const [isExploreLoading, setIsExploreLoading] = useState(false);
   const [lastDeviationEval, setLastDeviationEval] = useState<{ cpLoss: number; best: string } | null>(null);
 
-  const engineRef = useRef<Engine | null>(null);
-
-  useEffect(() => {
-    try {
-      engineRef.current = createStockfishEngine();
-    } catch {
-      engineRef.current = createMockEngine();
-    }
-    return () => {
-      engineRef.current?.quit();
-    };
-  }, []);
+  const engineRef = useEngine();
 
   // ==================== SM-2 HANDLERS ====================
   const handleSm2Move = (from: string, to: string) => {
@@ -174,8 +158,8 @@ export default function TrainPage() {
     setDrillCompleted(false);
     setDrillStatus("");
     setOpeningShape([]);
-    setExplorerMoves([]);
-    setExplorerStats(null);
+    setLastDeviationEval(null);
+    resetExplorer();
     setCoachExplore(null);
     setLastDeviationEval(null);
 
@@ -276,8 +260,7 @@ export default function TrainPage() {
         }
 
         // Load explorer continuations for the position
-        const moves = await fetchExplorerMoves(fenAfter);
-        setExplorerMoves(moves.slice(0, 5));
+        await loadMoves(fenAfter);
       }
     } else {
       // EXPLORE MODE: Free exploration of any legal move
@@ -300,30 +283,18 @@ export default function TrainPage() {
       }
 
       try {
-        const [moves, stats] = await Promise.all([
-          fetchExplorerMoves(fenAfter),
-          fetchExplorerStats(fenAfter),
-        ]);
-        setExplorerMoves(moves.slice(0, 5));
-        setExplorerStats(stats);
+        const [, stats] = await Promise.all([loadMoves(fenAfter), loadStats(fenAfter)]);
 
         // Fetch coach evaluation
         try {
-          const res = await fetch("/api/coach/explore", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              fenBefore,
-              sanPlayed: move.san,
-              cpLoss,
-              explorerStats: stats,
-              openingName: stats?.opening?.name || activeLine.name,
-            }),
+          const data = await postCoachJson<ExploreResponse>("/api/coach/explore", {
+            fenBefore,
+            sanPlayed: move.san,
+            cpLoss,
+            explorerStats: stats,
+            openingName: stats?.opening?.name || activeLine.name,
           });
-          if (res.ok) {
-            const data = (await res.json()) as ExploreResponse;
-            setCoachExplore(data);
-          }
+          setCoachExplore(data);
         } catch {
           // fallback coach response
           setCoachExplore({
