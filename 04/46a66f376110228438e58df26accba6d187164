@@ -1,0 +1,20 @@
+e2e/fallback.spec.ts
+  h_5d68cec99831c8 1-28
+e2e/helpers.ts
+  h_5d68cec99831c8 1-21
+e2e/move.spec.ts
+  h_5d68cec99831c8 1-24
+e2e/engine.spec.ts
+  h_5d68cec99831c8 1-40
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "0446a66f376110228438e58df26accba6d187164",
+  "prompts": {},
+  "humans": {
+    "h_5d68cec99831c8": {
+      "author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
