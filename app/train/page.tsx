@@ -23,8 +23,8 @@ import {
 import { createMockEngine, createStockfishEngine, type Engine } from "@/lib/engine/engine";
 import type { ExploreResponse } from "@/lib/coach/schemas";
 import repertoireData from "@/data/repertoire.json";
-import type { DrawShape } from "chessground/draw";
-import type { Key } from "chessground/types";
+import type { DrawShape } from "chessgroundx/draw";
+import type { Key } from "chessgroundx/types";
 import { CircleCheck } from "lucide-react";
 
 type MainTab = "sm2" | "openings";

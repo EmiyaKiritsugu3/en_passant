@@ -14,8 +14,8 @@ import {
   type ExplorerStats,
 } from "@/lib/lichess/explorer";
 import type { ExploreResponse } from "@/lib/coach/schemas";
-import type { DrawShape } from "chessground/draw";
-import type { Key } from "chessground/types";
+import type { DrawShape } from "chessgroundx/draw";
+import type { Key } from "chessgroundx/types";
 
 interface Chapter {
   id: string;

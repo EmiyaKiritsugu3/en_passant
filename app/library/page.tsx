@@ -19,8 +19,8 @@ import { collectEvals, type Row } from "@/lib/postgame";
 import { createMockEngine, createStockfishEngine, type Engine } from "@/lib/engine/engine";
 import { DEFAULT_PROFILE, getProfileSnapshot, subscribeProfile } from "@/lib/profile/store";
 import { BookOpen, Library } from "lucide-react";
-import type { DrawShape } from "chessground/draw";
-import type { Key } from "chessground/types";
+import type { DrawShape } from "chessgroundx/draw";
+import type { Key } from "chessgroundx/types";
 
 const EMPTY_GAMES: SavedGame[] = [];
 

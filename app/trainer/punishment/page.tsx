@@ -7,8 +7,8 @@ import Board from "@/components/Board";
 import { getDrill, londonDrills } from "@/lib/punishment/london";
 import { accepts, hintText, qualityFor, reduce, type LadderStage } from "@/lib/punishment/ladder";
 import { addCard } from "@/lib/sm2/scheduler";
-import type { DrawShape } from "chessground/draw";
-import type { Key } from "chessground/types";
+import type { DrawShape } from "chessgroundx/draw";
+import type { Key } from "chessgroundx/types";
 
 export default function PunishmentPage() {
   const [drillId, setDrillId] = useState(londonDrills[0].id);

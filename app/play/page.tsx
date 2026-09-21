@@ -3,8 +3,8 @@
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useSearchParams } from "next/navigation";
 import { Chess, type Square } from "chess.js";
-import type { Key } from "chessground/types";
-import type { DrawShape } from "chessground/draw";
+import type { Key } from "chessgroundx/types";
+import type { DrawShape } from "chessgroundx/draw";
 import { Flag, Volume2, VolumeX } from "lucide-react";
 import Board from "@/components/Board";
 import EvalBar from "@/components/arena/EvalBar";
