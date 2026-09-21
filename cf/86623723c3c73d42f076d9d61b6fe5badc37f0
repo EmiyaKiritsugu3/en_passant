@@ -1,0 +1,18 @@
+lib/library/storage.test.ts
+  h_5d68cec99831c8 1,17-65
+lib/library/storage.ts
+  h_5d68cec99831c8 17-20,22-27,29-30,36-159,163,167,189,195,201,205,209,213,218,222,227-228,231-248
+package.json
+  h_5d68cec99831c8 35
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "cf86623723c3c73d42f076d9d61b6fe5badc37f0",
+  "prompts": {},
+  "humans": {
+    "h_5d68cec99831c8": {
+      "author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
