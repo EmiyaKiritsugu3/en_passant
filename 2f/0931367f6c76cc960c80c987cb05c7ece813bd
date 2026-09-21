@@ -1,0 +1,22 @@
+app/play/page.tsx
+  h_5d68cec99831c8 674
+components/Board.tsx
+  h_5d68cec99831c8 12
+components/chessground-pieces.css
+  h_5d68cec99831c8 1-40
+data/home-modules.json
+  h_5d68cec99831c8 4
+e2e/play-arena.spec.ts
+  h_5d68cec99831c8 39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "2f0931367f6c76cc960c80c987cb05c7ece813bd",
+  "prompts": {},
+  "humans": {
+    "h_5d68cec99831c8": {
+      "author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
