@@ -8,6 +8,9 @@ export interface Eval {
   fallback?: boolean;
   // ponytail: search depth that produced this eval (streamed partials only)
   depth?: number;
+  // ponytail: side to move in the analyzed FEN. UCI cp/mate are relative to
+  // this side; display code must convert to White perspective (see evalbar.ts).
+  turn?: "w" | "b";
 }
 
 export interface EngineOptions {
@@ -23,6 +26,14 @@ export interface Engine {
   setElo(elo: number): Promise<void>;
   analyze(fen: string, depth?: number, options?: EngineOptions): Promise<Eval>;
   quit(): void;
+}
+
+export function turnOfFen(fen: string): "w" | "b" {
+  try {
+    return new Chess(fen).turn();
+  } catch {
+    return fen.split(" ")[1] === "b" ? "b" : "w";
+  }
 }
 
 export function parseUciDepth(infoLine: string): number | null {
@@ -137,14 +148,15 @@ export function createMockEngine(): Engine {
   return {
     async setElo() {},
     async analyze(fen: string) {
+      const turn = turnOfFen(fen);
       try {
         const c = new Chess(fen);
         const white = c.turn() === "w";
         const { best, cp } = evaluatePositionWithMinimax(c, white);
-        return { cp, mate: null, best, fallback: true };
+        return { cp, mate: null, best, fallback: true, turn };
       } catch {
         const white = fen.includes(" w ");
-        return { cp: white ? 20 : -20, mate: null, best: white ? "e2e4" : "e7e5", fallback: true };
+        return { cp: white ? 20 : -20, mate: null, best: white ? "e2e4" : "e7e5", fallback: true, turn };
       }
     },
     quit() {},
@@ -230,7 +242,7 @@ export function createStockfishEngine(): Engine {
           const depth = parseUciDepth(line);
           if (depth !== null) {
             try {
-              onProgress({ ...parseUciInfo(line, ""), depth });
+              onProgress({ ...parseUciInfo(line, ""), depth, turn: turnOfFen(task.fen) });
             } catch {
               // ignore progress listener errors; final result still resolves
             }
@@ -246,7 +258,7 @@ export function createStockfishEngine(): Engine {
         const task = activeTask;
         activeTask = null;
         isProcessing = false;
-        const evaluation = parseUciInfo(lastInfoLine, line);
+        const evaluation = { ...parseUciInfo(lastInfoLine, line), turn: turnOfFen(task.fen) };
         lastInfoLine = "";
         task.resolve(evaluation);
         processNext();

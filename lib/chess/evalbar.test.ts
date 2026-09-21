@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { calculateEvalPercentage, formatEvalScore } from "./evalbar";
+import { calculateEvalPercentage, formatEvalScore, toWhitePerspective } from "./evalbar";
 
 describe("EvalBar calculations", () => {
   describe("formatEvalScore", () => {
@@ -56,6 +56,19 @@ describe("EvalBar calculations", () => {
       const hugeDeficit = calculateEvalPercentage(-5000, null, "white");
       expect(hugeDeficit).toBeGreaterThanOrEqual(4);
       expect(hugeDeficit).toBeLessThanOrEqual(96);
+    });
+  });
+
+  describe("toWhitePerspective", () => {
+    it("keeps white-to-move scores as-is", () => {
+      expect(toWhitePerspective(120, null, "w")).toEqual({ cp: 120, mate: null });
+    });
+
+    it("flips black-to-move scores (UCI is side-relative)", () => {
+      // Black up a pawn with black to move -> white perspective is -100
+      expect(toWhitePerspective(100, null, "b")).toEqual({ cp: -100, mate: null });
+      // Black mates in 2 with black to move -> white perspective is mated in 2
+      expect(toWhitePerspective(100000, 2, "b")).toEqual({ cp: -100000, mate: -2 });
     });
   });
 });
