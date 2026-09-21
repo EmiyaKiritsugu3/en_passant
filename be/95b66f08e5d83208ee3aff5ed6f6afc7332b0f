@@ -1,0 +1,26 @@
+app/api/lichess/explorer/route.ts
+  h_5d68cec99831c8 1-20
+app/api/lichess/tablebase/route.ts
+  h_5d68cec99831c8 1-20
+lib/lichess/explorer.test.ts
+  h_5d68cec99831c8 24-26
+lib/lichess/explorer.ts
+  h_5d68cec99831c8 41-42
+lib/lichess/tablebase.ts
+  h_5d68cec99831c8 8
+lib/lichess/upstream.test.ts
+  h_5d68cec99831c8 1-65
+lib/lichess/upstream.ts
+  h_5d68cec99831c8 1-85
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "be95b66f08e5d83208ee3aff5ed6f6afc7332b0f",
+  "prompts": {},
+  "humans": {
+    "h_5d68cec99831c8": {
+      "author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
