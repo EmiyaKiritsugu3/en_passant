@@ -1,0 +1,18 @@
+.env.example
+  h_5d68cec99831c8 3-6
+lib/lichess/upstream.test.ts
+  h_5d68cec99831c8 11,54-67
+lib/lichess/upstream.ts
+  h_5d68cec99831c8 30,34,43-50,81-82
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "33403dade023c21cf39571592e7c2b376c8ea9b7",
+  "prompts": {},
+  "humans": {
+    "h_5d68cec99831c8": {
+      "author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
