@@ -21,6 +21,9 @@ describe("explorer", () => {
     expect(r1[0].san).toBe("e4");
     expect(r2).toEqual(r1);
     expect(stub).toHaveBeenCalledTimes(1);
+    expect(stub.mock.calls[0][0]).toBe(
+      "/api/lichess/explorer?fen=startpos"
+    );
   });
 
   it("falls back to [] on network failure", async () => {

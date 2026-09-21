@@ -5,13 +5,7 @@ export interface TBResult {
 
 export async function fetchTablebase(fen: string): Promise<TBResult | null> {
   try {
-    const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), 5000);
-    const res = await fetch(
-      `https://tablebase.lichess.ovh/standard?fen=${encodeURIComponent(fen)}`,
-      { signal: ctrl.signal }
-    );
-    clearTimeout(t);
+    const res = await fetch(`/api/lichess/tablebase?fen=${encodeURIComponent(fen)}`);
     if (!res.ok) return null;
     const data = await res.json();
     const best =
