@@ -1,0 +1,22 @@
+app/error.tsx
+  h_5d68cec99831c8 1-27
+app/loading.tsx
+  h_5d68cec99831c8 1-7
+next.config.ts
+  h_5d68cec99831c8 4-29
+public/manifest.webmanifest
+  h_5d68cec99831c8 2,5,7,11-13
+public/sw.js
+  h_5d68cec99831c8 1,23-28,32,41-58,62
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "24d6005ee5dd4f508673ac15045e3712407411d3",
+  "prompts": {},
+  "humans": {
+    "h_5d68cec99831c8": {
+      "author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
