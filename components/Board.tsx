@@ -9,6 +9,7 @@ import type { Dests, Key } from "chessgroundx/types";
 import "chessgroundx/assets/chessground.base.css";
 import "./chessground-noir.css";
 import "chessgroundx/assets/chessground.cburnett.css";
+import "./chessground-pieces.css";
 
 function getLegalDests(fen: string): { dests: Dests; turnColor: "white" | "black" } {
   const dests: Dests = new Map();

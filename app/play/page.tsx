@@ -671,7 +671,7 @@ function PlayContent() {
             <PlayerCard
               name={
                 aiDifficulty === "grandmaster"
-                  ? "GM Coach (Stockfish 18)"
+                  ? "GM Coach (Stockfish 19)"
                   : aiDifficulty === "master"
                   ? "Mestre Stockfish"
                   : "Coach Adaptativo"
