@@ -8,6 +8,7 @@ import {
 beforeEach(() => {
   clearUpstreamCache();
   vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
 });
 
 describe("upstream cache", () => {
@@ -48,6 +49,20 @@ describe("upstream cache", () => {
     await expect(fetchMastersExplorer("fen3")).resolves.toBeNull();
     await expect(fetchMastersExplorer("fen3")).resolves.toBeNull();
     expect(stub).toHaveBeenCalledTimes(2);
+  });
+
+  it("sends the explorer token when configured", async () => {
+    vi.stubEnv("LICHESS_EXPLORER_TOKEN", "tok123");
+    const stub = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ white: 1 }),
+    });
+    vi.stubGlobal("fetch", stub);
+    await fetchMastersExplorer("fen5");
+    expect(stub.mock.calls[0][1]).toMatchObject({
+      headers: { Authorization: "Bearer tok123" },
+    });
+    vi.unstubAllEnvs();
   });
 
   it("caches tablebase separately from explorer", async () => {

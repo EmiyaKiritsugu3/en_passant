@@ -27,17 +27,25 @@ export function clearUpstreamCache(): void {
   inFlight.clear();
 }
 
-async function fetchJson(url: string, timeoutMs: number): Promise<unknown | null> {
+async function fetchJson(url: string, timeoutMs: number, headers?: HeadersInit): Promise<unknown | null> {
   try {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), timeoutMs);
-    const res = await fetch(url, { signal: ctrl.signal });
+    const res = await fetch(url, { signal: ctrl.signal, headers });
     clearTimeout(t);
     if (!res.ok) return null;
     return (await res.json()) as unknown;
   } catch {
     return null;
   }
+}
+
+// Opening explorer now requires a Lichess OAuth token server-side.
+// Without LICHESS_EXPLORER_TOKEN upstream 401s and callers get null
+// (clients fall back to offline data). Tablebase stays open.
+function explorerHeaders(): HeadersInit | undefined {
+  const token = process.env.LICHESS_EXPLORER_TOKEN;
+  return token ? { Authorization: `Bearer ${token}` } : undefined;
 }
 
 function cached<T>(key: string, ttlMs: number, fn: () => Promise<T | null>): Promise<T | null> {
@@ -70,7 +78,8 @@ export function fetchMastersExplorer(fen: string): Promise<MastersExplorerData |
   return cached(`masters:${fen}`, MASTERS_TTL_MS, () =>
     fetchJson(
       `https://explorer.lichess.ovh/masters?fen=${encodeURIComponent(fen)}`,
-      6000
+      6000,
+      explorerHeaders()
     ).then((d) => (d === null ? null : (d as MastersExplorerData)))
   );
 }
