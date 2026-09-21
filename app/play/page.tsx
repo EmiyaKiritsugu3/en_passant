@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Chess, type Square } from "chess.js";
 import type { Key } from "chessgroundx/types";
 import type { DrawShape } from "chessgroundx/draw";
-import { Flag, Volume2, VolumeX } from "lucide-react";
+import { Flag, Undo2, Volume2, VolumeX } from "lucide-react";
 import Board from "@/components/Board";
 import EvalBar from "@/components/arena/EvalBar";
 import PlayerCard from "@/components/arena/PlayerCard";
@@ -568,6 +568,33 @@ function PlayContent() {
     }
   };
 
+  const handleTakeback = () => {
+    if (
+      isEngineThinking ||
+      isPostgameLoading ||
+      resignedRef.current ||
+      game.isGameOver() ||
+      movesHistory.length < 2
+    ) {
+      return;
+    }
+    // Undo one full move (engine reply + player move) so it's the player's turn again
+    const undoneReply = game.undo();
+    const undoneMine = game.undo();
+    if (!undoneReply || !undoneMine) return;
+    setFen(game.fen());
+    setMovesHistory((prev) => {
+      const next = prev.slice(0, -2);
+      setViewingPly(next.length);
+      return next;
+    });
+    setArrow([]);
+    setLabel(null);
+    setLastEval(null);
+    setNotice("Lance desfeito — sua vez de novo.");
+    playMoveSound();
+  };
+
   const handleResign = () => {
     if (game.isGameOver() || resignedRef.current || isEngineThinking || isPostgameLoading) return;
     if (!confirmResign) {
@@ -626,11 +653,23 @@ function PlayContent() {
               onChange={(e) => setAiDifficulty(e.target.value as "grandmaster" | "master" | "adaptive")}
               className="bg-transparent text-xs font-mono text-bronze font-semibold focus:outline-none cursor-pointer"
             >
-              <option value="grandmaster" className="bg-noir-ink text-noir-bg">Grande Mestre (SF 18)</option>
+              <option value="grandmaster" className="bg-noir-ink text-noir-bg">Grande Mestre (SF 19)</option>
               <option value="master" className="bg-noir-ink text-noir-bg">Mestre (~2200)</option>
               <option value="adaptive" className="bg-noir-ink text-noir-bg">Adaptativo ({playerRating})</option>
             </select>
           </div>
+
+          {/* Takeback Button (undo one full move) */}
+          <button
+            type="button"
+            onClick={handleTakeback}
+            disabled={game.isGameOver() || resigned || movesHistory.length < 2 || isPostgameLoading || isEngineThinking}
+            title="Voltar um lance (desfazer sua última jogada e a resposta)"
+            aria-label="Voltar um lance"
+            className="p-2 rounded-xl bg-noir-raised border border-noir-line text-noir-muted hover:text-bronze transition-colors text-sm disabled:opacity-40"
+          >
+            <Undo2 size={16} />
+          </button>
 
           {/* Resign Button (two-step confirm) */}
           <button
