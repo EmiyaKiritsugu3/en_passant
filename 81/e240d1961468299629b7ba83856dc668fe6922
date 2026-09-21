@@ -1,0 +1,26 @@
+app/library/page.tsx
+  h_5d68cec99831c8 22-23
+app/play/page.tsx
+  h_5d68cec99831c8 6-7
+app/study/page.tsx
+  h_5d68cec99831c8 17-18
+app/train/page.tsx
+  h_5d68cec99831c8 26-27
+app/trainer/punishment/page.tsx
+  h_5d68cec99831c8 10-11
+components/Board.tsx
+  h_5d68cec99831c8 5-9,11
+package.json
+  h_5d68cec99831c8 16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "81e240d1961468299629b7ba83856dc668fe6922",
+  "prompts": {},
+  "humans": {
+    "h_5d68cec99831c8": {
+      "author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
