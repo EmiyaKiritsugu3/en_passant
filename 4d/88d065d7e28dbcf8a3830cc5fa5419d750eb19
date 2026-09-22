@@ -1,0 +1,18 @@
+app/study/page.tsx
+  h_5d68cec99831c8 25-27,66-68,83-85,396-402,404-421,437-446
+app/train/page.tsx
+  h_5d68cec99831c8 29-36,40-42,91,174,229,251,664-672,702-736
+data/repertoire.json
+  h_5d68cec99831c8 21-57,74-112,135-179,196-235,258-292,309-353,376-412,429-469,494-534,551-589,612-656,673-715,738-779,796-839,862-907,924-971
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "4d88d065d7e28dbcf8a3830cc5fa5419d750eb19",
+  "prompts": {},
+  "humans": {
+    "h_5d68cec99831c8": {
+      "author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
