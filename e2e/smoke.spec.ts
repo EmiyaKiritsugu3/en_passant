@@ -24,10 +24,10 @@ test("setup → play arena renders correctly", async ({ page }) => {
   await whiteBtn.click();
   await expect(page).toHaveURL(/\/play\?side=white/);
 
-  // Check arena layout elements
+  // Check arena layout elements (brand + coach panel)
   await expect(page.getByText("En Passant")).toBeVisible();
   await expect(page.getByRole("link", { name: /painel/i })).toBeVisible();
-  await expect(page.getByText(/GM Coach|Stockfish/i).first()).toBeVisible();
+  await expect(page.getByText(/Coach \(Motor 19\)/i).first()).toBeVisible();
 
   // Verify board container and chess pieces
   const board = page.locator(".cg-wrap");

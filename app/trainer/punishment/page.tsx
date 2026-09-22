@@ -106,16 +106,14 @@ export default function PunishmentPage() {
     }
     addCard({ fen: drill.fenBlunder, bestMove: uci, context: "London System" }, q);
     setSaved(true);
-    setStatus(q === 0 ? "Salvo no SM-2 para reaprender amanhã." : `Salvo no SM-2 (qualidade ${q}).`);
+    setStatus(q === 0 ? "Salvo para revisar amanhã." : `Salvo para revisar (nota ${q}).`);
   };
 
   return (
     <main className="min-h-screen bg-noir-bg text-noir-ink p-4 md:p-8 flex flex-col items-center">
       <header className="w-full max-w-5xl flex justify-between items-center gap-4 mb-6 border-b border-noir-line pb-4">
         <div>
-          <span className="text-xs font-mono uppercase text-bronze font-semibold">
-            Punishment Lab
-          </span>
+          <span className="text-xs font-mono uppercase text-bronze font-semibold">Caça-erros</span>
           <h1 className="text-2xl font-bold font-display text-noir-ink tracking-tight">London System</h1>
         </div>
         <div className="flex gap-3">
@@ -212,7 +210,7 @@ export default function PunishmentPage() {
                 </div>
                 {!saved ? (
                   <button onClick={saveSm2} className="w-full py-2.5 bg-bronze-deep hover:bg-bronze text-white text-xs font-semibold rounded-xl">
-                    Salvar no SM-2 →
+                    Salvar para revisão →
                   </button>
                 ) : (
                   <button onClick={() => selectDrill(londonDrills[(londonDrills.findIndex((d) => d.id === drillId) + 1) % londonDrills.length].id)} className="w-full py-2.5 bg-noir-raised hover:bg-noir-line text-noir-ink text-xs font-semibold rounded-xl border border-noir-line">

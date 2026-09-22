@@ -153,7 +153,7 @@ export default function ReviewPage() {
               </button>
             )}
             <p className="text-[13px] text-noir-muted text-center">
-              Feitas: {doneCount} · Repetição espaçada SM-2
+              Feitas: {doneCount} · Revisão de hoje
             </p>
           </>
         ) : (
@@ -175,4 +175,4 @@ export default function ReviewPage() {
   );
 }
 
-// ponytail: SM-2-only review. Openings drill/explore/hunt moved to /study lesson flow.
+// ponytail: review-only flow. Openings drill/explore/hunt moved to /study lesson flow.

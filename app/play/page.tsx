@@ -183,7 +183,7 @@ function PlayContent() {
               why: `Perda de ${r.cpLoss} centipawns em lance de ${r.phase}.`,
             })),
           takeaway: "Consolide o cálculo tático e mantenha as peças coordenadas.",
-          homework: "Rever os momentos críticos e treinar no SM-2.",
+          homework: "Rever os momentos críticos e repetir a lição.",
           profileDelta: {},
         };
       }
@@ -504,7 +504,7 @@ function PlayContent() {
         setNotice(
           ev.fallback
             ? `Dica simplificada: ${orig.toUpperCase()} → ${dest.toUpperCase()} (engine indisponível)`
-            : `Dica GM: ${orig.toUpperCase()} → ${dest.toUpperCase()}`
+            : `Dica do coach: ${orig.toUpperCase()} → ${dest.toUpperCase()}`
         );
       } else {
         setNotice("Dica indisponível para esta posição.");
@@ -617,7 +617,7 @@ function PlayContent() {
   return (
     <main aria-labelledby="arena-title" className="min-h-screen bg-noir-bg text-noir-ink flex flex-col items-center select-none pb-8">
       <h1 id="arena-title" className="sr-only">
-        Arena GM — jogar contra Stockfish
+        Jogar — partida contra o motor
       </h1>
       <a
         href="#arena-board"
@@ -640,7 +640,7 @@ function PlayContent() {
               En Passant
             </span>
             <span className="text-noir-muted text-xs">•</span>
-            <span className="text-xs font-semibold text-noir-ink">Arena GM</span>
+            <span className="text-xs font-semibold text-noir-ink">Jogar</span>
           </div>
         </div>
 
@@ -653,9 +653,9 @@ function PlayContent() {
               onChange={(e) => setAiDifficulty(e.target.value as "grandmaster" | "master" | "adaptive")}
               className="bg-transparent text-xs font-mono text-bronze font-semibold focus:outline-none cursor-pointer"
             >
-              <option value="grandmaster" className="bg-noir-ink text-noir-bg">Grande Mestre (SF 19)</option>
-              <option value="master" className="bg-noir-ink text-noir-bg">Mestre (~2200)</option>
-              <option value="adaptive" className="bg-noir-ink text-noir-bg">Adaptativo ({playerRating})</option>
+              <option value="grandmaster" className="bg-noir-ink text-noir-bg">Forte</option>
+              <option value="master" className="bg-noir-ink text-noir-bg">Médio</option>
+              <option value="adaptive" className="bg-noir-ink text-noir-bg">No seu nível ({playerRating})</option>
             </select>
           </div>
 
@@ -710,10 +710,10 @@ function PlayContent() {
             <PlayerCard
               name={
                 aiDifficulty === "grandmaster"
-                  ? "GM Coach (Stockfish 19)"
+                  ? "Coach (Motor 19)"
                   : aiDifficulty === "master"
-                  ? "Mestre Stockfish"
-                  : "Coach Adaptativo"
+                    ? "Mestre"
+                    : "Treinador"
               }
               badge={aiDifficulty === "grandmaster" ? "GM" : "BOT"}
               rating={aiDifficulty === "grandmaster" ? 2800 : aiDifficulty === "master" ? 2200 : playerRating + 250}
@@ -868,13 +868,13 @@ function PlayContent() {
                       href="/train"
                       className="flex-1 min-w-[140px] py-3 bg-emerald-600 hover:bg-emerald-500 text-white text-center text-xs font-semibold rounded-xl transition-all"
                     >
-                      Treinar Erros (SM-2)
+                      Revisar erros
                     </Link>
                     <Link
                       href="/dashboard"
                       className="flex-1 min-w-[140px] py-3 bg-bronze-deep hover:bg-bronze text-white text-center text-xs font-semibold rounded-xl transition-all"
                     >
-                      Ver Painel & Métricas
+                      Ver progresso
                     </Link>
                     <button
                       onClick={() => setPostgame(null)}

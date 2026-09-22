@@ -36,11 +36,11 @@ test.describe("Play Arena — Game & Coach Console", () => {
     await expect(board.locator("piece.black").first()).toBeVisible();
 
     // Player Cards
-    await expect(page.getByText(/GM Coach \(Stockfish 19\)/i)).toBeVisible();
+    await expect(page.getByText(/Coach \(Motor 19\)/i)).toBeVisible();
     await expect(page.getByText(/Você/i).first()).toBeVisible();
 
     // A11y landmarks
-    await expect(page.getByRole("heading", { level: 1, name: /Arena GM/i })).toBeAttached();
+    await expect(page.getByRole("heading", { level: 1, name: /Jogar/i })).toBeAttached();
     await expect(page.getByRole("region", { name: /Tabuleiro e oponente/i })).toBeVisible();
     await expect(page.getByRole("region", { name: /Lances e coach/i })).toBeVisible();
     await expect(page.getByRole("img", { name: /Tabuleiro de xadrez/i })).toBeVisible();
@@ -79,11 +79,11 @@ test.describe("Play Arena — Game & Coach Console", () => {
 
     // Select Master
     await difficultySelect.selectOption("master");
-    await expect(page.getByText(/Mestre Stockfish/i)).toBeVisible();
+    await expect(page.getByText("Mestre", { exact: true })).toBeVisible();
 
     // Select Adaptive
     await difficultySelect.selectOption("adaptive");
-    await expect(page.getByText(/Coach Adaptativo/i)).toBeVisible();
+    await expect(page.getByText(/Treinador/i)).toBeVisible();
   });
 
   test("coach console tab navigation and chat interaction", async ({ page }) => {
@@ -128,12 +128,12 @@ test.describe("Play Arena — Game & Coach Console", () => {
   test("hint button triggers tactial advice", async ({ page }) => {
     await page.goto("/play?side=white");
 
-    const hintBtn = page.getByRole("button", { name: /Pedir Dica Tática/i });
+    const hintBtn = page.getByRole("button", { name: /Pedir dica tática/i });
     await expect(hintBtn).toBeVisible();
     await hintBtn.click();
 
-    // Notice pill should appear with hint generated text (GM or labeled fallback)
-    await expect(page.getByText(/Dica (GM|simplificada):/i)).toBeVisible({ timeout: 15000 });
+    // Notice pill should appear with hint generated text (coach or labeled fallback)
+    await expect(page.getByText(/Dica (do coach|simplificada):/i)).toBeVisible({ timeout: 15000 });
   });
 
   test("making a move on board updates move history", async ({ page }) => {

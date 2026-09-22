@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { GraduationCap, Swords, Brain, User } from "lucide-react";
 
 const TABS = [
-  { href: "/", label: "Aprender", icon: GraduationCap, match: (p: string) => p === "/" },
+  { href: "/", label: "Aprender", icon: GraduationCap, match: (p: string) => p === "/" || p.startsWith("/study") },
   { href: "/play", label: "Jogar", icon: Swords, match: (p: string) => p.startsWith("/play") },
   { href: "/train", label: "Revisar", icon: Brain, match: (p: string) => p.startsWith("/train") },
   {

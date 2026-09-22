@@ -223,7 +223,7 @@ export default function LibraryPage() {
           <div>
             <h2 className="text-lg font-bold text-white">Sua Biblioteca está Vazia</h2>
             <p className="text-xs text-noir-muted mt-1 max-w-md leading-relaxed">
-              Você ainda não tem partidas salvas. Complete uma partida na Arena GM para gravá-la automaticamente ou importe um arquivo PGN existente.
+              Você ainda não tem partidas salvas. Complete uma partida para gravá-la automaticamente ou importe um arquivo PGN existente.
             </p>
           </div>
 

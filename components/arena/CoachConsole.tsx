@@ -202,7 +202,7 @@ export default function CoachConsole({
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="text-xs font-display uppercase tracking-wider text-noir-muted">
-                Análise do GM
+                Análise do coach
               </h2>
               {currentBadge && (
                 <span
@@ -230,7 +230,7 @@ export default function CoachConsole({
             ) : (
               <div className="p-4 rounded-xl bg-noir-raised/30 border border-noir-line/60 text-noir-muted text-xs leading-relaxed">
                 {movesCount === 0
-                  ? "Faça seu primeiro lance no tabuleiro para o GM Coach analisar sua abertura e intenções táticas."
+                  ? "Faça seu primeiro lance no tabuleiro para o coach analisar sua abertura e intenções táticas."
                   : "Aguardando seu lance no tabuleiro..."}
               </div>
             )}
@@ -307,7 +307,7 @@ export default function CoachConsole({
             <div aria-live="polite" className="space-y-2 max-h-[160px] overflow-y-auto pr-1">
               {chatMessages.length === 0 ? (
                 <p className="text-noir-muted text-xs italic">
-                  Pergunte qualquer coisa ao GM Coach sobre o lance atual.
+                  Pergunte qualquer coisa ao coach sobre o lance atual.
                 </p>
               ) : (
                 chatMessages.map((msg, i) => (
@@ -320,7 +320,7 @@ export default function CoachConsole({
                     }`}
                   >
                     <span className="font-bold font-mono text-[10px] block text-noir-muted mb-0.5">
-                      {msg.role === "user" ? "Você" : "GM Coach"}
+                      {msg.role === "user" ? "Você" : "Coach"}
                     </span>
                     {msg.content}
                   </div>
@@ -330,7 +330,7 @@ export default function CoachConsole({
 
             <div className="flex gap-2 pt-2 border-t border-noir-line">
               <label htmlFor="coach-chat-input" className="sr-only">
-                Perguntar ao GM Coach
+                Perguntar ao coach
               </label>
               <input
                 id="coach-chat-input"
@@ -363,7 +363,7 @@ export default function CoachConsole({
           className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-bronze-deep to-bronze text-white text-xs font-mono font-bold shadow-md border border-bronze/40 flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
         >
           <Lightbulb size={14} />
-          <span>{isHintLoading ? "Calculando Dica GM..." : "Pedir Dica Tática (GM)"}</span>
+          <span>{isHintLoading ? "Calculando dica..." : "Pedir dica tática"}</span>
         </button>
 
         <div className="flex gap-2">
