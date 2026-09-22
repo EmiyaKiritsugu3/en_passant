@@ -145,7 +145,7 @@ export default function PunishmentPage() {
       </div>
 
       <div className="w-full max-w-5xl flex flex-col lg:flex-row gap-8 items-start justify-center">
-        <div className="flex flex-col items-center gap-4 w-full lg:w-auto">
+        <div className="flex flex-col items-center gap-4 w-full lg:flex-1 lg:min-w-0 lg:max-w-[560px]">
           <div className="text-xs font-mono text-noir-muted w-full max-w-[560px]">
             Erro preto: <strong className="text-rose-400">{drill.opponentMistakeSan}</strong>
             {" · "}Gatilho: {drill.triggerType}

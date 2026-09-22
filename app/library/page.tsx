@@ -439,7 +439,7 @@ export default function LibraryPage() {
 
               {/* Board + Moves Navigator */}
               <div className="flex flex-col md:flex-row gap-6 items-start">
-                <div className="flex flex-col items-center gap-3 w-full md:w-auto">
+                <div className="flex flex-col items-center gap-3 w-full md:flex-1 md:min-w-0 md:max-w-[560px]">
                   <Board
                     fen={replayGame.fen()}
                     orientation="white"

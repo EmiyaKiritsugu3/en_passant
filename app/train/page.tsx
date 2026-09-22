@@ -366,7 +366,7 @@ export default function TrainPage() {
       {mainTab === "sm2" && (
         <div className="w-full max-w-5xl flex flex-col lg:flex-row gap-8 items-start justify-center">
           {/* Board column */}
-          <div className="flex flex-col items-center gap-4 w-full lg:w-auto">
+          <div className="flex flex-col items-center gap-4 w-full lg:flex-1 lg:min-w-0 lg:max-w-[560px]">
             {currentCard ? (
               <>
                 <div className="flex justify-between items-center w-full max-w-[560px] text-xs font-mono text-noir-muted">
@@ -556,7 +556,7 @@ export default function TrainPage() {
           {/* Main workspace for Openings */}
           <div className="flex flex-col lg:flex-row gap-8 items-start justify-center">
             {/* Board */}
-            <div className="flex flex-col items-center gap-4 w-full lg:w-auto">
+            <div className="flex flex-col items-center gap-4 w-full lg:flex-1 lg:min-w-0 lg:max-w-[560px]">
               <div className="flex justify-between items-center w-full max-w-[560px] text-xs font-mono text-noir-muted">
                 <span>
                   Linha: <strong className="text-bronze">{activeLine.name}</strong>
