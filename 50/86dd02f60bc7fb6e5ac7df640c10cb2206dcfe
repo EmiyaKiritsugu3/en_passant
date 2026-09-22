@@ -1,0 +1,18 @@
+lib/coach/analysis.test.ts
+  h_5d68cec99831c8 3-4,196-217
+lib/coach/analysis.ts
+  h_5d68cec99831c8 2-40
+lib/coach/server.ts
+  h_5d68cec99831c8 2-3,12-14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "5086dd02f60bc7fb6e5ac7df640c10cb2206dcfe",
+  "prompts": {},
+  "humans": {
+    "h_5d68cec99831c8": {
+      "author": "EmiyaKiritsugu3 <inamarjunior2@gmail.com>"
+    }
+  }
+}
