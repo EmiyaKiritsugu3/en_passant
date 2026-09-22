@@ -18,6 +18,43 @@
             "d3",
             "d6",
             "O-O"
+          ],
+          "ideas": [
+            "Controle o centro com peões (e4 + d4 futuro) antes de atacar.",
+            "O bispo em c4 pressiona f7, o ponto mais frágil das pretas.",
+            "Roque rápido e depois jogue d4 para abrir o centro com vantagem de desenvolvimento."
+          ],
+          "notes": [
+            "Ocupa o centro e libera bispo e dama.",
+            "Resposta simétrica clássica das pretas.",
+            "Desenvolve cavalo atacando o peão de e5.",
+            "Defende e5 e prepara ...Bc5 ou ...Nf6.",
+            "Bispo mira f7 e prepara d4.",
+            "Bispo simétrico; pretas também miram f2.",
+            "Prepara d4 com ganho de tempo sobre o bispo.",
+            "Cavalo pressiona e4 e libera o rei para rocar.",
+            "Consolida e4 sem fechar o bispo de c1.",
+            "Libera o bispo de c8; lance sólido porém passivo.",
+            "Rei em segurança; próximo plano: Re1 e d4."
+          ],
+          "traps": [
+            {
+              "name": "d5 prematuro",
+              "mistake": "4...d5?!",
+              "line": [
+                "e4",
+                "e5",
+                "Nf3",
+                "Nc6",
+                "Bc4",
+                "d5",
+                "exd5",
+                "Qxd5",
+                "Nc3"
+              ],
+              "punish": "5.exd5! Qxd5?? 6.Nc3!",
+              "why": "A dama tem que sair perdendo tempo; desenvolvimento grátis e centro para as brancas."
+            }
           ]
         },
         {
@@ -34,6 +71,45 @@
             "c3",
             "Ba5",
             "d4"
+          ],
+          "ideas": [
+            "Sacrifique o peão-b por tempo: cada lance das pretas com o bispo é um lance a menos de desenvolvimento.",
+            "Construa o centro ideal com c3 + d4 o quanto antes.",
+            "O ataque vem rápido no flanco-rei; não troque peças sem necessidade."
+          ],
+          "notes": [
+            "Ocupa o centro e libera as peças.",
+            "Simetria clássica.",
+            "Ataca e5 e desenvolve.",
+            "Defende e5.",
+            "Mira f7 e prepara o gambito.",
+            "Bispo ativo fora da cadeia de peões.",
+            "O gambito! Tempo contra material.",
+            "Aceito; o bispo terá que se mover de novo.",
+            "Expulsa o bispo ganhando tempo.",
+            "Recua mantendo a pressão em e4.",
+            "Golpe central temático: abre o jogo com vantagem de desenvolvimento."
+          ],
+          "traps": [
+            {
+              "name": "Contra-gambito apressado",
+              "mistake": "6...d6?!",
+              "line": [
+                "e4",
+                "e5",
+                "Nf3",
+                "Nc6",
+                "Bc4",
+                "Bc5",
+                "b4",
+                "Bxb4",
+                "c3",
+                "d6",
+                "d4"
+              ],
+              "punish": "7.d4! com iniciativa",
+              "why": "O lance passivo trava o próprio bispo; o centro branco avança com ganho de tempo."
+            }
           ]
         }
       ]
@@ -56,6 +132,51 @@
             "O-O",
             "Be7",
             "Re1"
+          ],
+          "ideas": [
+            "Pressão longa e sem pressa: o bispo em b5 amarra o cavalo que defende e5.",
+            "O plano padrão é c3, d4 e Re1 pressionando o peão-e.",
+            "Troque em c6 na hora certa para dobrar os peões pretos."
+          ],
+          "notes": [
+            "Reivindica o centro.",
+            "Resposta simétrica.",
+            "Ataca e5.",
+            "Defende o peão.",
+            "A Espanhola: pressiona o defensor de e5.",
+            "Expulsa o bispo ganhando a pergunta.",
+            "Mantém a pressão na diagonal.",
+            "Desenvolve com ataque renovado a e4.",
+            "Rei seguro antes de definir o plano.",
+            "Pretas se preparam para rocar.",
+            "Torre na coluna-e: o plano c3-d4 vem aí."
+          ],
+          "traps": [
+            {
+              "name": "Arca de Noé",
+              "mistake": "8...Nxd4?!",
+              "line": [
+                "e4",
+                "e5",
+                "Nf3",
+                "Nc6",
+                "Bb5",
+                "a6",
+                "Ba4",
+                "d6",
+                "d4",
+                "b5",
+                "Bb3",
+                "Nxd4",
+                "Nxd4",
+                "exd4",
+                "Qxd4",
+                "c5",
+                "Qd5"
+              ],
+              "punish": "9.Nxd4 exd4?? 10.Qxd4 c5?? 11.Qd5!",
+              "why": "A dama invade cortando a comunicação: ameaça Qxa8 e Qxe5; o bispo de b3 está preso na arca e cai."
+            }
           ]
         },
         {
@@ -72,6 +193,46 @@
             "d4",
             "Nd6",
             "Bxc6"
+          ],
+          "ideas": [
+            "Contra a Berlim, o centro decide: d4 abre o jogo antes que as pretas se consolidem.",
+            "Trocar em c6 dobra os peões pretos e dá maioria na ala da dama no final.",
+            "Finais de Berlim favorecem quem joga com precisão, não com medo."
+          ],
+          "notes": [
+            "Centro clássico.",
+            "Simetria.",
+            "Pressiona e5.",
+            "Defende.",
+            "A Espanhola.",
+            "A Berlim: contra-ataque direto a e4.",
+            "Rei seguro; brancas mantêm a tensão.",
+            "Peão central por cavalo: cálculo concreto.",
+            "Abre o centro na hora certa.",
+            "Cavalo volta defendendo e atacando b5.",
+            "Dobra os peões pretos e simplifica com estrutura melhor."
+          ],
+          "traps": [
+            {
+              "name": "Armadilha Mortimer",
+              "mistake": "4...Ne7?!",
+              "line": [
+                "e4",
+                "e5",
+                "Nf3",
+                "Nc6",
+                "Bb5",
+                "Nf6",
+                "d3",
+                "Ne7",
+                "Nxe5",
+                "c6",
+                "Nc4",
+                "Qa5+"
+              ],
+              "punish": "5.Nxe5! c6?? 6.Nc4 Qa5+ 7.Nc3!",
+              "why": "O cavalo de e4 não tem para onde fugir depois de Nc3; as pretas perdem a peça."
+            }
           ]
         }
       ]
@@ -94,6 +255,41 @@
             "c3",
             "Nc6",
             "Nbd2"
+          ],
+          "ideas": [
+            "Estrutura sólida primeiro: bispo para fora da cadeia antes de e3.",
+            "O plano é Cautela + ruptura c4 na hora certa, ou ataque na ala do rei.",
+            "Quase impossível sair da teoria cedo: jogue lances naturais."
+          ],
+          "notes": [
+            "Ocupa o centro com peão.",
+            "Peão central simétrico.",
+            "A marca do London: bispo fora antes de fechar com e3.",
+            "Cavalo natural.",
+            "Cadeia sólida; bispo de c1 já está fora.",
+            "Peão francês típico.",
+            "Desenvolvimento simples e sólido.",
+            "Contra-jogo no centro.",
+            "Segura d4 e prepara Nbd2.",
+            "Desenvolve pressionando d4.",
+            "Cavalo vai para f1-g3 ou sustenta e5."
+          ],
+          "traps": [
+            {
+              "name": "Bispo apressado",
+              "mistake": "3...Bf5?!",
+              "line": [
+                "d4",
+                "d5",
+                "Bf4",
+                "Bf5",
+                "c4",
+                "e6",
+                "Qb3"
+              ],
+              "punish": "4.c4! e6?? 5.Qb3!",
+              "why": "Pressão dupla em b7 e f7; as pretas perdem peão ou destroem a estrutura para se salvar."
+            }
           ]
         },
         {
@@ -110,6 +306,51 @@
             "Be2",
             "d6",
             "O-O"
+          ],
+          "ideas": [
+            "Contra fianchetto, o bispo em f4 já está no lugar ideal.",
+            "Jogue sólido e deixe as pretas mostrarem o plano ...e5 ou ...c5.",
+            "A ruptura c4-c5 ou e4 define quando lutar pelo centro."
+          ],
+          "notes": [
+            "Centro com peão.",
+            "Cavalo rumo ao centro.",
+            "Bispo fora da cadeia desde cedo.",
+            "Fianchetto: bispo mira o centro à distância.",
+            "Base sólida.",
+            "Bispo completa o fianchetto.",
+            "Desenvolvimento natural.",
+            "Rei seguro das pretas.",
+            "Bispo sólido; roque vem aí.",
+            "Abre diagonal para o bispo de c8.",
+            "Ambos rocaram: meio-jogo posicional pela frente."
+          ],
+          "traps": [
+            {
+              "name": "Caça ao bispo",
+              "mistake": "9...e5?!",
+              "line": [
+                "d4",
+                "Nf6",
+                "Bf4",
+                "g6",
+                "e3",
+                "Bg7",
+                "Nf3",
+                "O-O",
+                "Be2",
+                "d6",
+                "O-O",
+                "e5",
+                "dxe5",
+                "dxe5",
+                "Qxd8",
+                "Rxd8",
+                "Nxe5"
+              ],
+              "punish": "10...e5?! 11.dxe5! dxe5 12.Qxd8! Rxd8 13.Nxe5!",
+              "why": "Sem preparação a ruptura perde peão limpo e as brancas ficam melhores no final."
+            }
           ]
         }
       ]
@@ -132,6 +373,43 @@
             "e3",
             "O-O",
             "Nf3"
+          ],
+          "ideas": [
+            "O gambito é oferta, não presente: c4 tensiona d5 sem perder peão à força.",
+            "Desenvolva com ganho de tempo ameaçando cxd5.",
+            "O plano clássico é cxd5 seguido de pressão na coluna-c semiaberta."
+          ],
+          "notes": [
+            "Peão central.",
+            "Resposta simétrica.",
+            "O gambito: ataca o centro de lado.",
+            "Sustenta d5.",
+            "Desenvolve pressionando d5.",
+            "Cavalo natural.",
+            "Alfineta o cavalo antes de definir a estrutura.",
+            "Desenvolve e prepara o roque.",
+            "Consolida o centro.",
+            "Rei em segurança.",
+            "Última peça menor: desenvolvimento completo."
+          ],
+          "traps": [
+            {
+              "name": "Captura apressada",
+              "mistake": "6...dxc4?!",
+              "line": [
+                "d4",
+                "d5",
+                "c4",
+                "e6",
+                "Nc3",
+                "Nf6",
+                "Bg5",
+                "dxc4",
+                "e4"
+              ],
+              "punish": "7.e4! centro avassalador",
+              "why": "As pretas abrem mão do centro de graça; e4+e3 formam uma muralha com desenvolvimento livre."
+            }
           ]
         },
         {
@@ -148,6 +426,47 @@
             "Bg5",
             "Be7",
             "Qc2"
+          ],
+          "ideas": [
+            "Estrutura simétrica com um plano claro: ataque de minoria com b4-b5.",
+            "O bispo em g5 amarra; troque na hora que favorece seu plano.",
+            "Finais com essa estrutura costumam favorecer as brancas."
+          ],
+          "notes": [
+            "Centro.",
+            "Simetria.",
+            "O gambito.",
+            "Recaptura mantendo peão central.",
+            "Troca que define a estrutura da variante.",
+            "Recaptura simétrica.",
+            "Desenvolve olhando d5.",
+            "Cavalo natural.",
+            "Alfinete incômodo.",
+            "Quebra o alfinete se preparando para rocar.",
+            "Dama ativa: mira c7 e sustenta o plano b4."
+          ],
+          "traps": [
+            {
+              "name": "Enfraquecimento h6",
+              "mistake": "7...h6?!",
+              "line": [
+                "d4",
+                "d5",
+                "c4",
+                "e6",
+                "cxd5",
+                "exd5",
+                "Nc3",
+                "Nf6",
+                "Bg5",
+                "h6",
+                "Bxf6",
+                "Qxf6",
+                "Nxd5"
+              ],
+              "punish": "8.Bxf6! Qxf6 9.Nxd5!",
+              "why": "O cavalo central ataca c7 e a dama; as brancas ganham peão com posição superior."
+            }
           ]
         }
       ]
@@ -172,6 +491,47 @@
             "Ng3",
             "Bg6",
             "h4"
+          ],
+          "ideas": [
+            "Estrutura de ferro: sem fraquezas, deixe as brancas se estenderem.",
+            "O bispo de c8 joga fora da cadeia — a alma da Caro-Kann.",
+            "Contra-ataque com ...c5 ou ...e5 quando o centro branco avança demais."
+          ],
+          "notes": [
+            "Peão do rei branco.",
+            "A Caro: prepara d5 sem travar o bispo.",
+            "Brancas ocupam o centro.",
+            "Desafia o centro na hora.",
+            "Desenvolve atacando d5.",
+            "Troca central; pretas respiram.",
+            "Recaptura com peça ativa.",
+            "Bispo fora da cadeia!",
+            "Expulsa o bispo ganhando tempo.",
+            "Recua mantendo a diagonal.",
+            "Expansão agressiva: espaço e ideia de h5."
+          ],
+          "traps": [
+            {
+              "name": "Bispo caçado",
+              "mistake": "8...Bh5?!",
+              "line": [
+                "e4",
+                "c6",
+                "d4",
+                "d5",
+                "Nc3",
+                "dxe4",
+                "Nxe4",
+                "Bf5",
+                "Ng3",
+                "Bg6",
+                "h4",
+                "Bh5",
+                "Nf5"
+              ],
+              "punish": "9.Nf5! com ideia de Nxg7+",
+              "why": "O bispo fica sobrecarregado e o salto ameaça garfo em g7; as pretas perdem tempo e coordenação."
+            }
           ]
         },
         {
@@ -188,6 +548,45 @@
             "Be2",
             "Ne7",
             "O-O"
+          ],
+          "ideas": [
+            "Contra o avanço, jogue ...e6, ...Ne7 e ...c5 minando a base.",
+            "O peão de e5 parece forte mas precisa de defesa constante.",
+            "Troque o bispo ruim de c8 na hora certa."
+          ],
+          "notes": [
+            "Clássico.",
+            "Caro-Kann.",
+            "Centro branco.",
+            "Contra-golpe imediato.",
+            "Avanço: espaço em troca de base em d4.",
+            "Bispo ativo fora da cadeia.",
+            "Desenvolvimento natural.",
+            "Sustenta d5 e fecha a diagonal do bispo branco de c1.",
+            "Bispo sólido rumo ao roque.",
+            "Cavalo vai para f5 ou g6 pressionando e4.",
+            "Rei seguro; pretas prontas para ...c5."
+          ],
+          "traps": [
+            {
+              "name": "Ruptura prematura",
+              "mistake": "7...c5?!",
+              "line": [
+                "e4",
+                "c6",
+                "d4",
+                "d5",
+                "e5",
+                "Bf5",
+                "Nf3",
+                "e6",
+                "Be2",
+                "c5",
+                "dxc5"
+              ],
+              "punish": "8.dxc5! abre o jogo com vantagem de desenvolvimento",
+              "why": "Sem preparação, a ruptura só ajuda as brancas a desenvolver com tempo e dominar casas claras."
+            }
           ]
         }
       ]
@@ -210,6 +609,51 @@
             "Nc3",
             "a6",
             "Be3"
+          ],
+          "ideas": [
+            "A Siciliana luta pelo centro de lado: meio peão contra peão inteiro.",
+            "Com ...a6, o plano é ...e5 ou ...b5 com contra-jogo na ala da dama.",
+            "Aceite atacar e ser atacado: afie o cálculo tático."
+          ],
+          "notes": [
+            "Rei branco.",
+            "A Siciliana: centro assimétrico.",
+            "Desenvolvimento com ataque ao centro.",
+            "Peão segura o centro.",
+            "Abre o centro.",
+            "Recaptura forçada.",
+            "Cavalo centralizado e agressivo.",
+            "Ataca e4 e prepara o roque.",
+            "Desenvolve a última peça menor.",
+            "A Najdorf: flexibilidade total (...e5, ...b5, ...e6).",
+            "Bispo inglês rumo ao ataque."
+          ],
+          "traps": [
+            {
+              "name": "Desenvolvimento preguiçoso",
+              "mistake": "9...Nbd7?!",
+              "line": [
+                "e4",
+                "c5",
+                "Nf3",
+                "d6",
+                "d4",
+                "cxd4",
+                "Nxd4",
+                "Nf6",
+                "Nc3",
+                "a6",
+                "Be3",
+                "Nbd7",
+                "Bc4",
+                "e6",
+                "Nxe6",
+                "fxe6",
+                "Bxe6+"
+              ],
+              "punish": "10.Bc4! e6?? 11.Nxe6! fxe6 12.Bxe6+",
+              "why": "Sacrifício clássico de demolição: o rei preto fica exposto e o ataque branco é decisivo."
+            }
           ]
         },
         {
@@ -226,6 +670,49 @@
             "Nc3",
             "Nc6",
             "Bg5"
+          ],
+          "ideas": [
+            "Desenvolvimento rápido e pressão em d4 antes de definir a estrutura.",
+            "O plano ...e6 + ...Be7 + ...O-O é sólido e flexível.",
+            "Cuidado com saltos Nd5: sustente o centro com peças, não peões."
+          ],
+          "notes": [
+            "Padrão.",
+            "Siciliana.",
+            "Natural.",
+            "Sustenta.",
+            "Abertura.",
+            "Recaptura.",
+            "Centraliza agressivo.",
+            "Pressiona e4.",
+            "Desenvolve.",
+            "Clássica: dois cavalos mirando o centro.",
+            "Alfinete incômodo no cavalo de f6."
+          ],
+          "traps": [
+            {
+              "name": "Buraco em d5",
+              "mistake": "7...e5?!",
+              "line": [
+                "e4",
+                "c5",
+                "Nf3",
+                "d6",
+                "d4",
+                "cxd4",
+                "Nxd4",
+                "Nf6",
+                "Nc3",
+                "Nc6",
+                "Bg5",
+                "e5",
+                "Bxf6",
+                "gxf6",
+                "Nd5"
+              ],
+              "punish": "8.Bxf6! gxf6 9.Nd5!",
+              "why": "Peões dobrados, rei exposto e um cavalo cravado em d5; vantagem branca duradoura."
+            }
           ]
         }
       ]
@@ -248,6 +735,48 @@
             "e3",
             "O-O",
             "Nf3"
+          ],
+          "ideas": [
+            "Sustente d5 com e6 e desenvolva: sólido não significa passivo.",
+            "O plano ...Nbd7, ...c6 e ...dxc4 no momento certo liberta o jogo.",
+            "Se as brancas se precipitam, o centro abre a seu favor."
+          ],
+          "notes": [
+            "Centro.",
+            "Simetria.",
+            "O gambito.",
+            "Sustentação sólida.",
+            "Pressão em d5.",
+            "Desenvolvimento.",
+            "Alfinete.",
+            "Prepara o roque.",
+            "Consolida.",
+            "Rei seguro.",
+            "Completa o desenvolvimento."
+          ],
+          "traps": [
+            {
+              "name": "Armadilha do Elefante",
+              "mistake": "brancas: 8.cxd5?! exd5 9.Nxd5??",
+              "line": [
+                "d4",
+                "d5",
+                "c4",
+                "e6",
+                "Nc3",
+                "Nf6",
+                "Bg5",
+                "Nbd7",
+                "cxd5",
+                "exd5",
+                "Nxd5",
+                "Nxd5",
+                "Bxd8",
+                "Bb4+"
+              ],
+              "punish": "9...Nxd5! 10.Bxd8?? Bb4+!",
+              "why": "A dama branca cai com xeque: depois de Bxd2+, as pretas ficam com dama contra nada."
+            }
           ]
         },
         {
@@ -264,6 +793,50 @@
             "Nf3",
             "c6",
             "e3"
+          ],
+          "ideas": [
+            "O alfinete ...Qa5 é a ideia: pressão no cavalo de c3 e no peão de c4.",
+            "Jogue ...dxc4 e ...b5 ganhando espaço na ala da dama.",
+            "Abertura de repertório de campeões: aprenda os planos, não só os lances."
+          ],
+          "notes": [
+            "Central.",
+            "Simétrico.",
+            "Gambito.",
+            "Sólido.",
+            "Pressiona.",
+            "Natural.",
+            "Alfinete.",
+            "Sustenta o cavalo e prepara ...c6.",
+            "Desenvolve.",
+            "Base para ...Qa5 e ...b5.",
+            "Consolida o centro."
+          ],
+          "traps": [
+            {
+              "name": "Bispo preguiçoso",
+              "mistake": "brancas: 12.Bd3?!",
+              "line": [
+                "d4",
+                "d5",
+                "c4",
+                "e6",
+                "Nc3",
+                "Nf6",
+                "Bg5",
+                "Nbd7",
+                "Nf3",
+                "c6",
+                "e3",
+                "Bd6",
+                "Bd3",
+                "dxc4",
+                "Bxc4",
+                "b5"
+              ],
+              "punish": "12...dxc4! 13.Bxc4 b5!",
+              "why": "As pretas ganham tempo expulsando o bispo e tomam a iniciativa na ala da dama."
+            }
           ]
         }
       ]
@@ -286,6 +859,52 @@
             "Nf3",
             "O-O",
             "Be2"
+          ],
+          "ideas": [
+            "Ceda o centro agora para destruí-lo depois com ...e5 ou ...c5.",
+            "O bispo de g7 é sua melhor peça: não o troque sem motivo.",
+            "O ataque ...f5 ou ...Nh5-f4 vem quando o centro fecha."
+          ],
+          "notes": [
+            "Peão central.",
+            "Cavalo ativo.",
+            "Espaço na ala da dama.",
+            "Fianchetto: bispo à distância.",
+            "Desenvolve.",
+            "Bispo completa o fianchetto.",
+            "Centro total branco.",
+            "Peão sustenta o centro.",
+            "Desenvolvimento.",
+            "Roque preto antes da batalha.",
+            "Bispo sólido; a luta pelo centro vem aí."
+          ],
+          "traps": [
+            {
+              "name": "Fechamento prematuro",
+              "mistake": "brancas: 11.d5?!",
+              "line": [
+                "d4",
+                "Nf6",
+                "c4",
+                "g6",
+                "Nc3",
+                "Bg7",
+                "e4",
+                "d6",
+                "Nf3",
+                "O-O",
+                "Be2",
+                "e5",
+                "O-O",
+                "Nc6",
+                "d5",
+                "Nd4",
+                "Nxd4",
+                "exd4"
+              ],
+              "punish": "11...Nd4! 12.Nxd4?? exd4!",
+              "why": "O cavalo branco some e o peão de d4 crava a posição; as pretas ficam com peça a mais de atividade."
+            }
           ]
         },
         {
@@ -302,6 +921,54 @@
             "Bg2",
             "d6",
             "O-O"
+          ],
+          "ideas": [
+            "Contra fianchetto, o centro é tudo: ...Nc6, ...e5 e pressão em d4.",
+            "O bispo de g2 parece forte mas morde peões bem defendidos.",
+            "Troque o defensor das casas escuras quando der."
+          ],
+          "notes": [
+            "Centro.",
+            "Ativo.",
+            "Espaço.",
+            "Fianchetto.",
+            "Desenvolve sem fechar o bispo.",
+            "Bispo fianchettado.",
+            "Fianchetto branco: rei seguro, centro flexível.",
+            "Roque.",
+            "Bispo completa o fianchetto.",
+            "Sustenta.",
+            "Roque; batalha posicional pelo centro."
+          ],
+          "traps": [
+            {
+              "name": "Cavalo infiltrado",
+              "mistake": "brancas: 13.d5?! Nd4 14.Nxd4??",
+              "line": [
+                "d4",
+                "Nf6",
+                "c4",
+                "g6",
+                "Nf3",
+                "Bg7",
+                "g3",
+                "O-O",
+                "Bg2",
+                "d6",
+                "O-O",
+                "Nc6",
+                "Re1",
+                "e5",
+                "d5",
+                "Nd4",
+                "Nxd4",
+                "exd4",
+                "Qxd4",
+                "Re8"
+              ],
+              "punish": "14...exd4! 15.Qxd4?? Re8+!",
+              "why": "A dama fica sobrecarregada defendendo tudo; o xeque na coluna-e decide."
+            }
           ]
         }
       ]

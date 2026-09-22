@@ -26,9 +26,20 @@ import { CircleCheck } from "lucide-react";
 type MainTab = "sm2" | "openings";
 type OpeningMode = "drill" | "explore";
 
+interface RepertoireTrap {
+  name: string;
+  mistake: string;
+  line: string[];
+  punish: string;
+  why: string;
+}
+
 interface RepertoireLine {
   name: string;
   line: string[];
+  ideas?: string[];
+  notes?: string[];
+  traps?: RepertoireTrap[];
 }
 
 interface RepertoireOpening {
@@ -77,6 +88,7 @@ export default function TrainPage() {
   const [openingFen, setOpeningFen] = useState(openingGame.fen());
   const [drillPly, setDrillPly] = useState(0);
   const [drillStatus, setDrillStatus] = useState<string>("");
+  const [moveNote, setMoveNote] = useState<string>("");
   const [drillCompleted, setDrillCompleted] = useState(false);
   const [openingShape, setOpeningShape] = useState<DrawShape[]>([]);
 
@@ -159,6 +171,7 @@ export default function TrainPage() {
   // ==================== OPENINGS HANDLERS ====================
   const resetDrillLine = (line: RepertoireLine, color: "white" | "black") => {
     setActiveLine(line);
+    setMoveNote("");
     openingGame.reset();
     setOpeningFen(openingGame.fen());
     setDrillPly(0);
@@ -213,6 +226,7 @@ export default function TrainPage() {
         setOpeningFen(openingGame.fen());
         setOpeningShape([]);
         setLastDeviationEval(null);
+        setMoveNote(activeLine.notes?.[drillPly] ?? "");
 
         const nextPly = drillPly + 1;
         setDrillPly(nextPly);
@@ -234,6 +248,7 @@ export default function TrainPage() {
               setOpeningFen(openingGame.fen());
               const afterOppPly = nextPly + 1;
               setDrillPly(afterOppPly);
+              setMoveNote(activeLine.notes?.[nextPly] ?? "");
               if (afterOppPly >= activeLine.line.length) {
                 setDrillCompleted(true);
                 setDrillStatus("Linha concluída com sucesso! Repertório memorizado.");
@@ -646,6 +661,15 @@ export default function TrainPage() {
                   </div>
                 )}
 
+                {openingMode === "drill" && moveNote && (
+                  <div className="p-3 rounded-xl text-xs bg-noir-bg border border-noir-line">
+                    <span className="text-[10px] font-mono uppercase text-bronze font-bold">
+                      Por que este lance?
+                    </span>
+                    <p className="text-noir-muted mt-1 leading-relaxed">{moveNote}</p>
+                  </div>
+                )}
+
                 {lastDeviationEval && (
                   <div className="text-xs font-mono p-3 bg-noir-bg rounded-xl border border-noir-line space-y-1">
                     <div className="text-noir-muted">Avaliação da Engine:</div>
@@ -674,6 +698,41 @@ export default function TrainPage() {
                   </div>
                 )}
               </div>
+
+              {/* Line ideas */}
+              {activeLine.ideas && activeLine.ideas.length > 0 && (
+                <div className="bg-noir-surface/70 border border-noir-line rounded-2xl p-5 flex flex-col gap-2 shadow-xl">
+                  <span className="text-xs font-mono uppercase tracking-wider text-noir-muted">
+                    Ideias da linha
+                  </span>
+                  <ul className="flex flex-col gap-1.5 text-xs text-noir-muted leading-relaxed list-disc pl-4">
+                    {activeLine.ideas.map((idea, i) => (
+                      <li key={i}>{idea}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Common-mistake traps */}
+              {activeLine.traps && activeLine.traps.length > 0 && (
+                <div className="bg-noir-surface/70 border border-noir-line rounded-2xl p-5 flex flex-col gap-3 shadow-xl">
+                  <span className="text-xs font-mono uppercase tracking-wider text-rose-400 font-bold">
+                    Puna os erros comuns
+                  </span>
+                  {activeLine.traps.map((trap) => (
+                    <div
+                      key={trap.name}
+                      className="p-3 bg-rose-950/20 border border-rose-900/40 rounded-xl flex flex-col gap-1.5 text-xs"
+                    >
+                      <span className="font-bold text-white">
+                        {trap.name} <span className="font-mono text-rose-300">({trap.mistake})</span>
+                      </span>
+                      <p className="font-mono text-emerald-300">{trap.punish}</p>
+                      <p className="text-noir-muted leading-relaxed">{trap.why}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
 
                 {/* Lichess Masters Explorer Table */}
                 {(explorerMoves.length > 0 || explorerStats) && (
