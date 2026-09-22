@@ -2,13 +2,14 @@
 
 import { useEffect, useRef } from "react";
 import { Chess } from "chess.js";
-import { Chessground } from "chessground";
-import type { Api } from "chessground/api";
-import type { DrawShape } from "chessground/draw";
-import type { Dests, Key } from "chessground/types";
-import "chessground/assets/chessground.base.css";
+import { Chessground } from "chessgroundx";
+import type { Api } from "chessgroundx/api";
+import type { DrawShape } from "chessgroundx/draw";
+import type { Dests, Key } from "chessgroundx/types";
+import "chessgroundx/assets/chessground.base.css";
 import "./chessground-noir.css";
-import "chessground/assets/chessground.cburnett.css";
+import "chessgroundx/assets/chessground.cburnett.css";
+import "./chessground-pieces.css";
 
 function getLegalDests(fen: string): { dests: Dests; turnColor: "white" | "black" } {
   const dests: Dests = new Map();

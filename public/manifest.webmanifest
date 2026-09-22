@@ -1,9 +1,14 @@
 {
+  "id": "/",
   "name": "En Passant",
   "short_name": "En Passant",
+  "description": "Treinador de xadrez offline-first: jogue, analise e estude com Stockfish no navegador.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#161512",
   "theme_color": "#161512",
-  "icons": [{ "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }]
+  "icons": [
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
 }

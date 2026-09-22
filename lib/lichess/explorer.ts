@@ -38,13 +38,8 @@ async function fetchRaw(fen: string): Promise<RawExplorerData | null> {
   const currentGen = cacheGeneration;
   const promise = (async () => {
     try {
-      const ctrl = new AbortController();
-      const t = setTimeout(() => ctrl.abort(), 5000);
-      const res = await fetch(`https://explorer.lichess.ovh/masters?fen=${encodeURIComponent(fen)}`, {
-        signal: ctrl.signal,
-      });
-      clearTimeout(t);
-      if (!res.ok) throw new Error("explorer " + res.status);
+      const res = await fetch(`/api/lichess/explorer?fen=${encodeURIComponent(fen)}`);
+      if (!res.ok) return null;
       const data = (await res.json()) as RawExplorerData;
       if (currentGen === cacheGeneration) {
         rawCache.set(fen, data);

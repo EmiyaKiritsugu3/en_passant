@@ -48,3 +48,6 @@ next-env.d.ts
 .remember/
 .gemini/
 
+
+# stockfish wasm copied from npm at dev/build time (scripts/copy-stockfish.mjs)
+/public/stockfish/

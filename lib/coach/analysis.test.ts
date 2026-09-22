@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { Chess } from "chess.js";
-import { generateMoveAnalysis } from "./analysis";
-import { TurnResponse } from "./schemas";
+import { generateExploreAnalysis, generateMoveAnalysis } from "./analysis";
+import { ExploreResponse, TurnResponse } from "./schemas";
 
 describe("generateMoveAnalysis", () => {
   it("analyzes 1. d4 with square control and diagonal opening", () => {
@@ -191,5 +191,27 @@ describe("generateMoveAnalysis", () => {
     expect(result.critique).not.toContain("a7");
     // Homework focuses on central pawn e5
     expect(result.homework).toContain("e5");
+  });
+});
+
+describe("generateExploreAnalysis", () => {
+  it("returns ExploreResponse shape with master stats", () => {
+    const r = generateExploreAnalysis({
+      sanPlayed: "e4",
+      cpLoss: 10,
+      explorerStats: { white: 100, draws: 50, black: 50, opening: { eco: "B00", name: "King's Pawn" } },
+      openingName: "Italian Game",
+    });
+    expect(() => ExploreResponse.parse(r)).not.toThrow();
+    expect(r.verdict).toContain("e4");
+    expect(r.consequences).toContain("200");
+    expect(r.namedVariant).toBe("Italian Game");
+  });
+
+  it("flags high cpLoss and handles missing stats", () => {
+    const r = generateExploreAnalysis({ sanPlayed: "h4", cpLoss: 250 });
+    expect(() => ExploreResponse.parse(r)).not.toThrow();
+    expect(r.verdict).toContain("Fora da teoria");
+    expect(r.namedVariant).toBe("Linha teórica");
   });
 });

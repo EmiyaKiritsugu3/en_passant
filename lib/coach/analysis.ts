@@ -1,5 +1,43 @@
 import { Chess, type Square } from "chess.js";
-import type { TurnResponse } from "./schemas";
+import type { ExploreResponse, TurnResponse } from "./schemas";
+
+export interface ExploreAnalysisInput {
+  fenBefore?: string;
+  sanPlayed?: string;
+  cpLoss?: number;
+  explorerStats?: {
+    white?: number;
+    draws?: number;
+    black?: number;
+    opening?: { eco?: string; name?: string };
+  } | null;
+  openingName?: string;
+}
+
+// Offline fallback for the explore endpoint: always returns ExploreResponse
+// shape (verdict/consequences/namedVariant) so the route schema never rejects.
+export function generateExploreAnalysis(input: ExploreAnalysisInput): ExploreResponse {
+  const san = input.sanPlayed || "lance";
+  const cpLoss = Math.max(0, input.cpLoss ?? 0);
+  const stats = input.explorerStats ?? undefined;
+  const total = (stats?.white ?? 0) + (stats?.draws ?? 0) + (stats?.black ?? 0);
+  const whitePct = total > 0 ? Math.round(((stats?.white ?? 0) / total) * 100) : 0;
+  const name = input.openingName || stats?.opening?.name || "Linha teórica";
+
+  const verdict =
+    cpLoss <= 25
+      ? `Lance teórico sólido: ${san}`
+      : cpLoss <= 100
+        ? `Imprecisão leve: ${san} (perda de ${(cpLoss / 100).toFixed(1)})`
+        : `Fora da teoria: ${san} (perda de ${(cpLoss / 100).toFixed(1)})`;
+
+  const consequences =
+    total > 0
+      ? `${san} aparece em ${total} partidas de mestres (${whitePct}% vitórias brancas). ${cpLoss > 100 ? "A engine prefere outro caminho — compare com a continuação principal." : "Segue as partidas de referência; entenda o plano antes de decorar a ordem."}`
+      : `${san} é raro na base de mestres. ${cpLoss > 100 ? "A engine avalia perda material ou posicional — revise a ideia do lance." : "Pode ser novidade jogável: confira se as casas centrais seguem protegidas."}`;
+
+  return { verdict, consequences, namedVariant: name };
+}
 
 export interface MoveAnalysisInput {
   fenBefore?: string;

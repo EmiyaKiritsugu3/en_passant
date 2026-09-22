@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { generateMoveAnalysis, type MoveAnalysisInput } from "./analysis";
-import { TURN_SYSTEM } from "./prompts";
+import { generateExploreAnalysis, generateMoveAnalysis, type ExploreAnalysisInput, type MoveAnalysisInput } from "./analysis";
+import { EXPLORE_SYSTEM, TURN_SYSTEM } from "./prompts";
 
 export function getModel(): string {
   return process.env.COACH_MODEL || "claude-3-5-sonnet-20241022";
@@ -9,6 +9,9 @@ export function getModel(): string {
 export async function coachJson(system: string, payload: unknown): Promise<string> {
   if (!process.env.ANTHROPIC_API_KEY) {
     // Offline local fallback with rich tactical analysis for turn coaching
+    if (system === EXPLORE_SYSTEM || (payload && typeof payload === "object" && "explorerStats" in payload)) {
+      return JSON.stringify(generateExploreAnalysis((payload ?? {}) as ExploreAnalysisInput));
+    }
     if (system === TURN_SYSTEM || (payload && typeof payload === "object" && ("san" in payload || "fenBefore" in payload))) {
       return JSON.stringify(generateMoveAnalysis(payload as MoveAnalysisInput));
     }

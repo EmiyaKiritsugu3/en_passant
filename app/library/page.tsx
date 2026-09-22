@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { Chess } from "chess.js";
 import Board from "@/components/Board";
@@ -16,11 +16,12 @@ import {
   type Analysis,
 } from "@/lib/library/storage";
 import { collectEvals, type Row } from "@/lib/postgame";
-import { createMockEngine, createStockfishEngine, type Engine } from "@/lib/engine/engine";
+import { createMockEngine } from "@/lib/engine/engine";
+import { useEngine } from "@/hooks/useEngine";
 import { DEFAULT_PROFILE, getProfileSnapshot, subscribeProfile } from "@/lib/profile/store";
 import { BookOpen, Library } from "lucide-react";
-import type { DrawShape } from "chessground/draw";
-import type { Key } from "chessground/types";
+import type { DrawShape } from "chessgroundx/draw";
+import type { Key } from "chessgroundx/types";
 
 const EMPTY_GAMES: SavedGame[] = [];
 
@@ -48,18 +49,7 @@ export default function LibraryPage() {
     setSelectedAnalysisIdx(selectedGame ? Math.max(0, selectedGame.analyses.length - 1) : 0);
   }
 
-  const engineRef = useRef<Engine | null>(null);
-
-  useEffect(() => {
-    try {
-      engineRef.current = createStockfishEngine();
-    } catch {
-      engineRef.current = createMockEngine();
-    }
-    return () => {
-      engineRef.current?.quit();
-    };
-  }, []);
+  const engineRef = useEngine();
 
   // Parse moves from PGN
   const parsedMoves = useMemo(() => {
@@ -449,7 +439,7 @@ export default function LibraryPage() {
 
               {/* Board + Moves Navigator */}
               <div className="flex flex-col md:flex-row gap-6 items-start">
-                <div className="flex flex-col items-center gap-3 w-full md:w-auto">
+                <div className="flex flex-col items-center gap-3 w-full md:flex-1 md:min-w-0 md:max-w-[560px]">
                   <Board
                     fen={replayGame.fen()}
                     orientation="white"

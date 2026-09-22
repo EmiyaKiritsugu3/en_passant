@@ -1,16 +1,19 @@
 "use client";
 
 import { memo, useMemo } from "react";
-import { calculateEvalPercentage, formatEvalScore } from "@/lib/chess/evalbar";
+import { calculateEvalPercentage, formatEvalScore, toWhitePerspective } from "@/lib/chess/evalbar";
 
 interface EvalBarProps {
-  evaluation: { cp: number; mate: number | null } | null;
+  evaluation: { cp: number; mate: number | null; turn?: "w" | "b" } | null;
   orientation: "white" | "black";
 }
 
 export default memo(function EvalBar({ evaluation, orientation }: EvalBarProps) {
-  const cp = evaluation?.cp ?? 0;
-  const mate = evaluation?.mate ?? null;
+  const { cp, mate } = useMemo(() => {
+    if (!evaluation) return { cp: 0, mate: null };
+    const w = toWhitePerspective(evaluation.cp, evaluation.mate, evaluation.turn ?? "w");
+    return { cp: w.cp, mate: w.mate };
+  }, [evaluation]);
 
   const percentage = useMemo(() => {
     return calculateEvalPercentage(cp, mate, orientation);

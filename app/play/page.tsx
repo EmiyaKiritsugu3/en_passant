@@ -3,9 +3,9 @@
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useSearchParams } from "next/navigation";
 import { Chess, type Square } from "chess.js";
-import type { Key } from "chessground/types";
-import type { DrawShape } from "chessground/draw";
-import { Flag, Volume2, VolumeX } from "lucide-react";
+import type { Key } from "chessgroundx/types";
+import type { DrawShape } from "chessgroundx/draw";
+import { Flag, Undo2, Volume2, VolumeX } from "lucide-react";
 import Board from "@/components/Board";
 import EvalBar from "@/components/arena/EvalBar";
 import PlayerCard from "@/components/arena/PlayerCard";
@@ -22,7 +22,8 @@ import {
   subscribeAudioMuted,
 } from "@/lib/sound/audio";
 import { classifyMove, detectPhase, phaseAverages, type Label, type Phase } from "@/lib/chess/measure";
-import { createMockEngine, createStockfishEngine, type Engine, type Eval } from "@/lib/engine/engine";
+import { createMockEngine, type Engine, type Eval } from "@/lib/engine/engine";
+import { useEngine } from "@/hooks/useEngine";
 import {
   applyPostgame,
   DEFAULT_PROFILE,
@@ -32,7 +33,7 @@ import {
   type Profile,
 } from "@/lib/profile/store";
 import { appendMessage, getChatSnapshot, subscribeChat, type ChatMessage } from "@/lib/chat/store";
-import { enqueue } from "@/lib/coach/queue";
+import { postCoachWithQueue } from "@/lib/coach/client";
 import type { PostgameResponse, TurnResponse } from "@/lib/coach/schemas";
 import { generateMoveAnalysis, type MoveAnalysisInput } from "@/lib/coach/analysis";
 import { collectEvals, bestMoveEndgameAware } from "@/lib/postgame";
@@ -80,7 +81,23 @@ function PlayContent() {
   const profile = useSyncExternalStore(subscribeProfile, getProfileSnapshot, () => DEFAULT_PROFILE);
   const playerRating = profile.rating;
 
-  const engineRef = useRef<Engine | null>(null);
+  const engineRef = useEngine(
+    (eng) => {
+      let timer: NodeJS.Timeout | null = null;
+      // If user chose Black, engine (White) must make the first move!
+      if (color === "black" && game.history().length === 0 && game.turn() === "w") {
+        timer = setTimeout(() => {
+          if (game.history().length === 0 && game.turn() === "w") {
+            makeEngineMove(game.fen(), eng);
+          }
+        }, 300);
+      }
+      return () => {
+        if (timer) clearTimeout(timer);
+      };
+    },
+    [color]
+  );
   const profileRef = useRef<Profile>(DEFAULT_PROFILE);
   const eloSetRef = useRef(false);
   const resignedRef = useRef(false);
@@ -202,7 +219,7 @@ function PlayContent() {
     }
   };
 
-  const makeEngineMove = async (currentFen: string, engineInstance?: Engine) => {
+  async function makeEngineMove(currentFen: string, engineInstance?: Engine) {
     const engineColor = color === "white" ? "b" : "w";
     if (game.turn() !== engineColor || game.isGameOver() || resignedRef.current) {
       return;
@@ -292,33 +309,7 @@ function PlayContent() {
     } finally {
       setIsEngineThinking(false);
     }
-  };
-
-  useEffect(() => {
-    let eng: Engine;
-    try {
-      eng = createStockfishEngine();
-    } catch {
-      eng = createMockEngine();
-    }
-    engineRef.current = eng;
-
-    let timer: NodeJS.Timeout | null = null;
-    // If user chose Black, engine (White) must make the first move!
-    if (color === "black" && game.history().length === 0 && game.turn() === "w") {
-      timer = setTimeout(() => {
-        if (game.history().length === 0 && game.turn() === "w") {
-          makeEngineMove(game.fen(), eng);
-        }
-      }, 300);
-    }
-
-    return () => {
-      if (timer) clearTimeout(timer);
-      eng.quit();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [color]);
+  }
 
   const ensureElo = async () => {
     if (!eloSetRef.current && engineRef.current) {
@@ -348,26 +339,7 @@ function PlayContent() {
       isCheckmate?: boolean;
     }
   ): Promise<TurnResponse> => {
-    const doFetch = async () => {
-      const res = await fetch("/api/coach/turn", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return (await res.json()) as TurnResponse;
-    };
-
-    try {
-      return await doFetch();
-    } catch {
-      try {
-        return await doFetch();
-      } catch {
-        enqueue(payload);
-        return generateMoveAnalysis(payload);
-      }
-    }
+    return postCoachWithQueue("/api/coach/turn", payload, () => generateMoveAnalysis(payload));
   };
 
   const onMove = async (from: string, to: string) => {
@@ -504,7 +476,14 @@ function PlayContent() {
       // Always compute hint with full Grandmaster strength; priority jumps queue front.
       // ponytail: 6s Budget real (Stockfish WASM single-thread); fallback rotulado, nunca "GM"
       const ev = await Promise.race([
-        engine.analyze(fen, 12, { limitStrength: false, priority: true }),
+        engine.analyze(fen, 12, {
+          limitStrength: false,
+          priority: true,
+          // ponytail: live EvalBar; same fen guard as the final staleness check below
+          onProgress: (partial) => {
+            if (game.fen() === fen) setLastEval(partial);
+          },
+        }),
         new Promise<null>((res) => setTimeout(() => res(null), 6000)),
       ]);
       if (!ev) {
@@ -553,32 +532,16 @@ function PlayContent() {
       lastEval,
     };
 
-    const doFetch = async () => {
-      const res = await fetch("/api/coach/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return (await res.json()) as { reply: string };
-    };
-
     try {
-      let data: { reply: string };
-      try {
-        data = await doFetch();
-      } catch {
-        data = await doFetch(); // retry 1x
-      }
+      const data = await postCoachWithQueue(
+        "/api/coach/chat",
+        { type: "chat", ...payload },
+        () => ({
+          reply: "Coach offline, mensagem na fila. Analise a posição atual e busque peças desprotegidas.",
+        })
+      );
       const assistantMsg: ChatMessage = { role: "assistant", content: data.reply };
       appendMessage(assistantMsg);
-    } catch {
-      enqueue({ type: "chat", ...payload });
-      const fallbackMsg: ChatMessage = {
-        role: "assistant",
-        content: "Coach offline, mensagem na fila. Analise a posição atual e busque peças desprotegidas.",
-      };
-      appendMessage(fallbackMsg);
     } finally {
       setIsChatSending(false);
     }
@@ -603,6 +566,33 @@ function PlayContent() {
         makeEngineMove(game.fen(), eng);
       }, 300);
     }
+  };
+
+  const handleTakeback = () => {
+    if (
+      isEngineThinking ||
+      isPostgameLoading ||
+      resignedRef.current ||
+      game.isGameOver() ||
+      movesHistory.length < 2
+    ) {
+      return;
+    }
+    // Undo one full move (engine reply + player move) so it's the player's turn again
+    const undoneReply = game.undo();
+    const undoneMine = game.undo();
+    if (!undoneReply || !undoneMine) return;
+    setFen(game.fen());
+    setMovesHistory((prev) => {
+      const next = prev.slice(0, -2);
+      setViewingPly(next.length);
+      return next;
+    });
+    setArrow([]);
+    setLabel(null);
+    setLastEval(null);
+    setNotice("Lance desfeito — sua vez de novo.");
+    playMoveSound();
   };
 
   const handleResign = () => {
@@ -663,11 +653,23 @@ function PlayContent() {
               onChange={(e) => setAiDifficulty(e.target.value as "grandmaster" | "master" | "adaptive")}
               className="bg-transparent text-xs font-mono text-bronze font-semibold focus:outline-none cursor-pointer"
             >
-              <option value="grandmaster" className="bg-noir-ink text-noir-bg">Grande Mestre (SF 18)</option>
+              <option value="grandmaster" className="bg-noir-ink text-noir-bg">Grande Mestre (SF 19)</option>
               <option value="master" className="bg-noir-ink text-noir-bg">Mestre (~2200)</option>
               <option value="adaptive" className="bg-noir-ink text-noir-bg">Adaptativo ({playerRating})</option>
             </select>
           </div>
+
+          {/* Takeback Button (undo one full move) */}
+          <button
+            type="button"
+            onClick={handleTakeback}
+            disabled={game.isGameOver() || resigned || movesHistory.length < 2 || isPostgameLoading || isEngineThinking}
+            title="Voltar um lance (desfazer sua última jogada e a resposta)"
+            aria-label="Voltar um lance"
+            className="p-2 rounded-xl bg-noir-raised border border-noir-line text-noir-muted hover:text-bronze transition-colors text-sm disabled:opacity-40"
+          >
+            <Undo2 size={16} />
+          </button>
 
           {/* Resign Button (two-step confirm) */}
           <button
@@ -708,7 +710,7 @@ function PlayContent() {
             <PlayerCard
               name={
                 aiDifficulty === "grandmaster"
-                  ? "GM Coach (Stockfish 18)"
+                  ? "GM Coach (Stockfish 19)"
                   : aiDifficulty === "master"
                   ? "Mestre Stockfish"
                   : "Coach Adaptativo"

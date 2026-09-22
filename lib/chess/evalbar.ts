@@ -33,3 +33,14 @@ export function calculateEvalPercentage(
   // Clamp between 4% and 96% so score label remains visible
   return Math.max(4, Math.min(96, playerPercentage));
 }
+
+// UCI scores are relative to the side to move; convert to White perspective
+// for display (bar fill, leader, score text).
+export function toWhitePerspective(
+  cp: number,
+  mate: number | null,
+  turn: "w" | "b" = "w"
+): { cp: number; mate: number | null } {
+  if (turn === "w") return { cp, mate };
+  return { cp: -cp, mate: mate === null ? null : -mate };
+}

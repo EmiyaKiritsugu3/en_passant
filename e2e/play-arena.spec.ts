@@ -36,7 +36,7 @@ test.describe("Play Arena — Game & Coach Console", () => {
     await expect(board.locator("piece.black").first()).toBeVisible();
 
     // Player Cards
-    await expect(page.getByText(/GM Coach \(Stockfish 18\)/i)).toBeVisible();
+    await expect(page.getByText(/GM Coach \(Stockfish 19\)/i)).toBeVisible();
     await expect(page.getByText(/Você/i).first()).toBeVisible();
 
     // A11y landmarks

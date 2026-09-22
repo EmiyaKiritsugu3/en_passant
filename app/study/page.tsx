@@ -7,15 +7,12 @@ import { Chess } from "chess.js";
 import Board from "@/components/Board";
 import curatedGamesData from "@/data/games.json";
 import repertoireData from "@/data/repertoire.json";
-import {
-  fetchExplorerMoves,
-  fetchExplorerStats,
-  type ExplorerMove,
-  type ExplorerStats,
-} from "@/lib/lichess/explorer";
+import { fetchExplorerStats } from "@/lib/lichess/explorer";
+import { useExplorer } from "@/hooks/useExplorer";
+import { postCoachJson } from "@/lib/coach/client";
 import type { ExploreResponse } from "@/lib/coach/schemas";
-import type { DrawShape } from "chessground/draw";
-import type { Key } from "chessground/types";
+import type { DrawShape } from "chessgroundx/draw";
+import type { Key } from "chessgroundx/types";
 
 interface Chapter {
   id: string;
@@ -25,6 +22,9 @@ interface Chapter {
   tags: string[];
   lesson: string;
   source: "classic" | "repertoire";
+  ideas?: string[];
+  traps?: Array<{ name: string; mistake: string; punish: string; why: string }>;
+  notes?: string[];
 }
 
 function StudyContent() {
@@ -48,29 +48,43 @@ function StudyContent() {
       });
     }
 
-    // Repertoire lines
-    for (const r of repertoireData.white) {
-      list.push({
-        id: `rep-w-${r.name.toLowerCase().replace(/\s+/g, "-")}`,
-        title: `[Brancas] ${r.name}`,
-        subtitle: "Repertório Teórico",
-        pgn: r.line.map((san, i) => `${i % 2 === 0 ? `${Math.floor(i / 2) + 1}. ` : ""}${san}`).join(" "),
-        tags: ["abertura"],
-        lesson: `Linha teórica de ${r.name}. Domine o controle do centro e desenvolvimento rápido.`,
-        source: "repertoire",
-      });
+    // Repertoire openings and variations
+    const repPgn = (line: string[]) =>
+      line.map((san, i) => `${i % 2 === 0 ? `${Math.floor(i / 2) + 1}. ` : ""}${san}`).join(" ");
+    const slug = (s: string) => s.toLowerCase().replace(/\s+/g, "-");
+
+    for (const o of repertoireData.white) {
+      for (const v of o.variations) {
+        list.push({
+          id: `rep-w-${slug(o.name)}-${slug(v.name)}`,
+          title: `[Brancas] ${o.name} — ${v.name}`,
+          subtitle: `Repertório Teórico (${o.eco})`,
+          pgn: repPgn(v.line),
+          tags: ["abertura"],
+          lesson: `Linha teórica de ${o.name} (${v.name}). Domine o controle do centro e desenvolvimento rápido.`,
+          source: "repertoire",
+          ideas: v.ideas,
+          traps: v.traps,
+          notes: v.notes,
+        });
+      }
     }
 
-    for (const r of repertoireData.black) {
-      list.push({
-        id: `rep-b-${r.name.toLowerCase().replace(/\s+/g, "-")}`,
-        title: `[Pretas] ${r.name}`,
-        subtitle: "Repertório Teórico",
-        pgn: r.line.map((san, i) => `${i % 2 === 0 ? `${Math.floor(i / 2) + 1}. ` : ""}${san}`).join(" "),
-        tags: ["abertura"],
-        lesson: `Defesa de pretas com ${r.name}. Estrutura sólida e contra-ataque.`,
-        source: "repertoire",
-      });
+    for (const o of repertoireData.black) {
+      for (const v of o.variations) {
+        list.push({
+          id: `rep-b-${slug(o.name)}-${slug(v.name)}`,
+          title: `[Pretas] ${o.name} — ${v.name}`,
+          subtitle: `Repertório Teórico (${o.eco})`,
+          pgn: repPgn(v.line),
+          tags: ["abertura"],
+          lesson: `Defesa de pretas com ${o.name} (${v.name}). Estrutura sólida e contra-ataque.`,
+          source: "repertoire",
+          ideas: v.ideas,
+          traps: v.traps,
+          notes: v.notes,
+        });
+      }
     }
 
     return list;
@@ -96,8 +110,7 @@ function StudyContent() {
   const [isCommentLoading, setIsCommentLoading] = useState(false);
 
   // Explorer state
-  const [explorerMoves, setExplorerMoves] = useState<ExplorerMove[]>([]);
-  const [explorerStats, setExplorerStats] = useState<ExplorerStats | null>(null);
+  const { explorerMoves, explorerStats, loadMoves, loadStats, resetExplorer } = useExplorer();
   const [freeExploreFen, setFreeExploreFen] = useState<string | null>(null);
   const [freeExploreShapes, setFreeExploreShapes] = useState<DrawShape[]>([]);
 
@@ -130,8 +143,7 @@ function StudyContent() {
     setIsExploreMode(false);
     setFreeExploreFen(null);
     setFreeExploreShapes([]);
-    setExplorerMoves([]);
-    setExplorerStats(null);
+    resetExplorer();
   };
 
   // Fetch coach comment for current ply
@@ -157,19 +169,14 @@ function StudyContent() {
 
       try {
         const stats = await fetchExplorerStats(fenAfter);
-        const res = await fetch("/api/coach/explore", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            fenBefore,
-            sanPlayed,
-            cpLoss: 0,
-            explorerStats: stats,
-            openingName: activeChapter.title,
-          }),
+        const data = await postCoachJson<ExploreResponse>("/api/coach/explore", {
+          fenBefore,
+          sanPlayed,
+          cpLoss: 0,
+          explorerStats: stats,
+          openingName: activeChapter.title,
         });
-        if (res.ok && !cancelled) {
-          const data = (await res.json()) as ExploreResponse;
+        if (!cancelled) {
           setCommentsCache((prev) => ({ ...prev, [cacheKey]: data }));
         }
       } catch {
@@ -205,12 +212,7 @@ function StudyContent() {
       const fenAfter = c.fen();
       setFreeExploreFen(fenAfter);
 
-      const [moves, stats] = await Promise.all([
-        fetchExplorerMoves(fenAfter),
-        fetchExplorerStats(fenAfter),
-      ]);
-      setExplorerMoves(moves.slice(0, 5));
-      setExplorerStats(stats);
+      await Promise.all([loadMoves(fenAfter), loadStats(fenAfter)]);
       setFreeExploreShapes([{ orig: from as Key, dest: to as Key, brush: "green" }]);
     } catch {
       // illegal move ignored
@@ -391,7 +393,32 @@ function StudyContent() {
               <div className="w-full p-3 bg-noir-bg rounded-xl border border-noir-line text-xs">
                 <span className="text-[10px] font-mono uppercase text-bronze font-bold">Lição Principal</span>
                 <p className="text-noir-muted mt-1 leading-relaxed">{activeChapter.lesson}</p>
+                {activeChapter.ideas && activeChapter.ideas.length > 0 && (
+                  <ul className="mt-2 flex flex-col gap-1 list-disc pl-4 text-noir-muted leading-relaxed">
+                    {activeChapter.ideas.map((idea, i) => (
+                      <li key={i}>{idea}</li>
+                    ))}
+                  </ul>
+                )}
               </div>
+
+              {/* Traps Callout */}
+              {activeChapter.traps && activeChapter.traps.length > 0 && (
+                <div className="w-full p-3 bg-rose-950/20 rounded-xl border border-rose-900/40 text-xs flex flex-col gap-2">
+                  <span className="text-[10px] font-mono uppercase text-rose-400 font-bold">
+                    Puna os erros comuns
+                  </span>
+                  {activeChapter.traps.map((trap) => (
+                    <div key={trap.name} className="flex flex-col gap-1">
+                      <span className="font-bold text-white">
+                        {trap.name} <span className="font-mono text-rose-300">({trap.mistake})</span>
+                      </span>
+                      <p className="font-mono text-emerald-300">{trap.punish}</p>
+                      <p className="text-noir-muted leading-relaxed">{trap.why}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -407,9 +434,16 @@ function StudyContent() {
             {!isExploreMode && (
               <>
                 {currentPly > 0 && parsedMoves[currentPly - 1] && (
-                  <div className="p-3 bg-noir-bg rounded-xl border border-noir-line text-xs font-mono flex justify-between items-center">
-                    <span className="text-noir-muted">Lance {currentPly}:</span>
-                    <strong className="text-bronze text-sm">{parsedMoves[currentPly - 1].san}</strong>
+                  <div className="p-3 bg-noir-bg rounded-xl border border-noir-line text-xs font-mono flex flex-col gap-1">
+                    <div className="flex justify-between items-center">
+                      <span className="text-noir-muted">Lance {currentPly}:</span>
+                      <strong className="text-bronze text-sm">{parsedMoves[currentPly - 1].san}</strong>
+                    </div>
+                    {activeChapter.notes?.[currentPly - 1] && (
+                      <p className="font-sans text-noir-muted leading-relaxed">
+                        {activeChapter.notes[currentPly - 1]}
+                      </p>
+                    )}
                   </div>
                 )}
 
