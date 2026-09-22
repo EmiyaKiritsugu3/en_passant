@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useSyncExternalStore } from "react";
+import { useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { Chess } from "chess.js";
 import Board from "@/components/Board";
@@ -24,12 +24,13 @@ import type { Key } from "chessgroundx/types";
 import { CircleCheck } from "lucide-react";
 
 type MainTab = "sm2" | "openings";
-type OpeningMode = "drill" | "explore";
+type OpeningMode = "drill" | "explore" | "hunt";
 
 interface RepertoireTrap {
   name: string;
   mistake: string;
-  line: string[];
+  setup: string[];
+  solution: string[];
   punish: string;
   why: string;
 }
@@ -197,13 +198,95 @@ export default function TrainPage() {
     }
   };
 
+  // ==================== HUNT MODE (find the punishment) ====================
+  const [huntTrap, setHuntTrap] = useState<{ variationName: string; trap: RepertoireTrap } | null>(null);
+  const [huntPly, setHuntPly] = useState(0);
+  const [huntStatus, setHuntStatus] = useState("");
+  const [huntDone, setHuntDone] = useState(false);
+  const huntIdRef = useRef(0);
+
+  function startHunt(variationName: string, trap: RepertoireTrap) {
+    const id = ++huntIdRef.current;
+    openingGame.reset();
+    try {
+      for (const san of trap.setup) openingGame.move(san);
+    } catch {
+      if (huntIdRef.current === id) setHuntStatus("Posição inválida.");
+      return;
+    }
+    if (huntIdRef.current !== id) return;
+    setOpeningFen(openingGame.fen());
+    setHuntTrap({ variationName, trap });
+    setHuntPly(0);
+    setHuntDone(false);
+    setOpeningShape([]);
+    setLastDeviationEval(null);
+    const userSide = openingGame.turn() === "w" ? "brancas" : "pretas";
+    const culprit = openingGame.turn() === "w" ? "pretas" : "brancas";
+    setHuntStatus(
+      `As ${culprit} erraram com ${trap.mistake}. Você joga de ${userSide}: encontre a punição!`
+    );
+  }
+
+  function handleHuntMove(from: string, to: string) {
+    if (!huntTrap || huntDone) return;
+    const id = huntIdRef.current;
+    const legal = openingGame.moves({ verbose: true });
+    const move = legal.find((m) => m.from === from && m.to === to);
+    if (!move) return;
+    const expected = huntTrap.trap.solution[huntPly];
+    if (move.san !== expected) {
+      setOpeningShape([{ orig: from as Key, dest: to as Key, brush: "red" }]);
+      setHuntStatus(`Não é esse. O erro ${huntTrap.trap.mistake} deixou algo pendurado — procure o golpe.`);
+      return;
+    }
+    openingGame.move(move.san);
+    setOpeningFen(openingGame.fen());
+    setOpeningShape([{ orig: from as Key, dest: to as Key, brush: "green" }]);
+    const next = huntPly + 1;
+    setHuntPly(next);
+    if (next >= huntTrap.trap.solution.length) {
+      setHuntDone(true);
+      setHuntStatus(`Punição executada! ${huntTrap.trap.why}`);
+      return;
+    }
+    setHuntStatus("Correto! O adversário responde...");
+    const trap = huntTrap.trap;
+    setTimeout(() => {
+      if (huntIdRef.current !== id) return;
+      try {
+        openingGame.move(trap.solution[next]);
+        setOpeningFen(openingGame.fen());
+        const after = next + 1;
+        setHuntPly(after);
+        if (after >= trap.solution.length) {
+          setHuntDone(true);
+          setHuntStatus(`Punição executada! ${trap.why}`);
+        } else {
+          setHuntStatus("Sua vez de novo — continue a punição.");
+        }
+      } catch {
+        // ignore
+      }
+    }, 400);
+  }
+
   const handleSelectOpening = (opening: RepertoireOpening) => {
     setActiveOpening(opening);
-    resetDrillLine(opening.variations[0], selectedColor);
+    if (openingMode === "hunt") {
+      const v = opening.variations[0];
+      if (v?.traps?.[0]) startHunt(v.name, v.traps[0]);
+    } else {
+      resetDrillLine(opening.variations[0], selectedColor);
+    }
   };
 
   const handleSelectLine = (line: RepertoireLine) => {
-    resetDrillLine(line, selectedColor);
+    if (openingMode === "hunt") {
+      if (line.traps?.[0]) startHunt(line.name, line.traps[0]);
+    } else {
+      resetDrillLine(line, selectedColor);
+    }
   };
 
   const handleSelectColor = (color: "white" | "black") => {
@@ -214,6 +297,10 @@ export default function TrainPage() {
   };
 
   const handleOpeningMove = async (from: string, to: string) => {
+    if (openingMode === "hunt") {
+      handleHuntMove(from, to);
+      return;
+    }
     const legalMoves = openingGame.moves({ verbose: true });
     const move = legalMoves.find((m) => m.from === from && m.to === to);
     if (!move) return;
@@ -589,10 +676,26 @@ export default function TrainPage() {
                 >
                   Explorer (Livre)
                 </button>
+                <button
+                  onClick={() => {
+                    setOpeningMode("hunt");
+                    const first = activeLine.traps?.[0];
+                    if (first) startHunt(activeLine.name, first);
+                    else setHuntStatus("Esta linha ainda não tem caçadas.");
+                  }}
+                  className={`px-3 py-1 text-xs rounded-md font-semibold transition-all ${
+                    openingMode === "hunt" ? "bg-rose-700 text-white" : "text-noir-muted hover:text-noir-ink"
+                  }`}
+                >
+                  Caçar Erros
+                </button>
               </div>
 
               <button
-                onClick={() => resetDrillLine(activeLine, selectedColor)}
+                onClick={() => {
+                  if (openingMode === "hunt" && huntTrap) startHunt(huntTrap.variationName, huntTrap.trap);
+                  else resetDrillLine(activeLine, selectedColor);
+                }}
                 className="px-3 py-1.5 text-xs bg-noir-raised hover:bg-noir-line text-noir-muted rounded-lg transition-colors border border-noir-line"
               >
                 Reiniciar
@@ -605,12 +708,25 @@ export default function TrainPage() {
             {/* Board */}
             <div className="flex flex-col items-center gap-4 w-full lg:flex-1 lg:min-w-0 lg:max-w-[560px]">
               <div className="flex justify-between items-center w-full max-w-[560px] text-xs font-mono text-noir-muted">
-                <span>
-                  Linha: <strong className="text-bronze">{activeOpening.name} — {activeLine.name}</strong>
-                </span>
-                <span>
-                  Lance teórico: {drillPly} / {activeLine.line.length}
-                </span>
+                {openingMode === "hunt" && huntTrap ? (
+                  <>
+                    <span>
+                      Caçada: <strong className="text-rose-300">{huntTrap.trap.name}</strong>
+                    </span>
+                    <span>
+                      Punição: {Math.min(huntPly + 1, huntTrap.trap.solution.length)} / {huntTrap.trap.solution.length}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span>
+                      Linha: <strong className="text-bronze">{activeOpening.name} — {activeLine.name}</strong>
+                    </span>
+                    <span>
+                      Lance teórico: {drillPly} / {activeLine.line.length}
+                    </span>
+                  </>
+                )}
               </div>
 
               <Board
@@ -620,7 +736,8 @@ export default function TrainPage() {
                 shape={openingShape}
               />
 
-              {/* Line move pills */}
+              {/* Line move pills (hidden in hunt mode: no spoilers) */}
+              {openingMode !== "hunt" && (
               <div className="flex flex-wrap gap-1.5 max-w-[560px] p-2 bg-noir-surface/60 rounded-xl border border-noir-line">
                 {activeLine.line.map((san, idx) => (
                   <span
@@ -637,6 +754,7 @@ export default function TrainPage() {
                   </span>
                 ))}
               </div>
+              )}
             </div>
 
             {/* Right details panel */}
@@ -644,8 +762,47 @@ export default function TrainPage() {
               {/* Status card */}
               <div className="bg-noir-surface/70 border border-noir-line rounded-2xl p-5 flex flex-col gap-3 shadow-xl">
                 <span className="text-xs font-mono uppercase tracking-wider text-noir-muted">
-                  {openingMode === "drill" ? "Status do Treino" : "Explorer Lichess Masters"}
+                  {openingMode === "drill"
+                    ? "Status do Treino"
+                    : openingMode === "hunt"
+                      ? "Caça à Punição"
+                      : "Explorer Lichess Masters"}
                 </span>
+
+                {openingMode === "hunt" && huntStatus && (
+                  <div
+                    className={`p-3 rounded-xl text-xs font-mono ${
+                      huntDone
+                        ? "bg-emerald-950/40 border border-emerald-800 text-emerald-300"
+                        : "bg-rose-950/40 border border-rose-800 text-rose-300"
+                    }`}
+                  >
+                    {huntStatus}
+                  </div>
+                )}
+
+                {openingMode === "hunt" && (
+                  <div className="flex flex-col gap-1.5">
+                    <span className="text-[10px] font-mono uppercase text-noir-muted">
+                      Armadilhas desta abertura:
+                    </span>
+                    {activeOpening.variations.flatMap((v) =>
+                      (v.traps ?? []).map((t) => (
+                        <button
+                          key={`${v.name}:${t.name}`}
+                          onClick={() => startHunt(v.name, t)}
+                          className={`px-3 py-1.5 text-xs rounded-lg font-semibold border text-left transition-all ${
+                            huntTrap?.trap.name === t.name
+                              ? "bg-rose-500/20 text-rose-300 border-rose-500/40"
+                              : "bg-noir-bg text-noir-muted border-noir-line hover:text-noir-ink"
+                          }`}
+                        >
+                          {v.name}: {t.name}
+                        </button>
+                      ))
+                    )}
+                  </div>
+                )}
 
                 {drillStatus && (
                   <div
@@ -713,8 +870,8 @@ export default function TrainPage() {
                 </div>
               )}
 
-              {/* Common-mistake traps */}
-              {activeLine.traps && activeLine.traps.length > 0 && (
+              {/* Common-mistake traps (hidden in hunt mode: no spoilers) */}
+              {openingMode !== "hunt" && activeLine.traps && activeLine.traps.length > 0 && (
                 <div className="bg-noir-surface/70 border border-noir-line rounded-2xl p-5 flex flex-col gap-3 shadow-xl">
                   <span className="text-xs font-mono uppercase tracking-wider text-rose-400 font-bold">
                     Puna os erros comuns

@@ -41,7 +41,9 @@
             {
               "name": "d5 prematuro",
               "mistake": "4...d5?!",
-              "line": [
+              "punish": "5.exd5! Qxd5?? 6.Nc3!",
+              "why": "A dama tem que sair perdendo tempo; desenvolvimento grátis e centro para as brancas.",
+              "setup": [
                 "e4",
                 "e5",
                 "Nf3",
@@ -49,11 +51,11 @@
                 "Bc4",
                 "d5",
                 "exd5",
-                "Qxd5",
-                "Nc3"
+                "Qxd5"
               ],
-              "punish": "5.exd5! Qxd5?? 6.Nc3!",
-              "why": "A dama tem que sair perdendo tempo; desenvolvimento grátis e centro para as brancas."
+              "solution": [
+                "Nc3"
+              ]
             }
           ]
         },
@@ -94,7 +96,9 @@
             {
               "name": "Contra-gambito apressado",
               "mistake": "6...d6?!",
-              "line": [
+              "punish": "7.d4! com iniciativa",
+              "why": "O lance passivo trava o próprio bispo; o centro branco avança com ganho de tempo.",
+              "setup": [
                 "e4",
                 "e5",
                 "Nf3",
@@ -104,11 +108,11 @@
                 "b4",
                 "Bxb4",
                 "c3",
-                "d6",
-                "d4"
+                "d6"
               ],
-              "punish": "7.d4! com iniciativa",
-              "why": "O lance passivo trava o próprio bispo; o centro branco avança com ganho de tempo."
+              "solution": [
+                "d4"
+              ]
             }
           ]
         }
@@ -155,7 +159,9 @@
             {
               "name": "Arca de Noé",
               "mistake": "8...Nxd4?!",
-              "line": [
+              "punish": "9.Nxd4 exd4?? 10.Qxd4 c5?? 11.Qd5!",
+              "why": "A dama invade cortando a comunicação: ameaça Qxa8 e Qxe5; o bispo de b3 está preso na arca e cai.",
+              "setup": [
                 "e4",
                 "e5",
                 "Nf3",
@@ -171,11 +177,11 @@
                 "Nxd4",
                 "exd4",
                 "Qxd4",
-                "c5",
-                "Qd5"
+                "c5"
               ],
-              "punish": "9.Nxd4 exd4?? 10.Qxd4 c5?? 11.Qd5!",
-              "why": "A dama invade cortando a comunicação: ameaça Qxa8 e Qxe5; o bispo de b3 está preso na arca e cai."
+              "solution": [
+                "Qd5"
+              ]
             }
           ]
         },
@@ -216,7 +222,9 @@
             {
               "name": "Armadilha Mortimer",
               "mistake": "4...Ne7?!",
-              "line": [
+              "punish": "5.Nxe5! c6?? 6.Nc4 Qa5+ 7.Nc3!",
+              "why": "O cavalo de e4 não tem para onde fugir depois de Nc3; as pretas perdem a peça.",
+              "setup": [
                 "e4",
                 "e5",
                 "Nf3",
@@ -226,12 +234,12 @@
                 "d3",
                 "Ne7",
                 "Nxe5",
-                "c6",
+                "c6"
+              ],
+              "solution": [
                 "Nc4",
                 "Qa5+"
-              ],
-              "punish": "5.Nxe5! c6?? 6.Nc4 Qa5+ 7.Nc3!",
-              "why": "O cavalo de e4 não tem para onde fugir depois de Nc3; as pretas perdem a peça."
+              ]
             }
           ]
         }
@@ -278,17 +286,19 @@
             {
               "name": "Bispo apressado",
               "mistake": "3...Bf5?!",
-              "line": [
+              "punish": "4.c4! e6?? 5.Qb3!",
+              "why": "Pressão dupla em b7 e f7; as pretas perdem peão ou destroem a estrutura para se salvar.",
+              "setup": [
                 "d4",
                 "d5",
                 "Bf4",
                 "Bf5",
                 "c4",
-                "e6",
-                "Qb3"
+                "e6"
               ],
-              "punish": "4.c4! e6?? 5.Qb3!",
-              "why": "Pressão dupla em b7 e f7; as pretas perdem peão ou destroem a estrutura para se salvar."
+              "solution": [
+                "Qb3"
+              ]
             }
           ]
         },
@@ -329,7 +339,9 @@
             {
               "name": "Caça ao bispo",
               "mistake": "9...e5?!",
-              "line": [
+              "punish": "10...e5?! 11.dxe5! dxe5 12.Qxd8! Rxd8 13.Nxe5!",
+              "why": "Sem preparação a ruptura perde peão limpo e as brancas ficam melhores no final.",
+              "setup": [
                 "d4",
                 "Nf6",
                 "Bf4",
@@ -341,15 +353,15 @@
                 "Be2",
                 "d6",
                 "O-O",
-                "e5",
+                "e5"
+              ],
+              "solution": [
                 "dxe5",
                 "dxe5",
                 "Qxd8",
                 "Rxd8",
                 "Nxe5"
-              ],
-              "punish": "10...e5?! 11.dxe5! dxe5 12.Qxd8! Rxd8 13.Nxe5!",
-              "why": "Sem preparação a ruptura perde peão limpo e as brancas ficam melhores no final."
+              ]
             }
           ]
         }
@@ -396,7 +408,9 @@
             {
               "name": "Captura apressada",
               "mistake": "6...dxc4?!",
-              "line": [
+              "punish": "7.e4! centro avassalador",
+              "why": "As pretas abrem mão do centro de graça; e4+e3 formam uma muralha com desenvolvimento livre.",
+              "setup": [
                 "d4",
                 "d5",
                 "c4",
@@ -404,11 +418,11 @@
                 "Nc3",
                 "Nf6",
                 "Bg5",
-                "dxc4",
-                "e4"
+                "dxc4"
               ],
-              "punish": "7.e4! centro avassalador",
-              "why": "As pretas abrem mão do centro de graça; e4+e3 formam uma muralha com desenvolvimento livre."
+              "solution": [
+                "e4"
+              ]
             }
           ]
         },
@@ -449,7 +463,9 @@
             {
               "name": "Enfraquecimento h6",
               "mistake": "7...h6?!",
-              "line": [
+              "punish": "8.Bxf6! Qxf6 9.Nxd5!",
+              "why": "O cavalo central ataca c7 e a dama; as brancas ganham peão com posição superior.",
+              "setup": [
                 "d4",
                 "d5",
                 "c4",
@@ -459,13 +475,13 @@
                 "Nc3",
                 "Nf6",
                 "Bg5",
-                "h6",
+                "h6"
+              ],
+              "solution": [
                 "Bxf6",
                 "Qxf6",
                 "Nxd5"
-              ],
-              "punish": "8.Bxf6! Qxf6 9.Nxd5!",
-              "why": "O cavalo central ataca c7 e a dama; as brancas ganham peão com posição superior."
+              ]
             }
           ]
         }
@@ -514,7 +530,9 @@
             {
               "name": "Bispo caçado",
               "mistake": "8...Bh5?!",
-              "line": [
+              "punish": "9.Nf5! com ideia de Nxg7+",
+              "why": "O bispo fica sobrecarregado e o salto ameaça garfo em g7; as pretas perdem tempo e coordenação.",
+              "setup": [
                 "e4",
                 "c6",
                 "d4",
@@ -526,11 +544,11 @@
                 "Ng3",
                 "Bg6",
                 "h4",
-                "Bh5",
-                "Nf5"
+                "Bh5"
               ],
-              "punish": "9.Nf5! com ideia de Nxg7+",
-              "why": "O bispo fica sobrecarregado e o salto ameaça garfo em g7; as pretas perdem tempo e coordenação."
+              "solution": [
+                "Nf5"
+              ]
             }
           ]
         },
@@ -571,7 +589,9 @@
             {
               "name": "Ruptura prematura",
               "mistake": "7...c5?!",
-              "line": [
+              "punish": "8.dxc5! abre o jogo com vantagem de desenvolvimento",
+              "why": "Sem preparação, a ruptura só ajuda as brancas a desenvolver com tempo e dominar casas claras.",
+              "setup": [
                 "e4",
                 "c6",
                 "d4",
@@ -581,11 +601,11 @@
                 "Nf3",
                 "e6",
                 "Be2",
-                "c5",
-                "dxc5"
+                "c5"
               ],
-              "punish": "8.dxc5! abre o jogo com vantagem de desenvolvimento",
-              "why": "Sem preparação, a ruptura só ajuda as brancas a desenvolver com tempo e dominar casas claras."
+              "solution": [
+                "dxc5"
+              ]
             }
           ]
         }
@@ -632,7 +652,9 @@
             {
               "name": "Desenvolvimento preguiçoso",
               "mistake": "9...Nbd7?!",
-              "line": [
+              "punish": "10.Bc4! e6?? 11.Nxe6! fxe6 12.Bxe6+",
+              "why": "Sacrifício clássico de demolição: o rei preto fica exposto e o ataque branco é decisivo.",
+              "setup": [
                 "e4",
                 "c5",
                 "Nf3",
@@ -646,13 +668,13 @@
                 "Be3",
                 "Nbd7",
                 "Bc4",
-                "e6",
+                "e6"
+              ],
+              "solution": [
                 "Nxe6",
                 "fxe6",
                 "Bxe6+"
-              ],
-              "punish": "10.Bc4! e6?? 11.Nxe6! fxe6 12.Bxe6+",
-              "why": "Sacrifício clássico de demolição: o rei preto fica exposto e o ataque branco é decisivo."
+              ]
             }
           ]
         },
@@ -693,7 +715,9 @@
             {
               "name": "Buraco em d5",
               "mistake": "7...e5?!",
-              "line": [
+              "punish": "8.Bxf6! gxf6 9.Nd5!",
+              "why": "Peões dobrados, rei exposto e um cavalo cravado em d5; vantagem branca duradoura.",
+              "setup": [
                 "e4",
                 "c5",
                 "Nf3",
@@ -705,13 +729,13 @@
                 "Nc3",
                 "Nc6",
                 "Bg5",
-                "e5",
+                "e5"
+              ],
+              "solution": [
                 "Bxf6",
                 "gxf6",
                 "Nd5"
-              ],
-              "punish": "8.Bxf6! gxf6 9.Nd5!",
-              "why": "Peões dobrados, rei exposto e um cavalo cravado em d5; vantagem branca duradoura."
+              ]
             }
           ]
         }
@@ -758,7 +782,9 @@
             {
               "name": "Armadilha do Elefante",
               "mistake": "brancas: 8.cxd5?! exd5 9.Nxd5??",
-              "line": [
+              "punish": "9...Nxd5! 10.Bxd8?? Bb4+!",
+              "why": "A dama branca cai com xeque: depois de Bxd2+, as pretas ficam com dama contra nada.",
+              "setup": [
                 "d4",
                 "d5",
                 "c4",
@@ -769,13 +795,13 @@
                 "Nbd7",
                 "cxd5",
                 "exd5",
-                "Nxd5",
+                "Nxd5"
+              ],
+              "solution": [
                 "Nxd5",
                 "Bxd8",
                 "Bb4+"
-              ],
-              "punish": "9...Nxd5! 10.Bxd8?? Bb4+!",
-              "why": "A dama branca cai com xeque: depois de Bxd2+, as pretas ficam com dama contra nada."
+              ]
             }
           ]
         },
@@ -816,7 +842,9 @@
             {
               "name": "Bispo preguiçoso",
               "mistake": "brancas: 12.Bd3?!",
-              "line": [
+              "punish": "12...dxc4! 13.Bxc4 b5!",
+              "why": "As pretas ganham tempo expulsando o bispo e tomam a iniciativa na ala da dama.",
+              "setup": [
                 "d4",
                 "d5",
                 "c4",
@@ -829,13 +857,13 @@
                 "c6",
                 "e3",
                 "Bd6",
-                "Bd3",
+                "Bd3"
+              ],
+              "solution": [
                 "dxc4",
                 "Bxc4",
                 "b5"
-              ],
-              "punish": "12...dxc4! 13.Bxc4 b5!",
-              "why": "As pretas ganham tempo expulsando o bispo e tomam a iniciativa na ala da dama."
+              ]
             }
           ]
         }
@@ -882,7 +910,9 @@
             {
               "name": "Fechamento prematuro",
               "mistake": "brancas: 11.d5?!",
-              "line": [
+              "punish": "11...Nd4! 12.Nxd4?? exd4!",
+              "why": "O cavalo branco some e o peão de d4 crava a posição; as pretas ficam com peça a mais de atividade.",
+              "setup": [
                 "d4",
                 "Nf6",
                 "c4",
@@ -897,13 +927,13 @@
                 "e5",
                 "O-O",
                 "Nc6",
-                "d5",
+                "d5"
+              ],
+              "solution": [
                 "Nd4",
                 "Nxd4",
                 "exd4"
-              ],
-              "punish": "11...Nd4! 12.Nxd4?? exd4!",
-              "why": "O cavalo branco some e o peão de d4 crava a posição; as pretas ficam com peça a mais de atividade."
+              ]
             }
           ]
         },
@@ -944,7 +974,9 @@
             {
               "name": "Cavalo infiltrado",
               "mistake": "brancas: 13.d5?! Nd4 14.Nxd4??",
-              "line": [
+              "punish": "14...exd4! 15.Qxd4?? Re8+!",
+              "why": "A dama fica sobrecarregada defendendo tudo; o xeque na coluna-e decide.",
+              "setup": [
                 "d4",
                 "Nf6",
                 "c4",
@@ -959,15 +991,15 @@
                 "Nc6",
                 "Re1",
                 "e5",
-                "d5",
+                "d5"
+              ],
+              "solution": [
                 "Nd4",
                 "Nxd4",
                 "exd4",
                 "Qxd4",
                 "Re8"
-              ],
-              "punish": "14...exd4! 15.Qxd4?? Re8+!",
-              "why": "A dama fica sobrecarregada defendendo tudo; o xeque na coluna-e decide."
+              ]
             }
           ]
         }
