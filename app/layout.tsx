@@ -1,11 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Inter, Geist_Mono } from "next/font/google";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import TabBar from "@/components/TabBar";
 import "./globals.css";
-
-const display = Fraunces({ variable: "--font-display", subsets: ["latin"], display: "swap" });
-const sans = Inter({ variable: "--font-sans", subsets: ["latin"], display: "swap" });
-const mono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "En Passant - Chess Coach",
@@ -13,18 +9,16 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#030201",
+  themeColor: "#f2f2f7",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="pt-BR"
-      className={`${display.variable} ${sans.variable} ${mono.variable} h-full antialiased`}
-    >
+    <html lang="pt-BR" className="h-full antialiased">
       <body className="min-h-full flex flex-col">
         <ServiceWorkerRegister />
-        {children}
+        <div className="flex-1 pb-20">{children}</div>
+        <TabBar />
       </body>
     </html>
   );

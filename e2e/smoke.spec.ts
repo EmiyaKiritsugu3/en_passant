@@ -12,11 +12,12 @@ test.beforeEach(async ({ page }) => {
 test("setup → play arena renders correctly", async ({ page }) => {
   await page.goto("/");
 
-  // Check setup buttons
-  const whiteBtn = page.getByRole("button", { name: /white/i });
+  // Trail home: continue card + side buttons
+  await expect(page.getByRole("heading", { name: /trilha de aberturas/i })).toBeVisible();
+  await expect(page.getByRole("link", { name: /continuar/i }).first()).toBeVisible();
+  const whiteBtn = page.getByRole("button", { name: /^white$/i });
   await expect(whiteBtn).toBeVisible();
-  await expect(page.getByRole("button", { name: /black/i })).toBeVisible();
-  await expect(page.getByRole("button", { name: /random/i })).toBeVisible();
+  await expect(page.getByRole("button", { name: /^black$/i })).toBeVisible();
 
   // Navigate to arena as White
   await whiteBtn.click();
@@ -34,29 +35,26 @@ test("setup → play arena renders correctly", async ({ page }) => {
   await expect(board.locator("piece.black").first()).toBeVisible();
 });
 
-test("home command center renders all 5 training modules and navigation", async ({ page }) => {
+test("home learn trail renders 8 openings with tab bar", async ({ page }) => {
   await page.goto("/");
 
-  // Header & Brand
-  await expect(page.getByText("Command Center")).toBeVisible();
-  await expect(page.getByRole("link", { name: "Painel", exact: true })).toBeVisible();
+  // Trail heading
+  await expect(page.getByRole("heading", { name: /trilha de aberturas/i })).toBeVisible();
 
-  // Student Profile Quick Stats
-  await expect(page.getByText("Perfil do Jogador")).toBeVisible();
-  await expect(page.getByText("Rating ELO")).toBeVisible();
+  // 8 trail nodes (4 white + 4 black)
+  await expect(page.getByRole("list", { name: /trilha de aberturas/i })).toBeVisible();
+  await expect(page.locator("ol li")).toHaveCount(8);
+  await expect(page.getByText("Italian Game").first()).toBeVisible();
 
-  // Training Modules Section
-  await expect(page.getByText("Módulos de Treinamento")).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Arena GM", exact: true })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Punishment Lab", exact: true })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Treino Diário SM-2", exact: true })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Estudo Clássico", exact: true })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Biblioteca de Jogos", exact: true })).toBeVisible();
+  // Bottom tab bar
+  const nav = page.getByRole("navigation", { name: /navegação principal/i });
+  await expect(nav.getByRole("link", { name: /aprender/i })).toBeVisible();
+  await expect(nav.getByRole("link", { name: /jogar/i })).toBeVisible();
+  await expect(nav.getByRole("link", { name: /revisar/i })).toBeVisible();
+  await expect(nav.getByRole("link", { name: /você/i })).toBeVisible();
 
-  // Click on a module card (e.g. Punishment Lab)
-  const punishmentCard = page.locator("a", { hasText: "Punishment Lab" }).first();
-  await expect(punishmentCard).toBeVisible();
-  await punishmentCard.click();
-  await expect(page).toHaveURL("/trainer/punishment");
+  // Continue CTA goes to study
+  await page.getByRole("link", { name: /continuar/i }).first().click();
+  await expect(page).toHaveURL(/\/study\?opening=/);
 });
 
