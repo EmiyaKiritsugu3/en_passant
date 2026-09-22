@@ -2,37 +2,309 @@
   "white": [
     {
       "name": "Italian Game",
-      "line": ["e4", "e5", "Nf3", "Nc6", "Bc4", "Bc5", "c3", "Nf6", "d3", "d6", "O-O"]
+      "eco": "C50",
+      "variations": [
+        {
+          "name": "Giuoco Piano",
+          "line": [
+            "e4",
+            "e5",
+            "Nf3",
+            "Nc6",
+            "Bc4",
+            "Bc5",
+            "c3",
+            "Nf6",
+            "d3",
+            "d6",
+            "O-O"
+          ]
+        },
+        {
+          "name": "Evans Gambit",
+          "line": [
+            "e4",
+            "e5",
+            "Nf3",
+            "Nc6",
+            "Bc4",
+            "Bc5",
+            "b4",
+            "Bxb4",
+            "c3",
+            "Ba5",
+            "d4"
+          ]
+        }
+      ]
     },
     {
       "name": "Ruy Lopez",
-      "line": ["e4", "e5", "Nf3", "Nc6", "Bb5", "a6", "Ba4", "Nf6", "O-O", "Be7", "Re1"]
+      "eco": "C60",
+      "variations": [
+        {
+          "name": "Classical",
+          "line": [
+            "e4",
+            "e5",
+            "Nf3",
+            "Nc6",
+            "Bb5",
+            "a6",
+            "Ba4",
+            "Nf6",
+            "O-O",
+            "Be7",
+            "Re1"
+          ]
+        },
+        {
+          "name": "Berlin",
+          "line": [
+            "e4",
+            "e5",
+            "Nf3",
+            "Nc6",
+            "Bb5",
+            "Nf6",
+            "O-O",
+            "Nxe4",
+            "d4",
+            "Nd6",
+            "Bxc6"
+          ]
+        }
+      ]
     },
     {
       "name": "London System",
-      "line": ["d4", "d5", "Bf4", "Nf6", "e3", "e6", "Nf3", "c5", "c3", "Nc6", "Nbd2"]
+      "eco": "D02",
+      "variations": [
+        {
+          "name": "vs d5",
+          "line": [
+            "d4",
+            "d5",
+            "Bf4",
+            "Nf6",
+            "e3",
+            "e6",
+            "Nf3",
+            "c5",
+            "c3",
+            "Nc6",
+            "Nbd2"
+          ]
+        },
+        {
+          "name": "vs King's Indian",
+          "line": [
+            "d4",
+            "Nf6",
+            "Bf4",
+            "g6",
+            "e3",
+            "Bg7",
+            "Nf3",
+            "O-O",
+            "Be2",
+            "d6",
+            "O-O"
+          ]
+        }
+      ]
     },
     {
       "name": "Queen's Gambit",
-      "line": ["d4", "d5", "c4", "e6", "Nc3", "Nf6", "Bg5", "Be7", "e3", "O-O", "Nf3"]
+      "eco": "D06",
+      "variations": [
+        {
+          "name": "Orthodox",
+          "line": [
+            "d4",
+            "d5",
+            "c4",
+            "e6",
+            "Nc3",
+            "Nf6",
+            "Bg5",
+            "Be7",
+            "e3",
+            "O-O",
+            "Nf3"
+          ]
+        },
+        {
+          "name": "Exchange",
+          "line": [
+            "d4",
+            "d5",
+            "c4",
+            "e6",
+            "cxd5",
+            "exd5",
+            "Nc3",
+            "Nf6",
+            "Bg5",
+            "Be7",
+            "Qc2"
+          ]
+        }
+      ]
     }
   ],
   "black": [
     {
-      "name": "Caro-Kann vs e4",
-      "line": ["e4", "c6", "d4", "d5", "Nc3", "dxe4", "Nxe4", "Bf5", "Ng3", "Bg6", "h4"]
+      "name": "Caro-Kann",
+      "eco": "B10",
+      "variations": [
+        {
+          "name": "Main Line",
+          "line": [
+            "e4",
+            "c6",
+            "d4",
+            "d5",
+            "Nc3",
+            "dxe4",
+            "Nxe4",
+            "Bf5",
+            "Ng3",
+            "Bg6",
+            "h4"
+          ]
+        },
+        {
+          "name": "Advance",
+          "line": [
+            "e4",
+            "c6",
+            "d4",
+            "d5",
+            "e5",
+            "Bf5",
+            "Nf3",
+            "e6",
+            "Be2",
+            "Ne7",
+            "O-O"
+          ]
+        }
+      ]
     },
     {
-      "name": "Sicilian Najdorf vs e4",
-      "line": ["e4", "c5", "Nf3", "d6", "d4", "cxd4", "Nxd4", "Nf6", "Nc3", "a6", "Be3"]
+      "name": "Sicilian",
+      "eco": "B20",
+      "variations": [
+        {
+          "name": "Najdorf",
+          "line": [
+            "e4",
+            "c5",
+            "Nf3",
+            "d6",
+            "d4",
+            "cxd4",
+            "Nxd4",
+            "Nf6",
+            "Nc3",
+            "a6",
+            "Be3"
+          ]
+        },
+        {
+          "name": "Classical",
+          "line": [
+            "e4",
+            "c5",
+            "Nf3",
+            "d6",
+            "d4",
+            "cxd4",
+            "Nxd4",
+            "Nf6",
+            "Nc3",
+            "Nc6",
+            "Bg5"
+          ]
+        }
+      ]
     },
     {
-      "name": "QGD setup vs d4",
-      "line": ["d4", "d5", "c4", "e6", "Nc3", "Nf6", "Bg5", "Be7", "e3", "O-O", "Nf3"]
+      "name": "Queen's Gambit Declined",
+      "eco": "D30",
+      "variations": [
+        {
+          "name": "Orthodox",
+          "line": [
+            "d4",
+            "d5",
+            "c4",
+            "e6",
+            "Nc3",
+            "Nf6",
+            "Bg5",
+            "Be7",
+            "e3",
+            "O-O",
+            "Nf3"
+          ]
+        },
+        {
+          "name": "Cambridge Springs",
+          "line": [
+            "d4",
+            "d5",
+            "c4",
+            "e6",
+            "Nc3",
+            "Nf6",
+            "Bg5",
+            "Nbd7",
+            "Nf3",
+            "c6",
+            "e3"
+          ]
+        }
+      ]
     },
     {
-      "name": "King's Indian vs d4",
-      "line": ["d4", "Nf6", "c4", "g6", "Nc3", "Bg7", "e4", "d6", "Nf3", "O-O", "Be2"]
+      "name": "King's Indian",
+      "eco": "E60",
+      "variations": [
+        {
+          "name": "Classical",
+          "line": [
+            "d4",
+            "Nf6",
+            "c4",
+            "g6",
+            "Nc3",
+            "Bg7",
+            "e4",
+            "d6",
+            "Nf3",
+            "O-O",
+            "Be2"
+          ]
+        },
+        {
+          "name": "Fianchetto",
+          "line": [
+            "d4",
+            "Nf6",
+            "c4",
+            "g6",
+            "Nf3",
+            "Bg7",
+            "g3",
+            "O-O",
+            "Bg2",
+            "d6",
+            "O-O"
+          ]
+        }
+      ]
     }
   ]
 }

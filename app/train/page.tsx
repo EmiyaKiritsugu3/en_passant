@@ -31,6 +31,12 @@ interface RepertoireLine {
   line: string[];
 }
 
+interface RepertoireOpening {
+  name: string;
+  eco: string;
+  variations: RepertoireLine[];
+}
+
 const EMPTY_CARDS: Card[] = [];
 
 export default function TrainPage() {
@@ -64,7 +70,8 @@ export default function TrainPage() {
   // ==================== OPENINGS STATE ====================
   const [openingMode, setOpeningMode] = useState<OpeningMode>("drill");
   const [selectedColor, setSelectedColor] = useState<"white" | "black">("white");
-  const [activeLine, setActiveLine] = useState<RepertoireLine>(repertoireData.white[0]);
+  const [activeOpening, setActiveOpening] = useState<RepertoireOpening>(repertoireData.white[0]);
+  const [activeLine, setActiveLine] = useState<RepertoireLine>(repertoireData.white[0].variations[0]);
 
   const openingGame = useMemo(() => new Chess(), []);
   const [openingFen, setOpeningFen] = useState(openingGame.fen());
@@ -177,14 +184,20 @@ export default function TrainPage() {
     }
   };
 
+  const handleSelectOpening = (opening: RepertoireOpening) => {
+    setActiveOpening(opening);
+    resetDrillLine(opening.variations[0], selectedColor);
+  };
+
   const handleSelectLine = (line: RepertoireLine) => {
     resetDrillLine(line, selectedColor);
   };
 
   const handleSelectColor = (color: "white" | "black") => {
     setSelectedColor(color);
-    const defaultLine = color === "white" ? repertoireData.white[0] : repertoireData.black[0];
-    resetDrillLine(defaultLine, color);
+    const defaultOpening = color === "white" ? repertoireData.white[0] : repertoireData.black[0];
+    setActiveOpening(defaultOpening);
+    resetDrillLine(defaultOpening.variations[0], color);
   };
 
   const handleOpeningMove = async (from: string, to: string) => {
@@ -292,7 +305,7 @@ export default function TrainPage() {
             sanPlayed: move.san,
             cpLoss,
             explorerStats: stats,
-            openingName: stats?.opening?.name || activeLine.name,
+            openingName: stats?.opening?.name || `${activeOpening.name}: ${activeLine.name}`,
           });
           setCoachExplore(data);
         } catch {
@@ -300,7 +313,7 @@ export default function TrainPage() {
           setCoachExplore({
             verdict: cpLoss > 100 ? "Imprecisão tática" : "Lance jogável e sólido",
             consequences: `Perda calculada de ${cpLoss} centipawns. Posição aberta com opções para ambos os lados.`,
-            namedVariant: stats?.opening?.name || activeLine.name,
+            namedVariant: stats?.opening?.name || `${activeOpening.name}: ${activeLine.name}`,
           });
         }
       } finally {
@@ -499,9 +512,28 @@ export default function TrainPage() {
                 </button>
               </div>
 
-              <span className="text-xs font-mono uppercase text-noir-muted ml-2">Linha:</span>
+              <span className="text-xs font-mono uppercase text-noir-muted ml-2">Abertura:</span>
               <div className="flex flex-wrap gap-2">
-                {(selectedColor === "white" ? repertoireData.white : repertoireData.black).map((l) => (
+                {(selectedColor === "white" ? repertoireData.white : repertoireData.black).map((o) => (
+                  <button
+                    key={o.name}
+                    onClick={() => handleSelectOpening(o)}
+                    className={`px-3 py-1.5 text-xs rounded-lg font-semibold border transition-all ${
+                      activeOpening.name === o.name
+                        ? "bg-bronze/20 text-bronze border-bronze/40"
+                        : "bg-noir-bg text-noir-muted border-noir-line hover:text-noir-ink"
+                    }`}
+                  >
+                    {o.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-mono uppercase text-noir-muted ml-2">Variação:</span>
+              <div className="flex flex-wrap gap-2">
+                {activeOpening.variations.map((l) => (
                   <button
                     key={l.name}
                     onClick={() => handleSelectLine(l)}
@@ -559,7 +591,7 @@ export default function TrainPage() {
             <div className="flex flex-col items-center gap-4 w-full lg:flex-1 lg:min-w-0 lg:max-w-[560px]">
               <div className="flex justify-between items-center w-full max-w-[560px] text-xs font-mono text-noir-muted">
                 <span>
-                  Linha: <strong className="text-bronze">{activeLine.name}</strong>
+                  Linha: <strong className="text-bronze">{activeOpening.name} — {activeLine.name}</strong>
                 </span>
                 <span>
                   Lance teórico: {drillPly} / {activeLine.line.length}

@@ -45,29 +45,37 @@ function StudyContent() {
       });
     }
 
-    // Repertoire lines
-    for (const r of repertoireData.white) {
-      list.push({
-        id: `rep-w-${r.name.toLowerCase().replace(/\s+/g, "-")}`,
-        title: `[Brancas] ${r.name}`,
-        subtitle: "Repertório Teórico",
-        pgn: r.line.map((san, i) => `${i % 2 === 0 ? `${Math.floor(i / 2) + 1}. ` : ""}${san}`).join(" "),
-        tags: ["abertura"],
-        lesson: `Linha teórica de ${r.name}. Domine o controle do centro e desenvolvimento rápido.`,
-        source: "repertoire",
-      });
+    // Repertoire openings and variations
+    const repPgn = (line: string[]) =>
+      line.map((san, i) => `${i % 2 === 0 ? `${Math.floor(i / 2) + 1}. ` : ""}${san}`).join(" ");
+    const slug = (s: string) => s.toLowerCase().replace(/\s+/g, "-");
+
+    for (const o of repertoireData.white) {
+      for (const v of o.variations) {
+        list.push({
+          id: `rep-w-${slug(o.name)}-${slug(v.name)}`,
+          title: `[Brancas] ${o.name} — ${v.name}`,
+          subtitle: `Repertório Teórico (${o.eco})`,
+          pgn: repPgn(v.line),
+          tags: ["abertura"],
+          lesson: `Linha teórica de ${o.name} (${v.name}). Domine o controle do centro e desenvolvimento rápido.`,
+          source: "repertoire",
+        });
+      }
     }
 
-    for (const r of repertoireData.black) {
-      list.push({
-        id: `rep-b-${r.name.toLowerCase().replace(/\s+/g, "-")}`,
-        title: `[Pretas] ${r.name}`,
-        subtitle: "Repertório Teórico",
-        pgn: r.line.map((san, i) => `${i % 2 === 0 ? `${Math.floor(i / 2) + 1}. ` : ""}${san}`).join(" "),
-        tags: ["abertura"],
-        lesson: `Defesa de pretas com ${r.name}. Estrutura sólida e contra-ataque.`,
-        source: "repertoire",
-      });
+    for (const o of repertoireData.black) {
+      for (const v of o.variations) {
+        list.push({
+          id: `rep-b-${slug(o.name)}-${slug(v.name)}`,
+          title: `[Pretas] ${o.name} — ${v.name}`,
+          subtitle: `Repertório Teórico (${o.eco})`,
+          pgn: repPgn(v.line),
+          tags: ["abertura"],
+          lesson: `Defesa de pretas com ${o.name} (${v.name}). Estrutura sólida e contra-ataque.`,
+          source: "repertoire",
+        });
+      }
     }
 
     return list;
