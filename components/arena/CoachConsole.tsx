@@ -108,7 +108,7 @@ export default function CoachConsole({
   };
 
   return (
-    <div className="flex flex-col h-full bg-noir-surface/80 backdrop-blur-md border border-noir-line rounded-2xl overflow-hidden shadow-xl">
+    <div className="flex flex-col h-full bg-noir-surface border border-noir-line rounded-[20px] overflow-hidden shadow-sm">
       {/* Navigation Tabs */}
       <div
         role="tablist"
@@ -355,15 +355,15 @@ export default function CoachConsole({
       </div>
 
       {/* Action Footer */}
-      <div className="p-3 sm:p-4 border-t border-noir-line bg-noir-surface/90 flex flex-col gap-2">
+      <div className="p-3 border-t border-noir-line bg-noir-surface/90 flex flex-col gap-2">
         <button
           type="button"
           onClick={onHint}
           disabled={isHintLoading}
-          className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-bronze-deep to-bronze text-white text-xs font-mono font-bold shadow-md border border-bronze/40 flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
+          className="w-full py-3.5 px-4 rounded-[14px] bg-bronze text-white text-[17px] font-semibold flex items-center justify-center gap-2 active:scale-[0.99] transition-transform disabled:opacity-50"
         >
-          <Lightbulb size={14} />
-          <span>{isHintLoading ? "Calculando dica..." : "Pedir dica tática"}</span>
+          <Lightbulb size={16} />
+          <span>{isHintLoading ? "Calculando dica..." : "Pedir dica"}</span>
         </button>
 
         <div className="flex gap-2">
@@ -371,16 +371,16 @@ export default function CoachConsole({
             type="button"
             onClick={onTriggerPostgame}
             disabled={isPostgameLoading || movesCount === 0}
-            className="flex-1 py-2 px-3 rounded-xl bg-noir-raised hover:bg-noir-line text-noir-muted hover:text-noir-ink text-xs font-mono font-semibold border border-noir-line transition-colors disabled:opacity-40"
+            className="flex-1 py-3 px-3 rounded-[14px] bg-noir-raised text-noir-ink text-[15px] font-semibold border border-noir-line disabled:opacity-40"
           >
-            {isPostgameLoading ? "Analisando..." : "Analisar Partida"}
+            {isPostgameLoading ? "Analisando..." : "Analisar"}
           </button>
           <button
             type="button"
             onClick={onNewGame}
-            className="py-2 px-3 rounded-xl bg-noir-raised hover:bg-noir-line text-noir-muted hover:text-noir-ink text-xs font-mono font-semibold border border-noir-line transition-colors"
+            className="py-3 px-4 rounded-[14px] bg-noir-raised text-noir-ink text-[15px] font-semibold border border-noir-line"
           >
-            Nova Partida
+            Nova partida
           </button>
         </div>
       </div>

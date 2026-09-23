@@ -22,7 +22,7 @@ test.describe("Play Arena — Game & Coach Console", () => {
     });
   });
 
-  test("arena loads with 3-column layout and controls", async ({ page }) => {
+  test("arena loads with single-column layout and controls", async ({ page }) => {
     await page.goto("/play?side=white");
 
     // Header & Navigation
@@ -38,6 +38,9 @@ test.describe("Play Arena — Game & Coach Console", () => {
     // Player Cards
     await expect(page.getByText(/Coach \(Motor 19\)/i)).toBeVisible();
     await expect(page.getByText(/Você/i).first()).toBeVisible();
+
+    // Turn pill (juice): one-glance status
+    await expect(page.getByText(/Sua vez|Oponente pensando|Partida encerrada/).first()).toBeVisible();
 
     // A11y landmarks
     await expect(page.getByRole("heading", { level: 1, name: /Jogar/i })).toBeAttached();
@@ -128,7 +131,7 @@ test.describe("Play Arena — Game & Coach Console", () => {
   test("hint button triggers tactial advice", async ({ page }) => {
     await page.goto("/play?side=white");
 
-    const hintBtn = page.getByRole("button", { name: /Pedir dica tática/i });
+    const hintBtn = page.getByRole("button", { name: /Pedir dica/i });
     await expect(hintBtn).toBeVisible();
     await hintBtn.click();
 
@@ -163,9 +166,12 @@ test.describe("Play Arena — Game & Coach Console", () => {
     await resignBtn.click();
     await expect(page.getByRole("button", { name: /Confirmar desistência/i })).toBeVisible();
 
-    // Second click resigns and opens postgame modal with resignation summary
+    // Second click resigns and opens postgame sheet with resignation summary
     await page.getByRole("button", { name: /Confirmar desistência/i }).click();
     await expect(page.getByText(/Resultado:/i)).toBeVisible({ timeout: 15000 });
     await expect(page.getByText(/Desistência registrada/i)).toBeVisible({ timeout: 15000 });
+    // One-screen sheet: primary CTA + replay loop
+    await expect(page.getByRole("link", { name: /Revisar erros/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Nova partida/i }).first()).toBeVisible();
   });
 });
