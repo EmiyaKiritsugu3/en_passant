@@ -64,7 +64,11 @@ export function loadProfile(): Profile {
         : structuredClone(DEFAULT_PROFILE.streak);
     next.openings =
       p.openings && typeof p.openings === "object" && !Array.isArray(p.openings)
-        ? (p.openings as Record<string, number>)
+        ? Object.fromEntries(
+            Object.entries(p.openings).filter(
+              ([, v]) => typeof v === "number" && Number.isFinite(v)
+            )
+          )
         : structuredClone(DEFAULT_PROFILE.openings);
     return next;
   } catch {

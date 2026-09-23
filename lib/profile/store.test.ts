@@ -36,6 +36,13 @@ describe("store", () => {
     expect(p.streak).toEqual({ count: 0, lastDay: "" });
     expect(p.openings).toEqual({});
   });
+  it("drops non-numeric opening counts", () => {
+    window.localStorage.setItem(
+      "profile.v1",
+      JSON.stringify({ version: 1, openings: { "Italian Game": 2, "Ruy Lopez": "bad", "London System": null } })
+    );
+    expect(loadProfile().openings).toEqual({ "Italian Game": 2 });
+  });
 });
 
 describe("applyPostgame", () => {

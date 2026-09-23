@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Board from "@/components/Board";
 import {
   dueCards,
@@ -40,6 +40,24 @@ export default function ReviewPage() {
   const pendingRef = useRef<{ id: string; updated: Card } | null>(null);
 
   const due = dueCards(allCards);
+
+  // A resposta resolvida vive em memória até "Próxima": descarrega ao sair
+  // para reload/navegação não perder a revisão (sem fanfarra — a fila pode
+  // não estar zerada).
+  useEffect(() => {
+    const flush = () => {
+      if (pendingRef.current) {
+        const { id, updated } = pendingRef.current;
+        pendingRef.current = null;
+        saveCards(getCardsSnapshot().map((c) => (c.id === id ? updated : c)));
+      }
+    };
+    window.addEventListener("pagehide", flush);
+    return () => {
+      window.removeEventListener("pagehide", flush);
+      flush();
+    };
+  }, []);
   const currentCard: Card | undefined = due[currentIndex];
   const orientation: "white" | "black" =
     currentCard && currentCard.fen.split(" ")[1] === "b" ? "black" : "white";

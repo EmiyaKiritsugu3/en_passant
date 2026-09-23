@@ -760,13 +760,15 @@ function PlayContent() {
             {/* Chessground Board */}
             <div id="arena-board" tabIndex={-1} className="relative flex-1 min-w-0">
               <p role="status" className="sr-only">
-                {movesHistory.length === 0
-                  ? isPlayerTurn
-                    ? "Partida nova. Sua vez de jogar."
-                    : "Partida nova. Aguardando lance do oponente."
-                  : `Lance ${movesHistory.length}: ${movesHistory[movesHistory.length - 1].san}. ${
-                      isPlayerTurn ? "Sua vez." : "Vez do oponente."
-                    }`}
+                {!isLiveMode
+                  ? `Revendo lance ${viewingPly} de ${movesHistory.length}.`
+                  : movesHistory.length === 0
+                    ? isPlayerTurn
+                      ? "Partida nova. Sua vez de jogar."
+                      : "Partida nova. Aguardando lance do oponente."
+                    : `Lance ${movesHistory.length}: ${movesHistory[movesHistory.length - 1].san}. ${
+                        isPlayerTurn ? "Sua vez." : "Vez do oponente."
+                      }`}
               </p>
               <Board
                 fen={viewingFen}
@@ -916,7 +918,7 @@ function PlayContent() {
                       <button
                         type="button"
                         onClick={() => setPostgame(null)}
-                        className="w-full py-2.5 text-bronze text-[15px] font-medium"
+                        className="w-full py-3 text-bronze text-[15px] font-medium"
                       >
                         Continuar partida
                       </button>
