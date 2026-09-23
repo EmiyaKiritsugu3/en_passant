@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test.describe("Punishment Lab & Socratic Ladder", () => {
+test.describe("Caça-erros & Socratic Ladder", () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
       try {
@@ -10,11 +10,11 @@ test.describe("Punishment Lab & Socratic Ladder", () => {
     });
   });
 
-  test("complete ladder flow: recognize → hint → reveal → SM-2 save", async ({ page }) => {
+  test("complete ladder flow: recognize → hint → reveal → review save", async ({ page }) => {
     await page.goto("/trainer/punishment");
 
     // Header & Drills bar
-    await expect(page.getByText("Punishment Lab")).toBeVisible();
+    await expect(page.getByText("Caça-erros")).toBeVisible();
     await expect(page.getByRole("heading", { name: "London System" })).toBeVisible();
 
     // Board container renders
@@ -44,17 +44,17 @@ test.describe("Punishment Lab & Socratic Ladder", () => {
     await expect(revealBtn).toBeVisible();
     await revealBtn.click();
 
-    // Stage Done: check reveal status & SM-2 save button
+    // Stage Done: check reveal status & review save button
     await expect(page.getByText(/Revelado/i)).toBeVisible();
-    const saveSm2Btn = page.getByRole("button", { name: /salvar no sm-2/i });
+    const saveSm2Btn = page.getByRole("button", { name: /salvar para revisão/i });
     await expect(saveSm2Btn).toBeVisible();
     await saveSm2Btn.click();
 
-    // Feedback confirms SM-2 save & Next drill button appears
-    await expect(page.getByText(/Salvo no SM-2/i)).toBeVisible();
+    // Feedback confirms save & Next drill button appears
+    await expect(page.getByText(/Salvo para revisar/i)).toBeVisible();
     await expect(page.getByRole("button", { name: /próximo drill/i })).toBeVisible();
 
-    // Verify SM-2 card was actually persisted to localStorage
+    // Verify review card was actually persisted to localStorage
     const storedCards = await page.evaluate(() => localStorage.getItem("cards.v1"));
     expect(storedCards).not.toBeNull();
     const cards = JSON.parse(storedCards!);

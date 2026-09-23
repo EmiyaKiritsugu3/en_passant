@@ -108,7 +108,7 @@ export default function CoachConsole({
   };
 
   return (
-    <div className="flex flex-col h-full bg-noir-surface/80 backdrop-blur-md border border-noir-line rounded-2xl overflow-hidden shadow-xl">
+    <div className="flex flex-col h-full bg-noir-surface border border-noir-line rounded-[20px] overflow-hidden shadow-sm">
       {/* Navigation Tabs */}
       <div
         role="tablist"
@@ -202,7 +202,7 @@ export default function CoachConsole({
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="text-xs font-display uppercase tracking-wider text-noir-muted">
-                Análise do GM
+                Análise do coach
               </h2>
               {currentBadge && (
                 <span
@@ -230,7 +230,7 @@ export default function CoachConsole({
             ) : (
               <div className="p-4 rounded-xl bg-noir-raised/30 border border-noir-line/60 text-noir-muted text-xs leading-relaxed">
                 {movesCount === 0
-                  ? "Faça seu primeiro lance no tabuleiro para o GM Coach analisar sua abertura e intenções táticas."
+                  ? "Faça seu primeiro lance no tabuleiro para o coach analisar sua abertura e intenções táticas."
                   : "Aguardando seu lance no tabuleiro..."}
               </div>
             )}
@@ -307,7 +307,7 @@ export default function CoachConsole({
             <div aria-live="polite" className="space-y-2 max-h-[160px] overflow-y-auto pr-1">
               {chatMessages.length === 0 ? (
                 <p className="text-noir-muted text-xs italic">
-                  Pergunte qualquer coisa ao GM Coach sobre o lance atual.
+                  Pergunte qualquer coisa ao coach sobre o lance atual.
                 </p>
               ) : (
                 chatMessages.map((msg, i) => (
@@ -320,7 +320,7 @@ export default function CoachConsole({
                     }`}
                   >
                     <span className="font-bold font-mono text-[10px] block text-noir-muted mb-0.5">
-                      {msg.role === "user" ? "Você" : "GM Coach"}
+                      {msg.role === "user" ? "Você" : "Coach"}
                     </span>
                     {msg.content}
                   </div>
@@ -330,7 +330,7 @@ export default function CoachConsole({
 
             <div className="flex gap-2 pt-2 border-t border-noir-line">
               <label htmlFor="coach-chat-input" className="sr-only">
-                Perguntar ao GM Coach
+                Perguntar ao coach
               </label>
               <input
                 id="coach-chat-input"
@@ -355,15 +355,15 @@ export default function CoachConsole({
       </div>
 
       {/* Action Footer */}
-      <div className="p-3 sm:p-4 border-t border-noir-line bg-noir-surface/90 flex flex-col gap-2">
+      <div className="p-3 border-t border-noir-line bg-noir-surface/90 flex flex-col gap-2">
         <button
           type="button"
           onClick={onHint}
           disabled={isHintLoading}
-          className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-bronze-deep to-bronze text-white text-xs font-mono font-bold shadow-md border border-bronze/40 flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
+          className="w-full py-3.5 px-4 rounded-[14px] bg-bronze text-white text-[17px] font-semibold flex items-center justify-center gap-2 active:scale-[0.99] transition-transform disabled:opacity-50"
         >
-          <Lightbulb size={14} />
-          <span>{isHintLoading ? "Calculando Dica GM..." : "Pedir Dica Tática (GM)"}</span>
+          <Lightbulb size={16} />
+          <span>{isHintLoading ? "Calculando dica..." : "Pedir dica"}</span>
         </button>
 
         <div className="flex gap-2">
@@ -371,16 +371,16 @@ export default function CoachConsole({
             type="button"
             onClick={onTriggerPostgame}
             disabled={isPostgameLoading || movesCount === 0}
-            className="flex-1 py-2 px-3 rounded-xl bg-noir-raised hover:bg-noir-line text-noir-muted hover:text-noir-ink text-xs font-mono font-semibold border border-noir-line transition-colors disabled:opacity-40"
+            className="flex-1 py-3 px-3 rounded-[14px] bg-noir-raised text-noir-ink text-[15px] font-semibold border border-noir-line disabled:opacity-40"
           >
-            {isPostgameLoading ? "Analisando..." : "Analisar Partida"}
+            {isPostgameLoading ? "Analisando..." : "Analisar"}
           </button>
           <button
             type="button"
             onClick={onNewGame}
-            className="py-2 px-3 rounded-xl bg-noir-raised hover:bg-noir-line text-noir-muted hover:text-noir-ink text-xs font-mono font-semibold border border-noir-line transition-colors"
+            className="py-3 px-4 rounded-[14px] bg-noir-raised text-noir-ink text-[15px] font-semibold border border-noir-line"
           >
-            Nova Partida
+            Nova partida
           </button>
         </div>
       </div>

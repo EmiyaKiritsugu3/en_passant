@@ -1,19 +1,19 @@
 @import "tailwindcss";
 
 @theme {
-  --color-noir-bg: oklch(0.20 0.015 60);
-  --color-noir-surface: oklch(0.26 0.02 60);
-  --color-noir-raised: oklch(0.31 0.025 60);
-  --color-noir-ink: oklch(0.93 0.02 75);
-  --color-noir-muted: oklch(0.68 0.03 70);
-  --color-noir-line: oklch(0.93 0.02 75 / 0.12);
-  --color-bronze: oklch(0.68 0.11 70);
-  --color-bronze-deep: oklch(0.55 0.10 65);
+  --color-noir-bg: #f2f2f7;
+  --color-noir-surface: #ffffff;
+  --color-noir-raised: #e5e5ea;
+  --color-noir-ink: #1d1d1f;
+  --color-noir-muted: #6e6e73;
+  --color-noir-line: rgb(0 0 0 / 0.08);
+  --color-bronze: #007aff;
+  --color-bronze-deep: #0051d5;
   --color-felt: oklch(0.48 0.11 155);
   --color-felt-light: oklch(0.85 0.05 95);
-  --font-display: "Fraunces", Georgia, serif;
-  --font-sans: "Inter", system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono);
+  --font-display: -apple-system, "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
+  --font-sans: -apple-system, "SF Pro Text", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", system-ui, monospace;
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 

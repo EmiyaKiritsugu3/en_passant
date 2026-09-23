@@ -183,7 +183,7 @@ function PlayContent() {
               why: `Perda de ${r.cpLoss} centipawns em lance de ${r.phase}.`,
             })),
           takeaway: "Consolide o cálculo tático e mantenha as peças coordenadas.",
-          homework: "Rever os momentos críticos e treinar no SM-2.",
+          homework: "Rever os momentos críticos e repetir a lição.",
           profileDelta: {},
         };
       }
@@ -504,7 +504,7 @@ function PlayContent() {
         setNotice(
           ev.fallback
             ? `Dica simplificada: ${orig.toUpperCase()} → ${dest.toUpperCase()} (engine indisponível)`
-            : `Dica GM: ${orig.toUpperCase()} → ${dest.toUpperCase()}`
+            : `Dica do coach: ${orig.toUpperCase()} → ${dest.toUpperCase()}`
         );
       } else {
         setNotice("Dica indisponível para esta posição.");
@@ -615,9 +615,9 @@ function PlayContent() {
   const isLiveMode = viewingPly === movesHistory.length;
 
   return (
-    <main aria-labelledby="arena-title" className="min-h-screen bg-noir-bg text-noir-ink flex flex-col items-center select-none pb-8">
+    <main aria-labelledby="arena-title" className="min-h-screen bg-noir-bg text-noir-ink flex flex-col items-center select-none pb-28">
       <h1 id="arena-title" className="sr-only">
-        Arena GM — jogar contra Stockfish
+        Jogar — partida contra o motor
       </h1>
       <a
         href="#arena-board"
@@ -640,7 +640,7 @@ function PlayContent() {
               En Passant
             </span>
             <span className="text-noir-muted text-xs">•</span>
-            <span className="text-xs font-semibold text-noir-ink">Arena GM</span>
+            <span className="text-xs font-semibold text-noir-ink">Jogar</span>
           </div>
         </div>
 
@@ -653,9 +653,9 @@ function PlayContent() {
               onChange={(e) => setAiDifficulty(e.target.value as "grandmaster" | "master" | "adaptive")}
               className="bg-transparent text-xs font-mono text-bronze font-semibold focus:outline-none cursor-pointer"
             >
-              <option value="grandmaster" className="bg-noir-ink text-noir-bg">Grande Mestre (SF 19)</option>
-              <option value="master" className="bg-noir-ink text-noir-bg">Mestre (~2200)</option>
-              <option value="adaptive" className="bg-noir-ink text-noir-bg">Adaptativo ({playerRating})</option>
+              <option value="grandmaster" className="bg-noir-ink text-noir-bg">Forte</option>
+              <option value="master" className="bg-noir-ink text-noir-bg">Médio</option>
+              <option value="adaptive" className="bg-noir-ink text-noir-bg">No seu nível ({playerRating})</option>
             </select>
           </div>
 
@@ -701,21 +701,21 @@ function PlayContent() {
         </div>
       </header>
 
-      {/* ================= MAIN ARENA GRID ================= */}
-      <div className="w-full max-w-7xl px-3 sm:px-6 py-4 sm:py-6 flex flex-col lg:flex-row gap-6 items-start justify-center">
-        {/* LEFT COLUMN: BOARD ARENA */}
-        <section aria-label="Tabuleiro e oponente" className="w-full lg:w-[560px] lg:shrink-0 flex flex-col items-center gap-3">
+      {/* ================= MAIN GRID (mobile-first, single column) ================= */}
+      <div className="w-full max-w-lg px-4 py-4 flex flex-col gap-4 items-stretch justify-start">
+        {/* BOARD SECTION */}
+        <section aria-label="Tabuleiro e oponente" className="w-full flex flex-col items-center gap-3">
           {/* Opponent Card (Top) */}
-          <div className="w-full max-w-[560px]">
+          <div className="w-full">
             <PlayerCard
               name={
                 aiDifficulty === "grandmaster"
-                  ? "GM Coach (Stockfish 19)"
+                  ? "Coach (Motor 19)"
                   : aiDifficulty === "master"
-                  ? "Mestre Stockfish"
-                  : "Coach Adaptativo"
+                    ? "Mestre"
+                    : "Treinador"
               }
-              badge={aiDifficulty === "grandmaster" ? "GM" : "BOT"}
+              badge={aiDifficulty === "grandmaster" ? "Forte" : aiDifficulty === "master" ? "Médio" : "Seu nível"}
               rating={aiDifficulty === "grandmaster" ? 2800 : aiDifficulty === "master" ? 2200 : playerRating + 250}
               color={opponentColor}
               isTurn={!isPlayerTurn && !game.isGameOver() && !resigned}
@@ -726,23 +726,49 @@ function PlayContent() {
             />
           </div>
 
-          {/* Board Row with Vertical EvalBar */}
-          <div className="flex items-center gap-2.5 sm:gap-3 w-full max-w-[560px] justify-center">
+          {/* Turn pill: one glance, whose move.
+              Fora do ao vivo mostra a posição em revisão, não o turno atual. */}
+          <div
+            role="status"
+            aria-live="polite"
+            className={`text-[15px] font-semibold px-4 py-1.5 rounded-full ${
+              game.isGameOver() || resigned
+                ? "bg-noir-raised text-noir-muted"
+                : !isLiveMode
+                  ? "bg-noir-raised text-noir-muted"
+                  : isPlayerTurn
+                    ? "bg-[#34c759]/15 text-[#34c759] animate-pulse"
+                    : "bg-bronze/15 text-bronze animate-pulse"
+            }`}
+          >
+            {game.isGameOver() || resigned
+              ? "Partida encerrada"
+              : !isLiveMode
+                ? "Revendo lance"
+                : isPlayerTurn
+                  ? "● Sua vez"
+                  : "… Oponente pensando"}
+          </div>
+
+          {/* Board Row with Vertical EvalBar (bar stretches to board height) */}
+          <div className="flex items-center gap-2.5 w-full justify-center">
             {/* Dynamic Vertical EvalBar */}
-            <div className="h-[360px] sm:h-[480px] md:h-[540px]">
+            <div className="self-stretch py-0.5">
               <EvalBar evaluation={lastEval} orientation={boardOrientation} />
             </div>
 
             {/* Chessground Board */}
-            <div id="arena-board" tabIndex={-1} className="relative flex-1 min-w-0 max-w-[500px] sm:max-w-[520px]">
+            <div id="arena-board" tabIndex={-1} className="relative flex-1 min-w-0">
               <p role="status" className="sr-only">
-                {movesHistory.length === 0
-                  ? isPlayerTurn
-                    ? "Partida nova. Sua vez de jogar."
-                    : "Partida nova. Aguardando lance do oponente."
-                  : `Lance ${movesHistory.length}: ${movesHistory[movesHistory.length - 1].san}. ${
-                      isPlayerTurn ? "Sua vez." : "Vez do oponente."
-                    }`}
+                {!isLiveMode
+                  ? `Revendo lance ${viewingPly} de ${movesHistory.length}.`
+                  : movesHistory.length === 0
+                    ? isPlayerTurn
+                      ? "Partida nova. Sua vez de jogar."
+                      : "Partida nova. Aguardando lance do oponente."
+                    : `Lance ${movesHistory.length}: ${movesHistory[movesHistory.length - 1].san}. ${
+                        isPlayerTurn ? "Sua vez." : "Vez do oponente."
+                      }`}
               </p>
               <Board
                 fen={viewingFen}
@@ -756,10 +782,9 @@ function PlayContent() {
           </div>
 
           {/* Player Card (Bottom) */}
-          <div className="w-full max-w-[560px]">
+          <div className="w-full">
             <PlayerCard
               name="Você"
-              badge="ALUNO"
               rating={playerRating}
               color={color}
               isTurn={isPlayerTurn && !game.isGameOver() && !resigned}
@@ -769,10 +794,10 @@ function PlayContent() {
           </div>
         </section>
 
-        {/* RIGHT COLUMN: INTERACTIVE CONSOLE (MoveHistory + CoachConsole) */}
-        <section aria-label="Lances e coach" className="w-full lg:w-[420px] flex flex-col gap-4">
+        {/* CONSOLE: moves + coach, stacked */}
+        <section aria-label="Lances e coach" className="w-full flex flex-col gap-4">
           {/* Upper Box: Move Notation & Transport */}
-          <div className="h-[260px] sm:h-[280px]">
+          <div className="max-h-[240px]">
             <MoveHistory
               moves={movesHistory}
               currentViewingPly={viewingPly}
@@ -781,8 +806,8 @@ function PlayContent() {
             />
           </div>
 
-          {/* Lower Box: Rich Coach Console */}
-          <div className="min-h-[360px]">
+          {/* Lower Box: Coach */}
+          <div>
             <CoachConsole
               tab={tab}
               onTabChange={setTab}
@@ -806,44 +831,50 @@ function PlayContent() {
         </section>
       </div>
 
-      {/* ================= POSTGAME MODAL ================= */}
+      {/* ================= POSTGAME SHEET (one screen) ================= */}
       {(postgame || isPostgameLoading) && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in">
-          <div className="bg-noir-surface border border-noir-line rounded-2xl max-w-xl w-full p-6 flex flex-col gap-5 shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 animate-in fade-in">
+          <div className="bg-noir-surface border border-noir-line rounded-t-[24px] sm:rounded-[24px] w-full max-w-lg p-5 flex flex-col gap-4 shadow-2xl max-h-[92vh] overflow-y-auto">
             {isPostgameLoading ? (
               <div className="flex flex-col items-center justify-center py-12 gap-4">
                 <div className="w-8 h-8 border-2 border-bronze border-t-transparent rounded-full animate-spin" />
-                <span className="text-sm font-mono text-bronze">GM calculando relatório pós-jogo...</span>
+                <span className="text-[15px] font-medium text-noir-muted">Analisando sua partida…</span>
               </div>
             ) : (
               postgame && (
                 <>
-                  <div className="flex justify-between items-center border-b border-noir-line pb-4">
-                    <div>
-                      <span className="text-xs font-mono uppercase tracking-widest text-bronze font-semibold">
-                        Relatório Pós-Jogo
-                      </span>
-                      <h2 className="text-xl font-bold font-display text-noir-ink mt-0.5">Resultado: {postgame.result}</h2>
-                    </div>
-                    <span className="text-xs px-3 py-1 bg-bronze/20 text-bronze rounded-full font-mono font-bold">
-                      Partida Finalizada
+                  <div className="flex flex-col items-center text-center gap-1 pt-2">
+                    {(() => {
+                      const playerWon =
+                        (color === "white" && postgame.result === "1-0") ||
+                        (color === "black" && postgame.result === "0-1");
+                      const isDraw = postgame.result === "1/2-1/2";
+                      return (
+                        <span className="text-5xl" aria-hidden>
+                          {playerWon ? "🏆" : isDraw ? "🤝" : "💪"}
+                        </span>
+                      );
+                    })()}
+                    <span className="text-[13px] font-semibold text-noir-muted">
+                      Fim de jogo
                     </span>
+                    <h2 className="text-[22px] font-bold text-noir-ink">Resultado: {postgame.result}</h2>
                   </div>
 
-                  <div className="text-sm text-noir-ink bg-noir-bg/60 p-4 rounded-xl border border-noir-line">
+                  <div className="text-[15px] leading-relaxed text-noir-ink bg-noir-bg/60 p-4 rounded-[16px] border border-noir-line">
                     {postgame.summary}
                   </div>
 
                   {postgame.moments.length > 0 && (
-                    <div className="flex flex-col gap-3">
-                      <span className="text-xs font-semibold text-noir-muted uppercase tracking-wider">
-                        Momentos Críticos
+                    <div className="flex flex-col gap-2">
+                      <span className="text-[13px] font-semibold text-noir-muted">
+                        Lances decisivos
                       </span>
                       <div className="flex flex-col gap-2">
-                        {postgame.moments.map((m, idx) => (
+                        {postgame.moments.slice(0, 2).map((m, idx) => (
                           <div
                             key={idx}
-                            className="bg-noir-bg p-3 rounded-xl border border-noir-line flex flex-col gap-1 text-xs"
+                            className="bg-noir-bg p-3 rounded-[16px] border border-noir-line flex flex-col gap-1 text-[13px]"
                           >
                             <div className="flex justify-between font-mono">
                               <span className="text-noir-ink font-bold">Lance {m.move}</span>
@@ -857,31 +888,41 @@ function PlayContent() {
                     </div>
                   )}
 
-                  <div className="flex flex-col gap-2 bg-bronze/10 border border-bronze/30 p-4 rounded-xl">
-                    <span className="text-xs font-bold text-bronze uppercase">Lição Principal</span>
-                    <p className="text-xs text-bronze">{postgame.takeaway}</p>
-                    <p className="text-xs text-bronze font-mono mt-1">Exercício: {postgame.homework}</p>
+                  <div className="flex flex-col gap-1 bg-bronze/10 border border-bronze/30 p-4 rounded-[16px]">
+                    <span className="text-[13px] font-semibold text-bronze">O que levar</span>
+                    <p className="text-[15px] text-noir-ink">{postgame.takeaway}</p>
+                    <p className="text-[13px] text-noir-muted mt-1">Exercício: {postgame.homework}</p>
                   </div>
 
-                  <div className="flex flex-wrap gap-3 pt-2">
+                  <div className="flex flex-col gap-2 pt-1">
                     <Link
                       href="/train"
-                      className="flex-1 min-w-[140px] py-3 bg-emerald-600 hover:bg-emerald-500 text-white text-center text-xs font-semibold rounded-xl transition-all"
+                      className="w-full py-3.5 bg-bronze text-white text-center text-[17px] font-semibold rounded-[14px] active:scale-[0.99] transition-transform"
                     >
-                      Treinar Erros (SM-2)
+                      Revisar erros
                     </Link>
                     <Link
                       href="/dashboard"
-                      className="flex-1 min-w-[140px] py-3 bg-bronze-deep hover:bg-bronze text-white text-center text-xs font-semibold rounded-xl transition-all"
+                      className="w-full py-3.5 bg-noir-raised text-noir-ink text-center text-[17px] font-semibold rounded-[14px]"
                     >
-                      Ver Painel & Métricas
+                      Ver progresso
                     </Link>
                     <button
-                      onClick={() => setPostgame(null)}
-                      className="px-5 py-3 bg-noir-raised hover:bg-noir-line text-noir-muted text-xs font-semibold rounded-xl transition-all"
+                      type="button"
+                      onClick={handleResetGame}
+                      className="w-full py-3.5 bg-noir-raised text-noir-ink text-center text-[17px] font-semibold rounded-[14px]"
                     >
-                      Fechar
+                      Nova partida
                     </button>
+                    {!game.isGameOver() && !resigned && (
+                      <button
+                        type="button"
+                        onClick={() => setPostgame(null)}
+                        className="w-full py-3 text-bronze text-[15px] font-medium"
+                      >
+                        Continuar partida
+                      </button>
+                    )}
                   </div>
                 </>
               )

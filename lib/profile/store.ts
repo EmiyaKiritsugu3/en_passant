@@ -11,6 +11,7 @@ export const DEFAULT_PROFILE: Profile = {
   recentErrorFens: [],
   openings: {},
   phaseHistory: [],
+  streak: { count: 0, lastDay: "" },
 };
 
 function getStorage(): Storage | undefined {
@@ -57,6 +58,18 @@ export function loadProfile(): Profile {
     next.recentErrorFens = Array.isArray(p.recentErrorFens)
       ? p.recentErrorFens
       : structuredClone(DEFAULT_PROFILE.recentErrorFens);
+    next.streak =
+      p.streak && typeof p.streak.count === "number" && typeof p.streak.lastDay === "string"
+        ? { count: p.streak.count, lastDay: p.streak.lastDay }
+        : structuredClone(DEFAULT_PROFILE.streak);
+    next.openings =
+      p.openings && typeof p.openings === "object" && !Array.isArray(p.openings)
+        ? Object.fromEntries(
+            Object.entries(p.openings).filter(
+              ([, v]) => typeof v === "number" && Number.isFinite(v)
+            )
+          )
+        : structuredClone(DEFAULT_PROFILE.openings);
     return next;
   } catch {
     return structuredClone(DEFAULT_PROFILE);

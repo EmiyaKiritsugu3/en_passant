@@ -50,7 +50,7 @@ export default memo(function MoveHistory({
   }, [moves.length, isReviewing]);
 
   return (
-    <div className="flex flex-col h-full bg-noir-surface/70 border border-noir-line rounded-2xl overflow-hidden shadow-lg">
+    <div className="flex flex-col h-full bg-noir-surface border border-noir-line rounded-[20px] overflow-hidden shadow-sm">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-noir-line bg-noir-surface/90">
         <div className="flex items-center gap-2">
