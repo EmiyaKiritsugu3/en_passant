@@ -206,10 +206,10 @@ export default function LibraryPage() {
             </p>
           </div>
           <Link
-            href={`/study?tag=${weakestTag}`}
+            href="/study"
             className="px-4 py-2 bg-bronze-deep hover:bg-bronze text-white text-xs font-semibold rounded-xl transition-all whitespace-nowrap"
           >
-            Ver Partidas de {weakestTag} →
+            Praticar na trilha →
           </Link>
         </div>
       )}
@@ -221,7 +221,7 @@ export default function LibraryPage() {
             <Library size={20} />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-white">Sua Biblioteca está Vazia</h2>
+            <h2 className="text-lg font-bold text-noir-ink">Sua Biblioteca está Vazia</h2>
             <p className="text-xs text-noir-muted mt-1 max-w-md leading-relaxed">
               Você ainda não tem partidas salvas. Complete uma partida para gravá-la automaticamente ou importe um arquivo PGN existente.
             </p>
@@ -232,7 +232,7 @@ export default function LibraryPage() {
               href="/play"
               className="px-5 py-2.5 rounded-xl bg-bronze-deep hover:bg-bronze text-white text-xs font-semibold font-mono transition-colors"
             >
-              Jogar na Arena →
+              Jogar →
             </Link>
             <button
               type="button"

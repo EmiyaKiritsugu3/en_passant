@@ -4,15 +4,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { GraduationCap, Swords, Brain, User } from "lucide-react";
 
+// Correspondência por segmento: prefixo puro acenderia Revisar em /trainer/*.
+const seg = (base: string) => (p: string) => p === base || p.startsWith(`${base}/`);
+
 const TABS = [
-  { href: "/", label: "Aprender", icon: GraduationCap, match: (p: string) => p === "/" || p.startsWith("/study") },
-  { href: "/play", label: "Jogar", icon: Swords, match: (p: string) => p.startsWith("/play") },
-  { href: "/train", label: "Revisar", icon: Brain, match: (p: string) => p.startsWith("/train") },
+  { href: "/", label: "Aprender", icon: GraduationCap, match: (p: string) => p === "/" || seg("/study")(p) },
+  { href: "/play", label: "Jogar", icon: Swords, match: seg("/play") },
+  { href: "/train", label: "Revisar", icon: Brain, match: seg("/train") },
   {
     href: "/dashboard",
     label: "Você",
     icon: User,
-    match: (p: string) => p.startsWith("/dashboard"),
+    match: seg("/dashboard"),
   },
 ];
 

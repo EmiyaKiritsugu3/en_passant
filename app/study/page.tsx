@@ -17,7 +17,7 @@ import type { DrawShape } from "chessgroundx/draw";
 import type { Key } from "chessgroundx/types";
 import { ChevronRight, Lightbulb, RotateCcw, Trophy } from "lucide-react";
 import { playLessonCompleteSound } from "@/lib/sound/audio";
-import { streakLabel, touchStreak } from "@/lib/profile/update";
+import { streakLabel, touchStreak, isStreakActive } from "@/lib/profile/update";
 
 interface Trap {
   name: string;
@@ -81,7 +81,12 @@ function StudyLesson() {
   const [status, setStatus] = useState("");
   const [shape, setShape] = useState<DrawShape[]>([]);
   const [completed, setCompleted] = useState(false);
+  const [huntColor, setHuntColor] = useState<"white" | "black">("white");
   const huntIdRef = useRef(0);
+  // Timers do drill respondem na posição compartilhada `game`: sem guarda, um
+  // auto-reply agendado antes de "Reiniciar" cai no tabuleiro zerado e
+  // dessincroniza fen/ply/status. O hunt já usa huntIdRef; o drill usa este.
+  const drillIdRef = useRef(0);
 
   const selectOpening = (o: Opening) => {
     setOpeningName(o.name);
@@ -106,6 +111,7 @@ function StudyLesson() {
   };
 
   function resetBoard() {
+    drillIdRef.current += 1;
     game.reset();
     setFen(game.fen());
     setPly(0);
@@ -117,10 +123,12 @@ function StudyLesson() {
 
   function startDrill() {
     resetBoard();
+    const id = drillIdRef.current;
     setStep("drill");
     setStatus("Sua vez de jogar a linha.");
     if (color === "black" && line.line.length > 0) {
       setTimeout(() => {
+        if (drillIdRef.current !== id) return;
         try {
           game.move(line.line[0]);
           setFen(game.fen());
@@ -134,6 +142,7 @@ function StudyLesson() {
     const legal = game.moves({ verbose: true });
     const move = legal.find((m) => m.from === from && m.to === to);
     if (!move) return;
+    const id = drillIdRef.current;
     const check = checkDrillMove(line.line, ply, move.san);
     if (!check.ok) {
       setShape([{ orig: from as Key, dest: to as Key, brush: "red" }]);
@@ -156,6 +165,7 @@ function StudyLesson() {
       setStatus("Adversário respondendo...");
       const oppSan = line.line[next];
       setTimeout(() => {
+        if (drillIdRef.current !== id) return;
         try {
           game.move(oppSan);
           setFen(game.fen());
@@ -190,6 +200,9 @@ function StudyLesson() {
     }
     if (huntIdRef.current !== id) return;
     setFen(game.fen());
+    // O hunt mostra o lado a jogar (algumas armadilhas pretas punem com as
+    // brancas): sem isso, o tabuleiro fica sem destinos e a lição trava.
+    setHuntColor(game.turn() === "w" ? "white" : "black");
     setPly(0);
     setShape([]);
     setCompleted(false);
@@ -357,7 +370,7 @@ function StudyLesson() {
             <div className="bg-noir-surface rounded-[20px] border border-noir-line p-3 shadow-sm">
               <Board
                 fen={fen}
-                orientation={color}
+                orientation={step === "hunt" ? huntColor : color}
                 onMove={step === "drill" ? handleDrillMove : handleHuntMove}
                 shape={shape}
               />
@@ -410,13 +423,13 @@ function StudyLesson() {
             </span>
             <p className="text-[20px] font-bold">Lição concluída!</p>
             <p className="text-[15px] text-noir-muted">{opening.name} — {line.name} registrada no seu progresso.</p>
-            {profile.streak.count > 0 && (
+            {profile.streak.count > 0 && isStreakActive(profile.streak.lastDay) && (
               <p className="text-[15px] font-semibold text-bronze">🔥 {streakLabel(profile.streak.count)}</p>
             )}
             <Link href="/" className="mt-1 w-full py-3.5 rounded-[14px] bg-bronze text-white text-[17px] font-semibold text-center">
               Próxima abertura
             </Link>
-            <Link href="/play?side=white" className="text-[15px] font-medium text-bronze py-1">
+            <Link href={`/play?side=${color}`} className="text-[15px] font-medium text-bronze py-1">
               Praticar em partida
             </Link>
           </div>

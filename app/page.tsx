@@ -5,7 +5,7 @@ import { useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { BookOpen, ChevronRight, Dices, Flame, Play } from "lucide-react";
 import { DEFAULT_PROFILE, getProfileSnapshot, subscribeProfile } from "@/lib/profile/store";
-import { streakLabel } from "@/lib/profile/update";
+import { streakLabel, isStreakActive } from "@/lib/profile/update";
 import { EMPTY_CARDS, getCardsSnapshot, subscribeCards, summarizeDue } from "@/lib/sm2/scheduler";
 import repertoireData from "@/data/repertoire.json";
 
@@ -51,8 +51,10 @@ export default function Learn() {
   const cards = useSyncExternalStore(subscribeCards, getCardsSnapshot, () => EMPTY_CARDS);
   const due = summarizeDue(cards);
   const trail = buildTrail(profile.openings);
-  const current = trail.find((t) => t.current) ?? trail[0];
+  const current = trail.find((t) => t.current) ?? null;
   const doneCount = trail.filter((t) => t.done).length;
+  const trailComplete = current === null;
+  const streakOn = profile.streak.count > 0 && isStreakActive(profile.streak.lastDay);
 
   const go = (side: string) => {
     const chosen = side === "random" ? (Math.random() < 0.5 ? "white" : "black") : side;
@@ -64,7 +66,7 @@ export default function Learn() {
       <div className="w-full max-w-lg px-4 pt-8 flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <p className="text-[13px] font-semibold text-noir-muted">Aprender aberturas</p>
-          {profile.streak.count > 0 && (
+          {streakOn && (
             <p className="text-[13px] font-semibold text-bronze">🔥 {streakLabel(profile.streak.count)}</p>
           )}
         </div>
@@ -76,21 +78,40 @@ export default function Learn() {
         </p>
 
         <div className="bg-noir-surface rounded-[20px] border border-noir-line p-5 shadow-sm flex flex-col gap-3">
-          <div className="flex items-center gap-2 text-bronze">
-            <Flame size={16} />
-            <span className="text-[13px] font-semibold">Continuar aprendendo</span>
-          </div>
-          <p className="text-[17px] font-semibold">{current.title}</p>
-          <p className="text-[13px] text-noir-muted">{current.subtitle}</p>
-          <Link
-            href={current.href}
-            className="mt-1 text-center py-3.5 px-4 rounded-[14px] bg-bronze text-white text-[17px] font-semibold active:scale-[0.99] transition-transform"
-          >
-            Continuar
-          </Link>
+          {trailComplete ? (
+            <>
+              <div className="flex items-center gap-2 text-bronze">
+                <Flame size={16} />
+                <span className="text-[13px] font-semibold">Trilha concluída</span>
+              </div>
+              <p className="text-[17px] font-semibold">Você zerou as {trail.length} aberturas! 🎉</p>
+              <p className="text-[13px] text-noir-muted">Rejogue uma lição ou parta para a prática.</p>
+              <Link
+                href={trail[0].href}
+                className="mt-1 text-center py-3.5 px-4 rounded-[14px] bg-bronze text-white text-[17px] font-semibold active:scale-[0.99] transition-transform"
+              >
+                Rever trilha
+              </Link>
+            </>
+          ) : (
+            <>
+              <div className="flex items-center gap-2 text-bronze">
+                <Flame size={16} />
+                <span className="text-[13px] font-semibold">Continuar aprendendo</span>
+              </div>
+              <p className="text-[17px] font-semibold">{current.title}</p>
+              <p className="text-[13px] text-noir-muted">{current.subtitle}</p>
+              <Link
+                href={current.href}
+                className="mt-1 text-center py-3.5 px-4 rounded-[14px] bg-bronze text-white text-[17px] font-semibold active:scale-[0.99] transition-transform"
+              >
+                Continuar
+              </Link>
+            </>
+          )}
           {due.due > 0 && (
             <Link href="/train" className="text-center text-[15px] font-medium text-bronze py-1">
-              Revisar {due.due} posição{due.due > 1 ? "ões" : ""} pendente{due.due > 1 ? "s" : ""}
+              {due.due === 1 ? "Revisar 1 posição pendente" : `Revisar ${due.due} posições pendentes`}
             </Link>
           )}
         </div>

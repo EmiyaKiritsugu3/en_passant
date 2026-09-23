@@ -1,6 +1,6 @@
 import { describe, expect, it, beforeEach } from "vitest";
 import { loadProfile, saveProfile } from "./store";
-import { applyPostgame, streakLabel, touchStreak } from "./update";
+import { applyPostgame, isStreakActive, streakLabel, touchStreak } from "./update";
 
 beforeEach(() => {
   window.localStorage.clear();
@@ -19,6 +19,22 @@ describe("store", () => {
     const p = loadProfile();
     expect(p.version).toBe(1);
     expect(window.localStorage.getItem("profile.v1.bak")).toContain("99");
+  });
+  it("defaults streak for pre-streak profiles", () => {
+    window.localStorage.setItem(
+      "profile.v1",
+      JSON.stringify({ version: 1, rating: 800, games: 2, openings: { "Italian Game": 1 } })
+    );
+    expect(loadProfile().streak).toEqual({ count: 0, lastDay: "" });
+  });
+  it("recovers from malformed streak and openings shapes", () => {
+    window.localStorage.setItem(
+      "profile.v1",
+      JSON.stringify({ version: 1, streak: { count: "3" }, openings: null })
+    );
+    const p = loadProfile();
+    expect(p.streak).toEqual({ count: 0, lastDay: "" });
+    expect(p.openings).toEqual({});
   });
 });
 
@@ -63,6 +79,20 @@ describe("touchStreak", () => {
     p.streak.lastDay = "not-a-date";
     const next = touchStreak(p, "2026-09-23");
     expect(next.streak).toEqual({ count: 1, lastDay: "2026-09-23" });
+  });
+  it("increments across a month boundary", () => {
+    const once = touchStreak(loadProfile(), "2026-12-31");
+    const next = touchStreak(once, "2027-01-01");
+    expect(next.streak).toEqual({ count: 2, lastDay: "2027-01-01" });
+  });
+});
+
+describe("isStreakActive", () => {
+  it("is active today and yesterday, expired before that", () => {
+    expect(isStreakActive("2026-09-23", "2026-09-23")).toBe(true);
+    expect(isStreakActive("2026-09-22", "2026-09-23")).toBe(true);
+    expect(isStreakActive("2026-09-21", "2026-09-23")).toBe(false);
+    expect(isStreakActive("", "2026-09-23")).toBe(false);
   });
 });
 

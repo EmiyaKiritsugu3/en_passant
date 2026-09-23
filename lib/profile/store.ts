@@ -62,6 +62,10 @@ export function loadProfile(): Profile {
       p.streak && typeof p.streak.count === "number" && typeof p.streak.lastDay === "string"
         ? { count: p.streak.count, lastDay: p.streak.lastDay }
         : structuredClone(DEFAULT_PROFILE.streak);
+    next.openings =
+      p.openings && typeof p.openings === "object" && !Array.isArray(p.openings)
+        ? (p.openings as Record<string, number>)
+        : structuredClone(DEFAULT_PROFILE.openings);
     return next;
   } catch {
     return structuredClone(DEFAULT_PROFILE);

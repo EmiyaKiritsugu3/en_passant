@@ -40,6 +40,11 @@ export function streakLabel(count: number): string {
   return count === 1 ? "1 dia seguido" : `${count} dias seguidos`;
 }
 
+/** Pílula só aparece com streak vigente (hoje ou ontem); evita exibir streak expirado. */
+export function isStreakActive(lastDay: string, today = todayKey()): boolean {
+  return lastDay === today || lastDay === shiftKey(today, -1);
+}
+
 export function applyPostgame(p: Profile, r: PostgameResult, today = todayKey()): Profile {
   const next: Profile = structuredClone(p);
   next.games += 1;

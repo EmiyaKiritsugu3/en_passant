@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
 import Board from "@/components/Board";
 import {
   dueCards,
@@ -17,7 +17,7 @@ import {
   saveProfile,
   subscribeProfile,
 } from "@/lib/profile/store";
-import { streakLabel, touchStreak } from "@/lib/profile/update";
+import { streakLabel, touchStreak, isStreakActive } from "@/lib/profile/update";
 import { playLessonCompleteSound } from "@/lib/sound/audio";
 import type { DrawShape } from "chessgroundx/draw";
 import type { Key } from "chessgroundx/types";
@@ -35,18 +35,11 @@ export default function ReviewPage() {
   const [statusText, setStatusText] = useState("");
   const [isResolved, setIsResolved] = useState(false);
   const [shape, setShape] = useState<DrawShape[]>([]);
-  const celebratedRef = useRef(false);
+  // Card resolvido só sai da fila ao clicar em "Próxima": assim o feedback
+  // (acerto ou solução revelada) permanece visível antes de avançar.
+  const pendingRef = useRef<{ id: string; updated: Card } | null>(null);
 
   const due = dueCards(allCards);
-
-  // Clearing the whole daily queue is the win: fanfare + streak, once.
-  useEffect(() => {
-    if (due.length === 0 && doneCount > 0 && !celebratedRef.current) {
-      celebratedRef.current = true;
-      saveProfile(touchStreak(getProfileSnapshot()));
-      playLessonCompleteSound();
-    }
-  }, [due.length, doneCount]);
   const currentCard: Card | undefined = due[currentIndex];
   const orientation: "white" | "black" =
     currentCard && currentCard.fen.split(" ")[1] === "b" ? "black" : "white";
@@ -68,7 +61,7 @@ export default function ReviewPage() {
     if (expected.startsWith(uciMove)) {
       const quality = attempts === 0 ? (hintUsed ? 4 : 5) : 2;
       const updated = reviewCard(currentCard, quality);
-      saveCards(allCards.map((c) => (c.id === currentCard.id ? updated : c)));
+      pendingRef.current = { id: currentCard.id, updated };
       setStatusText("Correto! Excelente resolução.");
       setIsResolved(true);
       setShape([{ orig: from as Key, dest: to as Key, brush: "green" }]);
@@ -91,7 +84,7 @@ export default function ReviewPage() {
   const handleGiveUp = () => {
     if (!currentCard || isResolved) return;
     const updated = reviewCard(currentCard, 0);
-    saveCards(allCards.map((c) => (c.id === currentCard.id ? updated : c)));
+    pendingRef.current = { id: currentCard.id, updated };
     setIsResolved(true);
     const orig = currentCard.bestMove.slice(0, 2) as Key;
     const dest = currentCard.bestMove.slice(2, 4) as Key;
@@ -101,12 +94,25 @@ export default function ReviewPage() {
   };
 
   const handleNext = () => {
+    // Persiste a revisão pendente aqui (gesto do usuário = som permitido) e
+    // celebra ao zerar a fila. A fila é estável até aqui, então voltar ao
+    // índice 0 sempre mostra a próxima carta pendente.
+    if (pendingRef.current) {
+      const { id, updated } = pendingRef.current;
+      pendingRef.current = null;
+      const nextAll = allCards.map((c) => (c.id === id ? updated : c));
+      saveCards(nextAll);
+      if (dueCards(nextAll).length === 0) {
+        saveProfile(touchStreak(getProfileSnapshot()));
+        playLessonCompleteSound();
+      }
+    }
     setHintUsed(false);
     setAttempts(0);
     setStatusText("");
     setIsResolved(false);
     setShape([]);
-    setCurrentIndex((i) => (i >= due.length - 1 ? 0 : i + 1));
+    setCurrentIndex(0);
   };
 
   return (
@@ -181,13 +187,13 @@ export default function ReviewPage() {
               <CircleCheck size={22} />
             </span>
             <p className="text-[17px] font-semibold">Tudo em dia!</p>
-            {profile.streak.count > 0 && (
+            {profile.streak.count > 0 && isStreakActive(profile.streak.lastDay) && (
               <p className="text-[15px] font-semibold text-bronze">🔥 {streakLabel(profile.streak.count)}</p>
             )}
             <p className="text-[15px] text-noir-muted">
               Seus erros de partidas entram aqui automaticamente para revisão espaçada.
             </p>
-            <Link href="/" className="mt-1 w-full py-3.5 rounded-[14px] bg-bronze text-white text-[17px] font-semibold text-center">
+            <Link href="/study" className="mt-1 w-full py-3.5 rounded-[14px] bg-bronze text-white text-[17px] font-semibold text-center">
               Aprender abertura
             </Link>
           </div>

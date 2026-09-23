@@ -170,8 +170,14 @@ test.describe("Play Arena — Game & Coach Console", () => {
     await page.getByRole("button", { name: /Confirmar desistência/i }).click();
     await expect(page.getByText(/Resultado:/i)).toBeVisible({ timeout: 15000 });
     await expect(page.getByText(/Desistência registrada/i)).toBeVisible({ timeout: 15000 });
-    // One-screen sheet: primary CTA + replay loop
-    await expect(page.getByRole("link", { name: /Revisar erros/i })).toBeVisible();
-    await expect(page.getByRole("button", { name: /Nova partida/i }).first()).toBeVisible();
+    // One-screen sheet: primary CTA + replay loop scoped to the sheet
+    const sheet = page.locator("div.fixed");
+    await expect(sheet.getByRole("link", { name: /Revisar erros/i })).toBeVisible();
+    const replayBtn = sheet.getByRole("button", { name: /Nova partida/i });
+    await expect(replayBtn).toBeVisible();
+    await replayBtn.click();
+    // Game resets: sheet closes, turn pill shows the new game state
+    await expect(page.getByText(/Resultado:/i)).toBeHidden({ timeout: 5000 });
+    await expect(page.getByText(/Sua vez|Oponente pensando/).first()).toBeVisible();
   });
 });

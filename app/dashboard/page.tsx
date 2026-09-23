@@ -15,6 +15,13 @@ import {
   summarizeDue,
 } from "@/lib/sm2/scheduler";
 
+const TAG_LABELS: Record<string, string> = {
+  tactics: "tática",
+  kingSafety: "segurança do rei",
+  pawns: "peões",
+  endgame: "finais",
+};
+
 export default function DashboardPage() {
   const profile: Profile = useSyncExternalStore(
     subscribeProfile,
@@ -36,7 +43,7 @@ export default function DashboardPage() {
     .filter(([, val]) => val > 0)
     .sort(([, a], [, b]) => b - a)
     .slice(0, 2)
-    .map(([tag]) => tag);
+    .map(([tag]) => TAG_LABELS[tag] ?? tag);
 
   const phaseEntries = [
     { label: "Abertura", score: latestPhases.opening, color: "bg-sky-500" },
@@ -67,7 +74,7 @@ export default function DashboardPage() {
           </div>
           <div className="bg-noir-surface border border-noir-line rounded-[20px] p-4 flex flex-col gap-1 shadow-sm">
             <span className="text-[13px] text-noir-muted">Aberturas concluídas</span>
-            <span className="text-[22px] font-bold text-[#34c759]">{Object.keys(profile.openings).length}</span>
+            <span className="text-[22px] font-bold text-[#1f7a35]">{Object.keys(profile.openings).length}</span>
           </div>
           <div className="bg-noir-surface border border-noir-line rounded-[20px] p-4 flex flex-col gap-1 shadow-sm">
             <span className="text-[13px] text-noir-muted">Revisão pendente</span>

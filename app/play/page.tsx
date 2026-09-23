@@ -726,29 +726,34 @@ function PlayContent() {
             />
           </div>
 
-          {/* Turn pill: one glance, whose move */}
+          {/* Turn pill: one glance, whose move.
+              Fora do ao vivo mostra a posição em revisão, não o turno atual. */}
           <div
             role="status"
             aria-live="polite"
             className={`text-[15px] font-semibold px-4 py-1.5 rounded-full ${
               game.isGameOver() || resigned
                 ? "bg-noir-raised text-noir-muted"
-                : isPlayerTurn
-                  ? "bg-[#34c759]/15 text-[#34c759] animate-pulse"
-                  : "bg-bronze/15 text-bronze animate-pulse"
+                : !isLiveMode
+                  ? "bg-noir-raised text-noir-muted"
+                  : isPlayerTurn
+                    ? "bg-[#34c759]/15 text-[#34c759] animate-pulse"
+                    : "bg-bronze/15 text-bronze animate-pulse"
             }`}
           >
             {game.isGameOver() || resigned
               ? "Partida encerrada"
-              : isPlayerTurn
-                ? "● Sua vez"
-                : "… Oponente pensando"}
+              : !isLiveMode
+                ? "Revendo lance"
+                : isPlayerTurn
+                  ? "● Sua vez"
+                  : "… Oponente pensando"}
           </div>
 
-          {/* Board Row with Vertical EvalBar */}
+          {/* Board Row with Vertical EvalBar (bar stretches to board height) */}
           <div className="flex items-center gap-2.5 w-full justify-center">
             {/* Dynamic Vertical EvalBar */}
-            <div className="h-[300px] sm:h-[400px] self-stretch">
+            <div className="self-stretch py-0.5">
               <EvalBar evaluation={lastEval} orientation={boardOrientation} />
             </div>
 
@@ -837,9 +842,17 @@ function PlayContent() {
               postgame && (
                 <>
                   <div className="flex flex-col items-center text-center gap-1 pt-2">
-                    <span className="text-5xl" aria-hidden>
-                      {postgame.result === "1-0" || postgame.result === "0-1" ? "🏆" : "🤝"}
-                    </span>
+                    {(() => {
+                      const playerWon =
+                        (color === "white" && postgame.result === "1-0") ||
+                        (color === "black" && postgame.result === "0-1");
+                      const isDraw = postgame.result === "1/2-1/2";
+                      return (
+                        <span className="text-5xl" aria-hidden>
+                          {playerWon ? "🏆" : isDraw ? "🤝" : "💪"}
+                        </span>
+                      );
+                    })()}
                     <span className="text-[13px] font-semibold text-noir-muted">
                       Fim de jogo
                     </span>
@@ -895,10 +908,19 @@ function PlayContent() {
                     <button
                       type="button"
                       onClick={handleResetGame}
-                      className="w-full py-2.5 text-bronze text-[15px] font-medium"
+                      className="w-full py-3.5 bg-noir-raised text-noir-ink text-center text-[17px] font-semibold rounded-[14px]"
                     >
                       Nova partida
                     </button>
+                    {!game.isGameOver() && !resigned && (
+                      <button
+                        type="button"
+                        onClick={() => setPostgame(null)}
+                        className="w-full py-2.5 text-bronze text-[15px] font-medium"
+                      >
+                        Continuar partida
+                      </button>
+                    )}
                   </div>
                 </>
               )

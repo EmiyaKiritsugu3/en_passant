@@ -34,7 +34,7 @@ test.describe("Dashboard & Analytics", () => {
     await expect(page.getByText(/Revisão do dia/i)).toBeVisible();
 
     // Openings progress
-    await expect(page.getByText(/Aberturas/i).first()).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Aberturas" })).toBeVisible();
 
     // Navigation to trail
     const trailLink = page.getByRole("link", { name: /Ver trilha/i });
@@ -99,14 +99,14 @@ test.describe("Dashboard & Analytics", () => {
 
     await expect(page.getByText(/Foco em/i)).toBeVisible();
     await expect(page.getByText(/Final/i).first()).toBeVisible();
-    await expect(page.getByText(/tactics/i)).toBeVisible();
+    await expect(page.getByText(/tática/i)).toBeVisible();
   });
 
   test("library shows unified empty state with CTAs when no games recorded", async ({ page }) => {
     await page.goto("/library");
 
     await expect(page.getByText("Sua Biblioteca está Vazia")).toBeVisible();
-    await expect(page.getByRole("link", { name: /Jogar/i }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: "Jogar →" })).toBeVisible();
     await expect(page.getByRole("button", { name: /\+ Importar PGN/i })).toBeVisible();
   });
 });

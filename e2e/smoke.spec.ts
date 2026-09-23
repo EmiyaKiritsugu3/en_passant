@@ -123,6 +123,11 @@ test("study lesson completes idea → drill → hunt flow", async ({ page }) => 
 test("home shows streak pill when profile has an active streak", async ({ page }) => {
   await page.addInitScript(() => {
     try {
+      // Data relativa ao dia da execução: streak sempre vigente no teste.
+      const d = new Date();
+      const m = `${d.getMonth() + 1}`.padStart(2, "0");
+      const day = `${d.getDate()}`.padStart(2, "0");
+      const today = `${d.getFullYear()}-${m}-${day}`;
       localStorage.setItem(
         "profile.v1",
         JSON.stringify({
@@ -133,7 +138,7 @@ test("home shows streak pill when profile has an active streak", async ({ page }
           recentErrorFens: [],
           openings: {},
           phaseHistory: [],
-          streak: { count: 4, lastDay: "2026-09-23" },
+          streak: { count: 4, lastDay: today },
         })
       );
     } catch {}
