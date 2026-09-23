@@ -1,6 +1,6 @@
 import { describe, expect, it, beforeEach } from "vitest";
 import { loadProfile, saveProfile } from "./store";
-import { applyPostgame } from "./update";
+import { applyPostgame, streakLabel, touchStreak } from "./update";
 
 beforeEach(() => {
   window.localStorage.clear();
@@ -30,5 +30,45 @@ describe("applyPostgame", () => {
     expect(next.errorTags.tactics).toBe(2);
     expect(next.rating).toBeGreaterThan(800);
     expect(next.phaseHistory).toHaveLength(1);
+  });
+  it("starts the streak on the first completed game", () => {
+    const p = loadProfile();
+    const next = applyPostgame(p, { won: false, tags: [], fens: [], phases: { opening: 50, middlegame: 50, endgame: 50 } }, "2026-09-23");
+    expect(next.streak).toEqual({ count: 1, lastDay: "2026-09-23" });
+  });
+});
+
+describe("touchStreak", () => {
+  it("starts at 1 on the first active day", () => {
+    const next = touchStreak(loadProfile(), "2026-09-23");
+    expect(next.streak).toEqual({ count: 1, lastDay: "2026-09-23" });
+  });
+  it("keeps the count when touching twice on the same day", () => {
+    const once = touchStreak(loadProfile(), "2026-09-23");
+    const twice = touchStreak(once, "2026-09-23");
+    expect(twice.streak).toEqual({ count: 1, lastDay: "2026-09-23" });
+  });
+  it("increments on the next consecutive day", () => {
+    const once = touchStreak(loadProfile(), "2026-09-22");
+    const next = touchStreak(once, "2026-09-23");
+    expect(next.streak).toEqual({ count: 2, lastDay: "2026-09-23" });
+  });
+  it("resets to 1 after a missed day", () => {
+    const once = touchStreak(loadProfile(), "2026-09-20");
+    const next = touchStreak(once, "2026-09-23");
+    expect(next.streak).toEqual({ count: 1, lastDay: "2026-09-23" });
+  });
+  it("recovers from a malformed lastDay", () => {
+    const p = loadProfile();
+    p.streak.lastDay = "not-a-date";
+    const next = touchStreak(p, "2026-09-23");
+    expect(next.streak).toEqual({ count: 1, lastDay: "2026-09-23" });
+  });
+});
+
+describe("streakLabel", () => {
+  it("uses singular for day one", () => {
+    expect(streakLabel(1)).toBe("1 dia seguido");
+    expect(streakLabel(4)).toBe("4 dias seguidos");
   });
 });

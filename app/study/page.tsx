@@ -16,6 +16,8 @@ import repertoireData from "@/data/repertoire.json";
 import type { DrawShape } from "chessgroundx/draw";
 import type { Key } from "chessgroundx/types";
 import { ChevronRight, Lightbulb, RotateCcw, Trophy } from "lucide-react";
+import { playLessonCompleteSound } from "@/lib/sound/audio";
+import { streakLabel, touchStreak } from "@/lib/profile/update";
 
 interface Trap {
   name: string;
@@ -235,10 +237,12 @@ function StudyLesson() {
   }
 
   function finishLesson() {
-    saveProfile({
+    const next = touchStreak({
       ...profile,
       openings: { ...profile.openings, [opening.name]: (profile.openings[opening.name] ?? 0) + 1 },
     });
+    saveProfile(next);
+    playLessonCompleteSound();
     setStep("done");
   }
 
@@ -406,6 +410,9 @@ function StudyLesson() {
             </span>
             <p className="text-[20px] font-bold">Lição concluída!</p>
             <p className="text-[15px] text-noir-muted">{opening.name} — {line.name} registrada no seu progresso.</p>
+            {profile.streak.count > 0 && (
+              <p className="text-[15px] font-semibold text-bronze">🔥 {streakLabel(profile.streak.count)}</p>
+            )}
             <Link href="/" className="mt-1 w-full py-3.5 rounded-[14px] bg-bronze text-white text-[17px] font-semibold text-center">
               Próxima abertura
             </Link>

@@ -5,6 +5,7 @@ import { useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { BookOpen, ChevronRight, Dices, Flame, Play } from "lucide-react";
 import { DEFAULT_PROFILE, getProfileSnapshot, subscribeProfile } from "@/lib/profile/store";
+import { streakLabel } from "@/lib/profile/update";
 import { EMPTY_CARDS, getCardsSnapshot, subscribeCards, summarizeDue } from "@/lib/sm2/scheduler";
 import repertoireData from "@/data/repertoire.json";
 
@@ -61,7 +62,12 @@ export default function Learn() {
   return (
     <main className="min-h-screen bg-noir-bg text-noir-ink flex flex-col items-center select-none pb-12">
       <div className="w-full max-w-lg px-4 pt-8 flex flex-col gap-4">
-        <p className="text-[13px] font-semibold text-noir-muted">Aprender aberturas</p>
+        <div className="flex items-center justify-between">
+          <p className="text-[13px] font-semibold text-noir-muted">Aprender aberturas</p>
+          {profile.streak.count > 0 && (
+            <p className="text-[13px] font-semibold text-bronze">🔥 {streakLabel(profile.streak.count)}</p>
+          )}
+        </div>
         <h1 className="text-[28px] leading-tight font-bold tracking-tight">
           Sua trilha de aberturas
         </h1>

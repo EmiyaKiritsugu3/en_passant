@@ -113,5 +113,33 @@ test("study lesson completes idea → drill → hunt flow", async ({ page }) => 
   await expect(page.getByText(/erraram com/i)).toBeVisible();
   await playMove("b1", "c3");
   await expect(page.getByRole("button", { name: /concluir lição/i })).toBeVisible();
+  await page.getByRole("button", { name: /concluir lição/i }).click();
+
+  // Step 4: done — celebration + streak starts at day one
+  await expect(page.getByText(/Lição concluída!/i)).toBeVisible();
+  await expect(page.getByText(/🔥 1 dia seguido/i)).toBeVisible();
+});
+
+test("home shows streak pill when profile has an active streak", async ({ page }) => {
+  await page.addInitScript(() => {
+    try {
+      localStorage.setItem(
+        "profile.v1",
+        JSON.stringify({
+          version: 1,
+          rating: 800,
+          games: 1,
+          errorTags: { tactics: 0, kingSafety: 0, endgame: 0, pawns: 0 },
+          recentErrorFens: [],
+          openings: {},
+          phaseHistory: [],
+          streak: { count: 4, lastDay: "2026-09-23" },
+        })
+      );
+    } catch {}
+  });
+  await page.goto("/");
+
+  await expect(page.getByText(/🔥 4 dias seguidos/i)).toBeVisible();
 });
 

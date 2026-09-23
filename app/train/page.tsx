@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Board from "@/components/Board";
 import {
   dueCards,
@@ -11,6 +11,14 @@ import {
   getCardsSnapshot,
   type Card,
 } from "@/lib/sm2/scheduler";
+import {
+  DEFAULT_PROFILE,
+  getProfileSnapshot,
+  saveProfile,
+  subscribeProfile,
+} from "@/lib/profile/store";
+import { streakLabel, touchStreak } from "@/lib/profile/update";
+import { playLessonCompleteSound } from "@/lib/sound/audio";
 import type { DrawShape } from "chessgroundx/draw";
 import type { Key } from "chessgroundx/types";
 import { CircleCheck } from "lucide-react";
@@ -19,6 +27,7 @@ const EMPTY_CARDS: Card[] = [];
 
 export default function ReviewPage() {
   const allCards = useSyncExternalStore(subscribeCards, getCardsSnapshot, () => EMPTY_CARDS);
+  const profile = useSyncExternalStore(subscribeProfile, getProfileSnapshot, () => DEFAULT_PROFILE);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [doneCount, setDoneCount] = useState(0);
   const [hintUsed, setHintUsed] = useState(false);
@@ -26,8 +35,18 @@ export default function ReviewPage() {
   const [statusText, setStatusText] = useState("");
   const [isResolved, setIsResolved] = useState(false);
   const [shape, setShape] = useState<DrawShape[]>([]);
+  const celebratedRef = useRef(false);
 
   const due = dueCards(allCards);
+
+  // Clearing the whole daily queue is the win: fanfare + streak, once.
+  useEffect(() => {
+    if (due.length === 0 && doneCount > 0 && !celebratedRef.current) {
+      celebratedRef.current = true;
+      saveProfile(touchStreak(getProfileSnapshot()));
+      playLessonCompleteSound();
+    }
+  }, [due.length, doneCount]);
   const currentCard: Card | undefined = due[currentIndex];
   const orientation: "white" | "black" =
     currentCard && currentCard.fen.split(" ")[1] === "b" ? "black" : "white";
@@ -162,6 +181,9 @@ export default function ReviewPage() {
               <CircleCheck size={22} />
             </span>
             <p className="text-[17px] font-semibold">Tudo em dia!</p>
+            {profile.streak.count > 0 && (
+              <p className="text-[15px] font-semibold text-bronze">🔥 {streakLabel(profile.streak.count)}</p>
+            )}
             <p className="text-[15px] text-noir-muted">
               Seus erros de partidas entram aqui automaticamente para revisão espaçada.
             </p>
