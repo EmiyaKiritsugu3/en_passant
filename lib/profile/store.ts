@@ -58,7 +58,11 @@ export function loadProfile(): Profile {
       ...tagDefaults,
       ...Object.fromEntries(
         Object.entries(p.errorTags ?? {}).filter(
-          ([k, v]) => k in tagDefaults && typeof v === "number" && Number.isFinite(v) && v >= 0
+          ([k, v]) =>
+            Object.hasOwn(tagDefaults, k) &&
+            typeof v === "number" &&
+            Number.isInteger(v) &&
+            v >= 0
         )
       ),
     };
@@ -69,7 +73,7 @@ export function loadProfile(): Profile {
     next.streak =
       p.streak &&
       typeof p.streak.count === "number" &&
-      Number.isFinite(p.streak.count) &&
+      Number.isInteger(p.streak.count) &&
       p.streak.count >= 0 &&
       typeof p.streak.lastDay === "string"
         ? { count: p.streak.count, lastDay: p.streak.lastDay }
@@ -78,7 +82,7 @@ export function loadProfile(): Profile {
       p.openings && typeof p.openings === "object" && !Array.isArray(p.openings)
         ? Object.fromEntries(
             Object.entries(p.openings).filter(
-              ([, v]) => typeof v === "number" && Number.isFinite(v) && v >= 0
+              ([, v]) => typeof v === "number" && Number.isInteger(v) && v >= 0
             )
           )
         : structuredClone(DEFAULT_PROFILE.openings);

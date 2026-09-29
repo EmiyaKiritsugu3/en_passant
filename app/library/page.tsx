@@ -19,18 +19,12 @@ import { collectEvals, type Row } from "@/lib/postgame";
 import { createMockEngine } from "@/lib/engine/engine";
 import { useEngine } from "@/hooks/useEngine";
 import { DEFAULT_PROFILE, getProfileSnapshot, subscribeProfile } from "@/lib/profile/store";
+import { TAG_LABELS } from "@/lib/profile/tagLabels";
 import { BookOpen, Library } from "lucide-react";
 import type { DrawShape } from "chessgroundx/draw";
 import type { Key } from "chessgroundx/types";
 
 const EMPTY_GAMES: SavedGame[] = [];
-
-const TAG_LABELS: Record<string, string> = {
-  tactics: "tática",
-  kingSafety: "segurança do rei",
-  pawns: "peões",
-  endgame: "finais",
-};
 
 export default function LibraryPage() {
   const games = useSyncExternalStore(subscribeGames, getGamesSnapshot, () => EMPTY_GAMES);

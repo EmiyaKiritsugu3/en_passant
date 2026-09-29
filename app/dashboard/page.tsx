@@ -15,13 +15,7 @@ import {
   summarizeDue,
 } from "@/lib/sm2/scheduler";
 import repertoireData from "@/data/repertoire.json";
-
-const TAG_LABELS: Record<string, string> = {
-  tactics: "tática",
-  kingSafety: "segurança do rei",
-  pawns: "peões",
-  endgame: "finais",
-};
+import { TAG_LABELS } from "@/lib/profile/tagLabels";
 
 export default function DashboardPage() {
   const profile: Profile = useSyncExternalStore(

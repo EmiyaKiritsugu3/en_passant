@@ -43,10 +43,13 @@ describe("store", () => {
     );
     expect(loadProfile().openings).toEqual({ "Italian Game": 2 });
   });
-  it("drops negative and non-finite opening counts", () => {
+  it("drops negative and fractional opening counts", () => {
     window.localStorage.setItem(
       "profile.v1",
-      JSON.stringify({ version: 1, openings: { "Italian Game": 1, "Ruy Lopez": -2 } })
+      JSON.stringify({
+        version: 1,
+        openings: { "Italian Game": 1, "Ruy Lopez": -2, "London System": 1.5 },
+      })
     );
     expect(loadProfile().openings).toEqual({ "Italian Game": 1 });
   });
