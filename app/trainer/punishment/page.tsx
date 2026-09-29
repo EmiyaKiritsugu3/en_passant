@@ -58,7 +58,7 @@ export default function PunishmentPage() {
         setAttempts((a) => a + 1);
         setStage(reduce(stage, { type: "WRONG" }));
         setShape([{ orig: from as Key, dest: to as Key, brush: "red" }]);
-        setStatus(`Não é esse. Volte às dicas. Esperado envolve: ${drill.triggerType}.`);
+        setStatus(`Não é esse. Volte às dicas. ${drill.triggerDescription}`);
       }
     } else if (stage.kind === "hint") {
       if (ok) {
@@ -118,7 +118,7 @@ export default function PunishmentPage() {
         </div>
         <div className="flex gap-3">
           <Link href="/train" className="text-xs font-mono px-3 py-2 rounded-lg bg-noir-raised hover:bg-noir-line text-noir-muted">
-            Treino
+            Revisar
           </Link>
           <Link href="/play" className="text-xs font-mono px-3 py-2 rounded-lg bg-noir-raised hover:bg-noir-line text-bronze font-semibold">
             Jogar
@@ -146,7 +146,7 @@ export default function PunishmentPage() {
         <div className="flex flex-col items-center gap-4 w-full lg:flex-1 lg:min-w-0 lg:max-w-[560px]">
           <div className="text-xs font-mono text-noir-muted w-full max-w-[560px]">
             Erro preto: <strong className="text-rose-400">{drill.opponentMistakeSan}</strong>
-            {" · "}Gatilho: {drill.triggerType}
+            {" — "}{drill.triggerDescription}
           </div>
           <Board
             fen={fen}

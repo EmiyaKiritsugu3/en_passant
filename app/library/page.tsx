@@ -181,7 +181,7 @@ export default function LibraryPage() {
             href="/train"
             className="text-xs font-mono px-3 py-2 rounded-lg bg-noir-raised hover:bg-noir-line text-noir-muted transition-colors"
           >
-            Treinar
+            Revisar
           </Link>
           <Link
             href="/dashboard"
