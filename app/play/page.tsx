@@ -88,7 +88,7 @@ function PlayContent() {
       if (color === "black" && game.history().length === 0 && game.turn() === "w") {
         timer = setTimeout(() => {
           if (game.history().length === 0 && game.turn() === "w") {
-            makeEngineMove(game.fen(), eng);
+            void makeEngineMove(game.fen(), eng);
           }
         }, 300);
       }
@@ -563,7 +563,7 @@ function PlayContent() {
     if (color === "black") {
       const eng = engineRef.current ?? createMockEngine();
       setTimeout(() => {
-        makeEngineMove(game.fen(), eng);
+        void makeEngineMove(game.fen(), eng);
       }, 300);
     }
   };
