@@ -25,6 +25,13 @@ import type { Key } from "chessgroundx/types";
 
 const EMPTY_GAMES: SavedGame[] = [];
 
+const TAG_LABELS: Record<string, string> = {
+  tactics: "tática",
+  kingSafety: "segurança do rei",
+  pawns: "peões",
+  endgame: "finais",
+};
+
 export default function LibraryPage() {
   const games = useSyncExternalStore(subscribeGames, getGamesSnapshot, () => EMPTY_GAMES);
   const [selectedGameId, setSelectedGameId] = useState<string | null>(null);
@@ -202,7 +209,7 @@ export default function LibraryPage() {
           <div>
             <span className="text-xs font-mono uppercase text-bronze font-bold">Recomendação de Estudo</span>
             <p className="text-xs text-noir-muted mt-0.5">
-              Seu perfil aponta mais erros recentes em <strong>{weakestTag}</strong>. Pratique com partidas modelo selecionadas para dominar essa fraqueza.
+              Seu perfil aponta mais erros recentes em <strong>{TAG_LABELS[weakestTag] ?? weakestTag}</strong>. Pratique com partidas modelo selecionadas para dominar essa fraqueza.
             </p>
           </div>
           <Link

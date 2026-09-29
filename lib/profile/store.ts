@@ -53,20 +53,32 @@ export function loadProfile(): Profile {
     }
     // Guard against stale/malformed persisted shape (e.g. errorTags null/array)
     const next = { ...structuredClone(DEFAULT_PROFILE), ...p };
-    next.errorTags = { ...structuredClone(DEFAULT_PROFILE.errorTags), ...(p.errorTags ?? {}) };
+    const tagDefaults = structuredClone(DEFAULT_PROFILE.errorTags);
+    next.errorTags = {
+      ...tagDefaults,
+      ...Object.fromEntries(
+        Object.entries(p.errorTags ?? {}).filter(
+          ([k, v]) => k in tagDefaults && typeof v === "number" && Number.isFinite(v) && v >= 0
+        )
+      ),
+    };
     next.phaseHistory = Array.isArray(p.phaseHistory) ? p.phaseHistory : structuredClone(DEFAULT_PROFILE.phaseHistory);
     next.recentErrorFens = Array.isArray(p.recentErrorFens)
       ? p.recentErrorFens
       : structuredClone(DEFAULT_PROFILE.recentErrorFens);
     next.streak =
-      p.streak && typeof p.streak.count === "number" && typeof p.streak.lastDay === "string"
+      p.streak &&
+      typeof p.streak.count === "number" &&
+      Number.isFinite(p.streak.count) &&
+      p.streak.count >= 0 &&
+      typeof p.streak.lastDay === "string"
         ? { count: p.streak.count, lastDay: p.streak.lastDay }
         : structuredClone(DEFAULT_PROFILE.streak);
     next.openings =
       p.openings && typeof p.openings === "object" && !Array.isArray(p.openings)
         ? Object.fromEntries(
             Object.entries(p.openings).filter(
-              ([, v]) => typeof v === "number" && Number.isFinite(v)
+              ([, v]) => typeof v === "number" && Number.isFinite(v) && v >= 0
             )
           )
         : structuredClone(DEFAULT_PROFILE.openings);

@@ -17,7 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="pt-BR" className="h-full antialiased">
       <body className="min-h-full flex flex-col">
         <ServiceWorkerRegister />
-        <div className="flex-1 pb-20">{children}</div>
+        <div className="flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))]">{children}</div>
         <TabBar />
       </body>
     </html>

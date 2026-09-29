@@ -14,6 +14,7 @@ import {
   subscribeCards,
   summarizeDue,
 } from "@/lib/sm2/scheduler";
+import repertoireData from "@/data/repertoire.json";
 
 const TAG_LABELS: Record<string, string> = {
   tactics: "tática",
@@ -30,6 +31,15 @@ export default function DashboardPage() {
   );
   const allCards = useSyncExternalStore(subscribeCards, getCardsSnapshot, () => EMPTY_CARDS);
   const due = summarizeDue(allCards);
+
+  // Conta só aberturas do repertório com progresso positivo: nomes
+  // obsoletos ou zerados no perfil não inflam a estatística nem a lista.
+  const repertoireNames = new Set(
+    [...repertoireData.white, ...repertoireData.black].map((o: { name: string }) => o.name)
+  );
+  const completedOpenings = Object.entries(profile.openings).filter(
+    ([name, count]) => count > 0 && repertoireNames.has(name)
+  );
 
   const hasGames = profile.games > 0;
 
@@ -74,7 +84,7 @@ export default function DashboardPage() {
           </div>
           <div className="bg-noir-surface border border-noir-line rounded-[20px] p-4 flex flex-col gap-1 shadow-sm">
             <span className="text-[13px] text-noir-muted">Aberturas concluídas</span>
-            <span className="text-[22px] font-bold text-[#1f7a35]">{Object.keys(profile.openings).length}</span>
+            <span className="text-[22px] font-bold text-[#1f7a35]">{completedOpenings.length}</span>
           </div>
           <div className="bg-noir-surface border border-noir-line rounded-[20px] p-4 flex flex-col gap-1 shadow-sm">
             <span className="text-[13px] text-noir-muted">Revisão pendente</span>
@@ -92,7 +102,7 @@ export default function DashboardPage() {
               </p>
               <Link
                 href="/play"
-                className="text-center py-3.5 px-4 rounded-[14px] bg-bronze text-white text-[17px] font-semibold"
+                className="text-center py-3.5 px-4 rounded-[14px] bg-bronze-deep text-white text-[17px] font-semibold"
               >
                 Jogar agora
               </Link>
@@ -121,7 +131,7 @@ export default function DashboardPage() {
             <span className="text-[13px] font-semibold text-bronze">Revisão do dia</span>
             {due.due > 0 ? (
               <p className="text-[15px] text-noir-ink">
-                <strong>{due.due} posição{due.due > 1 ? "ões" : ""} pronta{due.due > 1 ? "s" : ""}</strong>
+                <strong>{due.due === 1 ? "1 posição pronta" : `${due.due} posições prontas`}</strong>
                 {due.byContext[0] ? ` — ${due.byContext[0].context}: ${due.byContext[0].due}` : ""} para revisar.
               </p>
             ) : (
@@ -133,7 +143,7 @@ export default function DashboardPage() {
               Total: {due.total} · Novas: {due.fresh}
             </span>
           </div>
-          <span className="text-[15px] font-semibold px-4 py-2.5 rounded-[14px] bg-bronze text-white shrink-0">
+          <span className="text-[15px] font-semibold px-4 py-2.5 rounded-[14px] bg-bronze-deep text-white shrink-0">
             {due.due > 0 ? "Revisar →" : "Aprender →"}
           </span>
         </Link>
@@ -164,13 +174,13 @@ export default function DashboardPage() {
         {/* Openings progress */}
         <div className="bg-noir-surface border border-noir-line rounded-[20px] p-5 flex flex-col gap-3 shadow-sm">
           <h2 className="text-[15px] font-semibold">Aberturas</h2>
-          {Object.keys(profile.openings).length === 0 ? (
+          {completedOpenings.length === 0 ? (
             <p className="text-[15px] text-noir-muted leading-relaxed">
               Nenhuma lição concluída ainda. Comece pela trilha de aberturas.
             </p>
           ) : (
             <div className="flex flex-col divide-y divide-noir-line">
-              {Object.entries(profile.openings).map(([name, count]) => (
+              {completedOpenings.map(([name, count]) => (
                 <div key={name} className="py-2.5 flex justify-between items-center text-[15px]">
                   <span className="font-medium">{name}</span>
                   <span className="text-[13px] text-noir-muted">{count}x</span>

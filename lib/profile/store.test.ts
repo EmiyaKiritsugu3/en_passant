@@ -43,6 +43,26 @@ describe("store", () => {
     );
     expect(loadProfile().openings).toEqual({ "Italian Game": 2 });
   });
+  it("drops negative and non-finite opening counts", () => {
+    window.localStorage.setItem(
+      "profile.v1",
+      JSON.stringify({ version: 1, openings: { "Italian Game": 1, "Ruy Lopez": -2 } })
+    );
+    expect(loadProfile().openings).toEqual({ "Italian Game": 1 });
+  });
+  it("sanitizes errorTags and streak numerics", () => {
+    window.localStorage.setItem(
+      "profile.v1",
+      JSON.stringify({
+        version: 1,
+        errorTags: { tactics: 3, kingSafety: "bad", endgame: -1, unknown: 5 },
+        streak: { count: -4, lastDay: "2026-09-23" },
+      })
+    );
+    const p = loadProfile();
+    expect(p.errorTags).toEqual({ tactics: 3, kingSafety: 0, endgame: 0, pawns: 0 });
+    expect(p.streak).toEqual({ count: 0, lastDay: "" });
+  });
 });
 
 describe("applyPostgame", () => {
@@ -86,6 +106,12 @@ describe("touchStreak", () => {
     p.streak.lastDay = "not-a-date";
     const next = touchStreak(p, "2026-09-23");
     expect(next.streak).toEqual({ count: 1, lastDay: "2026-09-23" });
+  });
+  it("resets on a nonexistent calendar date", () => {
+    const p = loadProfile();
+    p.streak = { count: 5, lastDay: "2026-02-30" };
+    const next = touchStreak(p, "2026-03-01");
+    expect(next.streak).toEqual({ count: 1, lastDay: "2026-03-01" });
   });
   it("increments across a month boundary", () => {
     const once = touchStreak(loadProfile(), "2026-12-31");

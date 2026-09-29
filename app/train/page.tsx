@@ -42,14 +42,18 @@ export default function ReviewPage() {
   const due = dueCards(allCards);
 
   // A resposta resolvida vive em memória até "Próxima": descarrega ao sair
-  // para reload/navegação não perder a revisão (sem fanfarra — a fila pode
-  // não estar zerada).
+  // para reload/navegação não perder a revisão. Sem fanfarra fora de gesto —
+  // só credita o streak se a fila zerou, espelhando o handleNext.
   useEffect(() => {
     const flush = () => {
       if (pendingRef.current) {
         const { id, updated } = pendingRef.current;
         pendingRef.current = null;
-        saveCards(getCardsSnapshot().map((c) => (c.id === id ? updated : c)));
+        const nextAll = getCardsSnapshot().map((c) => (c.id === id ? updated : c));
+        saveCards(nextAll);
+        if (dueCards(nextAll).length === 0) {
+          saveProfile(touchStreak(getProfileSnapshot()));
+        }
       }
     };
     window.addEventListener("pagehide", flush);
@@ -140,7 +144,7 @@ export default function ReviewPage() {
         <h1 className="text-[28px] leading-tight font-bold tracking-tight">Revisão do dia</h1>
         <p className="text-[15px] text-noir-muted">
           {due.length > 0
-            ? `${due.length} posição${due.length > 1 ? "ões" : ""} para revisar`
+            ? `${due.length} ${due.length === 1 ? "posição para revisar" : "posições para revisar"}`
             : "Nada pendente. Volte amanhã."}
         </p>
 
@@ -190,7 +194,7 @@ export default function ReviewPage() {
               <button
                 type="button"
                 onClick={handleNext}
-                className="w-full py-3.5 rounded-[14px] bg-bronze text-white text-[17px] font-semibold"
+                className="w-full py-3.5 rounded-[14px] bg-bronze-deep text-white text-[17px] font-semibold"
               >
                 Próxima →
               </button>
@@ -201,7 +205,7 @@ export default function ReviewPage() {
           </>
         ) : (
           <div className="bg-noir-surface rounded-[20px] border border-noir-line p-8 flex flex-col items-center gap-3 text-center shadow-sm">
-            <span className="w-12 h-12 rounded-full bg-[#34c759]/15 flex items-center justify-center text-[#34c759]">
+            <span className="w-12 h-12 rounded-full bg-[#34c759]/15 flex items-center justify-center text-[#1f7a35]">
               <CircleCheck size={22} />
             </span>
             <p className="text-[17px] font-semibold">Tudo em dia!</p>
@@ -211,7 +215,7 @@ export default function ReviewPage() {
             <p className="text-[15px] text-noir-muted">
               Seus erros de partidas entram aqui automaticamente para revisão espaçada.
             </p>
-            <Link href="/study" className="mt-1 w-full py-3.5 rounded-[14px] bg-bronze text-white text-[17px] font-semibold text-center">
+            <Link href="/study" className="mt-1 w-full py-3.5 rounded-[14px] bg-bronze-deep text-white text-[17px] font-semibold text-center">
               Aprender abertura
             </Link>
           </div>

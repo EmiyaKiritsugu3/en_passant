@@ -21,8 +21,14 @@ export function todayKey(d = new Date()): string {
 function shiftKey(key: string, deltaDays: number): string | null {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(key);
   if (!m) return null;
-  const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
-  if (Number.isNaN(d.getTime())) return null;
+  const year = Number(m[1]);
+  const month = Number(m[2]);
+  const day = Number(m[3]);
+  if (month < 1 || month > 12 || day < 1 || day > 31) return null;
+  const d = new Date(year, month - 1, day);
+  // Date normaliza entradas como 30/02 em vez de invalidar: rejeita o
+  // deslocamento se a construção não reproduzir os componentes de origem.
+  if (Number.isNaN(d.getTime()) || d.getMonth() !== month - 1 || d.getDate() !== day) return null;
   d.setDate(d.getDate() + deltaDays);
   return todayKey(d);
 }

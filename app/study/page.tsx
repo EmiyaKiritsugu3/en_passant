@@ -283,7 +283,7 @@ function StudyLesson() {
               aria-selected={color === c}
               onClick={() => selectColor(c)}
               className={`flex-1 py-2.5 rounded-[14px] text-[15px] font-semibold ${
-                color === c ? "bg-bronze text-white" : "bg-noir-surface border border-noir-line text-noir-ink"
+                color === c ? "bg-bronze-deep text-white" : "bg-noir-surface border border-noir-line text-noir-ink"
               }`}
             >
               {c === "white" ? "Brancas" : "Pretas"}
@@ -352,7 +352,7 @@ function StudyLesson() {
             <button
               type="button"
               onClick={startDrill}
-              className="mt-1 w-full py-3.5 rounded-[14px] bg-bronze text-white text-[17px] font-semibold flex items-center justify-center gap-1"
+              className="mt-1 w-full py-3.5 rounded-[14px] bg-bronze-deep text-white text-[17px] font-semibold flex items-center justify-center gap-1"
             >
               Jogar a linha <ChevronRight size={18} />
             </button>
@@ -381,7 +381,7 @@ function StudyLesson() {
                   <span
                     key={idx}
                     className={`text-[13px] px-2 py-0.5 rounded-md ${
-                      idx < ply ? "bg-[#34c759]/15 text-[#34c759]" : idx === ply ? "bg-bronze/15 text-bronze font-bold" : "bg-noir-raised text-noir-muted"
+                      idx < ply ? "bg-[#34c759]/15 text-[#1f7a35]" : idx === ply ? "bg-bronze/15 text-bronze font-bold" : "bg-noir-raised text-noir-muted"
                     }`}
                   >
                     {idx % 2 === 0 ? `${Math.floor(idx / 2) + 1}.` : ""} {san}
@@ -399,7 +399,7 @@ function StudyLesson() {
               <button
                 type="button"
                 onClick={startHunt}
-                className="w-full py-3.5 rounded-[14px] bg-bronze text-white text-[17px] font-semibold flex items-center justify-center gap-1"
+                className="w-full py-3.5 rounded-[14px] bg-bronze-deep text-white text-[17px] font-semibold flex items-center justify-center gap-1"
               >
                 {trap ? "Caçar o erro" : "Concluir lição"} <ChevronRight size={18} />
               </button>
@@ -408,7 +408,7 @@ function StudyLesson() {
               <button
                 type="button"
                 onClick={finishLesson}
-                className="w-full py-3.5 rounded-[14px] bg-bronze text-white text-[17px] font-semibold flex items-center justify-center gap-1"
+                className="w-full py-3.5 rounded-[14px] bg-bronze-deep text-white text-[17px] font-semibold flex items-center justify-center gap-1"
               >
                 Concluir lição <ChevronRight size={18} />
               </button>
@@ -426,7 +426,7 @@ function StudyLesson() {
             {profile.streak.count > 0 && isStreakActive(profile.streak.lastDay) && (
               <p className="text-[15px] font-semibold text-bronze">🔥 {streakLabel(profile.streak.count)}</p>
             )}
-            <Link href="/" className="mt-1 w-full py-3.5 rounded-[14px] bg-bronze text-white text-[17px] font-semibold text-center">
+            <Link href="/" className="mt-1 w-full py-3.5 rounded-[14px] bg-bronze-deep text-white text-[17px] font-semibold text-center">
               Próxima abertura
             </Link>
             <Link href={`/play?side=${color}`} className="text-[15px] font-medium text-bronze py-1">

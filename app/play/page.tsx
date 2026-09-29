@@ -615,7 +615,7 @@ function PlayContent() {
   const isLiveMode = viewingPly === movesHistory.length;
 
   return (
-    <main aria-labelledby="arena-title" className="min-h-screen bg-noir-bg text-noir-ink flex flex-col items-center select-none pb-28">
+    <main aria-labelledby="arena-title" className="min-h-screen bg-noir-bg text-noir-ink flex flex-col items-center select-none pb-12">
       <h1 id="arena-title" className="sr-only">
         Jogar — partida contra o motor
       </h1>
@@ -655,7 +655,7 @@ function PlayContent() {
             >
               <option value="grandmaster" className="bg-noir-ink text-noir-bg">Forte</option>
               <option value="master" className="bg-noir-ink text-noir-bg">Médio</option>
-              <option value="adaptive" className="bg-noir-ink text-noir-bg">No seu nível ({playerRating})</option>
+              <option value="adaptive" className="bg-noir-ink text-noir-bg">Adaptativo ({playerRating})</option>
             </select>
           </div>
 
@@ -715,7 +715,7 @@ function PlayContent() {
                     ? "Mestre"
                     : "Treinador"
               }
-              badge={aiDifficulty === "grandmaster" ? "Forte" : aiDifficulty === "master" ? "Médio" : "Seu nível"}
+              badge={aiDifficulty === "grandmaster" ? "Forte" : aiDifficulty === "master" ? "Médio" : "Adaptativo"}
               rating={aiDifficulty === "grandmaster" ? 2800 : aiDifficulty === "master" ? 2200 : playerRating + 250}
               color={opponentColor}
               isTurn={!isPlayerTurn && !game.isGameOver() && !resigned}
@@ -737,7 +737,7 @@ function PlayContent() {
                 : !isLiveMode
                   ? "bg-noir-raised text-noir-muted"
                   : isPlayerTurn
-                    ? "bg-[#34c759]/15 text-[#34c759] animate-pulse"
+                    ? "bg-[#34c759]/15 text-[#1f7a35] animate-pulse"
                     : "bg-bronze/15 text-bronze animate-pulse"
             }`}
           >
@@ -897,7 +897,7 @@ function PlayContent() {
                   <div className="flex flex-col gap-2 pt-1">
                     <Link
                       href="/train"
-                      className="w-full py-3.5 bg-bronze text-white text-center text-[17px] font-semibold rounded-[14px] active:scale-[0.99] transition-transform"
+                      className="w-full py-3.5 bg-bronze-deep text-white text-center text-[17px] font-semibold rounded-[14px] active:scale-[0.99] transition-transform"
                     >
                       Revisar erros
                     </Link>
@@ -918,7 +918,7 @@ function PlayContent() {
                       <button
                         type="button"
                         onClick={() => setPostgame(null)}
-                        className="w-full py-3 text-bronze text-[15px] font-medium"
+                        className="w-full py-3 min-h-[44px] text-bronze text-[15px] font-medium"
                       >
                         Continuar partida
                       </button>

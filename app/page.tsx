@@ -88,7 +88,7 @@ export default function Learn() {
               <p className="text-[13px] text-noir-muted">Rejogue uma lição ou parta para a prática.</p>
               <Link
                 href={trail[0].href}
-                className="mt-1 text-center py-3.5 px-4 rounded-[14px] bg-bronze text-white text-[17px] font-semibold active:scale-[0.99] transition-transform"
+                className="mt-1 text-center py-3.5 px-4 rounded-[14px] bg-bronze-deep text-white text-[17px] font-semibold active:scale-[0.99] transition-transform"
               >
                 Rever trilha
               </Link>
@@ -103,7 +103,7 @@ export default function Learn() {
               <p className="text-[13px] text-noir-muted">{current.subtitle}</p>
               <Link
                 href={current.href}
-                className="mt-1 text-center py-3.5 px-4 rounded-[14px] bg-bronze text-white text-[17px] font-semibold active:scale-[0.99] transition-transform"
+                className="mt-1 text-center py-3.5 px-4 rounded-[14px] bg-bronze-deep text-white text-[17px] font-semibold active:scale-[0.99] transition-transform"
               >
                 Continuar
               </Link>
@@ -136,9 +136,9 @@ export default function Learn() {
                 <span
                   className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center text-[17px] font-bold ${
                     t.done
-                      ? "bg-[#34c759]/15 text-[#34c759]"
+                      ? "bg-[#34c759]/15 text-[#1f7a35]"
                       : t.current
-                        ? "bg-bronze text-white"
+                        ? "bg-bronze-deep text-white"
                         : "bg-noir-raised text-noir-muted"
                   }`}
                   aria-hidden
