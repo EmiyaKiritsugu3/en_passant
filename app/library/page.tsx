@@ -19,6 +19,8 @@ import { collectEvals, type Row } from "@/lib/postgame";
 import { createMockEngine } from "@/lib/engine/engine";
 import { useEngine } from "@/hooks/useEngine";
 import { DEFAULT_PROFILE, getProfileSnapshot, subscribeProfile } from "@/lib/profile/store";
+import { TAG_LABELS } from "@/lib/profile/tagLabels";
+import type { Profile } from "@/lib/profile/store";
 import { BookOpen, Library } from "lucide-react";
 import type { DrawShape } from "chessgroundx/draw";
 import type { Key } from "chessgroundx/types";
@@ -202,14 +204,14 @@ export default function LibraryPage() {
           <div>
             <span className="text-xs font-mono uppercase text-bronze font-bold">Recomendação de Estudo</span>
             <p className="text-xs text-noir-muted mt-0.5">
-              Seu perfil aponta mais erros recentes em <strong>{weakestTag}</strong>. Pratique com partidas modelo selecionadas para dominar essa fraqueza.
+              Seu perfil aponta mais erros recentes em <strong>{TAG_LABELS[weakestTag as keyof Profile["errorTags"]] ?? weakestTag}</strong>. Pratique com partidas modelo selecionadas para dominar essa fraqueza.
             </p>
           </div>
           <Link
-            href={`/study?tag=${weakestTag}`}
+            href="/study"
             className="px-4 py-2 bg-bronze-deep hover:bg-bronze text-white text-xs font-semibold rounded-xl transition-all whitespace-nowrap"
           >
-            Ver Partidas de {weakestTag} →
+            Praticar na trilha →
           </Link>
         </div>
       )}
@@ -221,9 +223,9 @@ export default function LibraryPage() {
             <Library size={20} />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-white">Sua Biblioteca está Vazia</h2>
+            <h2 className="text-lg font-bold text-noir-ink">Sua Biblioteca está Vazia</h2>
             <p className="text-xs text-noir-muted mt-1 max-w-md leading-relaxed">
-              Você ainda não tem partidas salvas. Complete uma partida na Arena GM para gravá-la automaticamente ou importe um arquivo PGN existente.
+              Você ainda não tem partidas salvas. Complete uma partida para gravá-la automaticamente ou importe um arquivo PGN existente.
             </p>
           </div>
 
@@ -232,7 +234,7 @@ export default function LibraryPage() {
               href="/play"
               className="px-5 py-2.5 rounded-xl bg-bronze-deep hover:bg-bronze text-white text-xs font-semibold font-mono transition-colors"
             >
-              Jogar na Arena →
+              Jogar →
             </Link>
             <button
               type="button"

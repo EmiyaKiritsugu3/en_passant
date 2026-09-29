@@ -22,7 +22,7 @@ test.describe("Play Arena — Game & Coach Console", () => {
     });
   });
 
-  test("arena loads with 3-column layout and controls", async ({ page }) => {
+  test("arena loads with single-column layout and controls", async ({ page }) => {
     await page.goto("/play?side=white");
 
     // Header & Navigation
@@ -36,11 +36,14 @@ test.describe("Play Arena — Game & Coach Console", () => {
     await expect(board.locator("piece.black").first()).toBeVisible();
 
     // Player Cards
-    await expect(page.getByText(/GM Coach \(Stockfish 19\)/i)).toBeVisible();
+    await expect(page.getByText(/Coach \(Motor 19\)/i)).toBeVisible();
     await expect(page.getByText(/Você/i).first()).toBeVisible();
 
+    // Turn pill (juice): one-glance status
+    await expect(page.getByText(/Sua vez|Oponente pensando|Partida encerrada/).first()).toBeVisible();
+
     // A11y landmarks
-    await expect(page.getByRole("heading", { level: 1, name: /Arena GM/i })).toBeAttached();
+    await expect(page.getByRole("heading", { level: 1, name: /Jogar/i })).toBeAttached();
     await expect(page.getByRole("region", { name: /Tabuleiro e oponente/i })).toBeVisible();
     await expect(page.getByRole("region", { name: /Lances e coach/i })).toBeVisible();
     await expect(page.getByRole("img", { name: /Tabuleiro de xadrez/i })).toBeVisible();
@@ -79,11 +82,11 @@ test.describe("Play Arena — Game & Coach Console", () => {
 
     // Select Master
     await difficultySelect.selectOption("master");
-    await expect(page.getByText(/Mestre Stockfish/i)).toBeVisible();
+    await expect(page.getByText("Mestre", { exact: true })).toBeVisible();
 
     // Select Adaptive
     await difficultySelect.selectOption("adaptive");
-    await expect(page.getByText(/Coach Adaptativo/i)).toBeVisible();
+    await expect(page.getByText(/Treinador/i)).toBeVisible();
   });
 
   test("coach console tab navigation and chat interaction", async ({ page }) => {
@@ -128,12 +131,12 @@ test.describe("Play Arena — Game & Coach Console", () => {
   test("hint button triggers tactial advice", async ({ page }) => {
     await page.goto("/play?side=white");
 
-    const hintBtn = page.getByRole("button", { name: /Pedir Dica Tática/i });
+    const hintBtn = page.getByRole("button", { name: /Pedir dica/i });
     await expect(hintBtn).toBeVisible();
     await hintBtn.click();
 
-    // Notice pill should appear with hint generated text (GM or labeled fallback)
-    await expect(page.getByText(/Dica (GM|simplificada):/i)).toBeVisible({ timeout: 15000 });
+    // Notice pill should appear with hint generated text (coach or labeled fallback)
+    await expect(page.getByText(/Dica (do coach|simplificada):/i)).toBeVisible({ timeout: 15000 });
   });
 
   test("making a move on board updates move history", async ({ page }) => {
@@ -163,9 +166,18 @@ test.describe("Play Arena — Game & Coach Console", () => {
     await resignBtn.click();
     await expect(page.getByRole("button", { name: /Confirmar desistência/i })).toBeVisible();
 
-    // Second click resigns and opens postgame modal with resignation summary
+    // Second click resigns and opens postgame sheet with resignation summary
     await page.getByRole("button", { name: /Confirmar desistência/i }).click();
     await expect(page.getByText(/Resultado:/i)).toBeVisible({ timeout: 15000 });
     await expect(page.getByText(/Desistência registrada/i)).toBeVisible({ timeout: 15000 });
+    // One-screen sheet: primary CTA + replay loop scoped to the sheet
+    const sheet = page.locator("div.fixed");
+    await expect(sheet.getByRole("link", { name: /Revisar erros/i })).toBeVisible();
+    const replayBtn = sheet.getByRole("button", { name: /Nova partida/i });
+    await expect(replayBtn).toBeVisible();
+    await replayBtn.click();
+    // Game resets: sheet closes, turn pill shows the new game state
+    await expect(page.getByText(/Resultado:/i)).toBeHidden({ timeout: 5000 });
+    await expect(page.getByText(/Sua vez|Oponente pensando/).first()).toBeVisible();
   });
 });

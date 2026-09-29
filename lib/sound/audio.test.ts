@@ -6,6 +6,7 @@ import {
   playCaptureSound,
   playCheckSound,
   playGameEndSound,
+  playLessonCompleteSound,
 } from "./audio";
 
 describe("Procedural Audio Engine", () => {
@@ -31,6 +32,7 @@ describe("Procedural Audio Engine", () => {
     expect(() => playCaptureSound()).not.toThrow();
     expect(() => playCheckSound()).not.toThrow();
     expect(() => playGameEndSound()).not.toThrow();
+    expect(() => playLessonCompleteSound()).not.toThrow();
   });
 
   it("handles sound execution gracefully in headless/mocked environment", () => {
@@ -39,5 +41,6 @@ describe("Procedural Audio Engine", () => {
     expect(() => playCaptureSound()).not.toThrow();
     expect(() => playCheckSound()).not.toThrow();
     expect(() => playGameEndSound()).not.toThrow();
+    expect(() => playLessonCompleteSound()).not.toThrow();
   });
 });

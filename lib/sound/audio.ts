@@ -165,6 +165,41 @@ export function playCheckSound(): void {
 }
 
 /**
+ * Plays a happy ascending fanfare for lesson / review completion.
+ * Distinct from the game-end chord: triangle wave, C5 → C6.
+ */
+export function playLessonCompleteSound(): void {
+  if (getAudioMuted()) return;
+  const ctx = getContext();
+  if (!ctx) return;
+
+  try {
+    const now = ctx.currentTime;
+    const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
+
+    notes.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const start = now + idx * 0.09;
+
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(freq, start);
+
+      gain.gain.setValueAtTime(0.22, start);
+      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.3);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(start);
+      osc.stop(start + 0.3);
+    });
+  } catch {
+    // Graceful no-op
+  }
+}
+
+/**
  * Plays game completion sound
  */
 export function playGameEndSound(): void {

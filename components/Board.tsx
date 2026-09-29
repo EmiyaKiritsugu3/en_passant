@@ -64,6 +64,7 @@ export default function Board({
       fen,
       orientation,
       turnColor,
+      coordinates: false,
       movable: {
         free: false,
         color: !isThinking && onMove && isPlayerTurn ? orientation : undefined,
