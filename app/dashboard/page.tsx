@@ -47,7 +47,7 @@ export default function DashboardPage() {
     .filter(([, val]) => val > 0)
     .sort(([, a], [, b]) => b - a)
     .slice(0, 2)
-    .map(([tag]) => TAG_LABELS[tag] ?? tag);
+    .map(([tag]) => TAG_LABELS[tag as keyof typeof profile.errorTags] ?? tag);
 
   const phaseEntries = [
     { label: "Abertura", score: latestPhases.opening, color: "bg-sky-500" },

@@ -20,6 +20,7 @@ import { createMockEngine } from "@/lib/engine/engine";
 import { useEngine } from "@/hooks/useEngine";
 import { DEFAULT_PROFILE, getProfileSnapshot, subscribeProfile } from "@/lib/profile/store";
 import { TAG_LABELS } from "@/lib/profile/tagLabels";
+import type { Profile } from "@/lib/profile/store";
 import { BookOpen, Library } from "lucide-react";
 import type { DrawShape } from "chessgroundx/draw";
 import type { Key } from "chessgroundx/types";
@@ -203,7 +204,7 @@ export default function LibraryPage() {
           <div>
             <span className="text-xs font-mono uppercase text-bronze font-bold">Recomendação de Estudo</span>
             <p className="text-xs text-noir-muted mt-0.5">
-              Seu perfil aponta mais erros recentes em <strong>{TAG_LABELS[weakestTag] ?? weakestTag}</strong>. Pratique com partidas modelo selecionadas para dominar essa fraqueza.
+              Seu perfil aponta mais erros recentes em <strong>{TAG_LABELS[weakestTag as keyof Profile["errorTags"]] ?? weakestTag}</strong>. Pratique com partidas modelo selecionadas para dominar essa fraqueza.
             </p>
           </div>
           <Link
